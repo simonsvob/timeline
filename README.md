@@ -64,14 +64,18 @@ Migrace zapíná RLS na obou tabulkách a nastavuje:
 Po spuštění migrace si v **Table Editor → RLS** ověřte, že je u obou tabulek
 RLS aktivní. Anonymní klíč tak nikdy nedokáže data měnit.
 
-### 3. Dva uživatelé
+### 3. Účet editora
 
-Registrace v aplikaci není — účty se zakládají ručně:
+Registrace v aplikaci není — účet se zakládá ručně:
 
 1. **Authentication → Users → Add user → Create new user**
 2. Vyplňte e-mail a heslo, zaškrtněte **Auto Confirm User** (jinak by účet čekal
    na potvrzovací e-mail).
-3. Totéž pro druhý účet.
+
+Stačí jeden sdílený účet, jehož heslo zná víc lidí. Oprávnění stojí na roli
+`authenticated`, ne na vlastnictví záznamů, takže na počtu účtů nezáleží —
+další účty lze kdykoli přidat stejným postupem a nic se tím nemění. Aplikace
+si u záznamů nepamatuje autora, jen časy vzniku a poslední úpravy.
 
 Volitelně v **Authentication → Providers → Email** vypněte „Enable signups“,
 aby veřejná registrace nešla vůbec.
