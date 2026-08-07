@@ -4,6 +4,10 @@
 
 [build.environment]
   NODE_VERSION = "20"
+  # Vite zapéká proměnné s prefixem VITE_ do klientského bundlu — to je záměr,
+  # anon klíč je veřejný a bezpečnost stojí na RLS. Netlify ale hlídá, jestli se
+  # hodnoty proměnných neobjevily v deployi, a build by na tom spadl.
+  SECRETS_SCAN_OMIT_KEYS = "VITE_SUPABASE_URL,VITE_SUPABASE_ANON_KEY"
 
 # SPA fallback – aplikace nemá server, veškeré routy obsluhuje index.html
 [[redirects]]
