@@ -46,6 +46,9 @@ vlastní, nad celočíselnými roky.
 | jistota (`approx`) | zaškrtnuto ve formuláři | `~1450 př. n. l.` | přechod do ztracena / halo |
 | otevřenost (`qualifier`) | `'min'` \| `'after'` | `min. 64 n. l.` / `po roce 874 př. n. l.` | ostrá hrana se šipkou |
 
+Přibližnost se v popisku na ose **neznačí vlnovkou** — je vidět z vykreslení.
+Vlnovka patří jen do textového formátování dat (detail, tabulka).
+
 Můžou se potkat: `min. ~65 n. l.` = rok úmrtí neznáme a odhadujeme ho na 65.
 **Nikde se nesmí zobrazit přesnost, která nebyla zadána** — záznam s vyplněným
 jen rokem se nesmí ukázat jako `1. 1. 607 př. n. l.`.
@@ -66,6 +69,11 @@ src/data/          jediné místo, které zná tvar tabulek (repository, transfe
 src/state/         React kontext: data + přihlášení
 src/components/    UI; components/timeline/ je vykreslovací řetězec
 ```
+
+**Dvě pásma.** Bodové události se řádkují zvlášť a leží nahoře, rozsahy pod
+nimi (`layoutEvents` pakuje každou skupinu zvlášť a řádky rozsahů posune o
+`pointLaneCount + BAND_GAP_LANES`). Body se kreslí jako svislé značky, ne
+kolečka — jinak se pletly s pruhy.
 
 **Vykreslovací řetězec osy** (`src/components/timeline/`) — tři kroky, každý
 v jiném souboru:
@@ -92,6 +100,10 @@ přes 6000 let a vlastního vykreslení nejistoty.
   při změně fontu je potřeba cache zneplatnit.
 - Popisek u pravého okraje se překlopí doleva od značky, a když ani tam není
   místo, skryje se.
+
+**Gesta.** Přibližuje jen pinch (na trackpadu i myši přichází jako wheel
+s `ctrlKey`); samotné kolečko posouvá. Osa nemá nástrojovou lištu, zoom
+tlačítky ani skok na rok — gesta je nahradila.
 
 **Zoom a měřítko** (`src/lib/viewport.ts`): výřez je `{ t0, pxPerYear, width }`.
 Dělení osy se vybírá jako **nejjemnější, které se ještě vejde** (`chooseTickLevel`),

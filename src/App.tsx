@@ -3,7 +3,7 @@
  * modály (formulář, kategorie, data) a detail vybraného záznamu.
  */
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { cs } from './i18n/cs';
 import { useAppState } from './state/store';
 import { AuthPanel } from './components/AuthPanel';
@@ -11,8 +11,9 @@ import { CategoryManager } from './components/CategoryManager';
 import { DataPanel } from './components/DataPanel';
 import { DetailPanel } from './components/DetailPanel';
 import { EventForm } from './components/EventForm';
+import { SearchBox, LockButton } from './components/SearchBox';
 import { TableView } from './components/TableView';
-import { TimelineView } from './components/TimelineView';
+import { TimelineView, type ExternalFocus } from './components/TimelineView';
 import { ConfirmDialog, Spinner } from './components/ui';
 import type { EventDraft, TimelineEvent } from './data/types';
 
@@ -25,7 +26,8 @@ export function App() {
   const [modal, setModal] = useState<ModalKind>('none');
   const [editing, setEditing] = useState<TimelineEvent | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [timelineFocus, setTimelineFocus] = useState<TimelineEvent | null>(null);
+  const [timelineFocus, setTimelineFocus] = useState<ExternalFocus | null>(null);
+  const focusNonce = useRef(0);
   const [pendingDelete, setPendingDelete] = useState<TimelineEvent | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
 
@@ -33,6 +35,14 @@ export function App() {
     () => state.events.find((event) => event.id === selectedId) ?? null,
     [state.events, selectedId],
   );
+
+  /** Ukázat záznam na ose – z hledání i z tabulky. */
+  const showOnTimeline = useCallback((event: TimelineEvent) => {
+    focusNonce.current += 1;
+    setTimelineFocus({ event, nonce: focusNonce.current });
+    setSelectedId(event.id);
+    setMode('timeline');
+  }, []);
 
   const openNew = useCallback(() => {
     setEditing(null);
@@ -76,10 +86,7 @@ export function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <div className="app-title">
-          <h1>{cs.app.title}</h1>
-          <span className="app-subtitle">{cs.app.subtitle}</span>
-        </div>
+        <h1 className="app-title">{cs.app.title}</h1>
 
         <nav className="view-switch" aria-label={cs.nav.timeline}>
           <button
@@ -101,6 +108,7 @@ export function App() {
         </nav>
 
         <div className="app-actions">
+          <SearchBox events={state.events} categoryMap={state.categoryMap} onPick={showOnTimeline} />
           {state.canEdit ? (
             <>
               <button type="button" className="button button-primary" onClick={openNew}>
@@ -114,15 +122,10 @@ export function App() {
           <button type="button" className="button" onClick={() => setModal('data')}>
             {cs.nav.data}
           </button>
-          {state.canEdit ? (
-            <button type="button" className="button" onClick={() => void state.signOut()}>
-              {cs.auth.signOut}
-            </button>
-          ) : (
-            <button type="button" className="button" onClick={() => setModal('auth')}>
-              {cs.auth.signIn}
-            </button>
-          )}
+          <LockButton
+            unlocked={state.canEdit}
+            onClick={() => (state.canEdit ? void state.signOut() : setModal('auth'))}
+          />
         </div>
       </header>
 
@@ -169,11 +172,7 @@ export function App() {
                   canEdit={state.canEdit}
                   onOpen={(event) => (state.canEdit ? openEdit(event) : setSelectedId(event.id))}
                   onCreate={openNew}
-                  onShowOnTimeline={(event) => {
-                    setTimelineFocus(event);
-                    setSelectedId(event.id);
-                    setMode('timeline');
-                  }}
+                  onShowOnTimeline={showOnTimeline}
                 />
               )}
             </div>
@@ -191,8 +190,6 @@ export function App() {
           </>
         )}
       </main>
-
-      {!state.canEdit ? <p className="read-only-note">{cs.auth.readOnlyNotice}</p> : null}
 
       {modal === 'event' ? (
         <EventForm

@@ -6,7 +6,6 @@
 export const cs = {
   app: {
     title: 'Biblická časová osa',
-    subtitle: 'Editor a prohlížeč',
     loading: 'Načítám data…',
     error: 'Chyba',
     retry: 'Zkusit znovu',
@@ -40,10 +39,7 @@ export const cs = {
     signingIn: 'Přihlašuji…',
     email: 'E-mail',
     password: 'Heslo',
-    signedInAs: 'Přihlášen(a):',
-    readOnlyNotice: 'Prohlížení je veřejné. Pro úpravy se přihlaste.',
     invalidCredentials: 'Nesprávný e-mail nebo heslo.',
-    noPublicSignUp: 'Registrace není veřejná – účty zakládá správce v Supabase.',
     signInTitle: 'Přihlášení editora',
     signInFailed: 'Přihlášení se nezdařilo.',
   },
@@ -106,26 +102,12 @@ export const cs = {
   },
 
   timeline: {
-    goToYear: 'Přejít na rok',
-    goToYearShort: 'Rok',
-    go: 'Přejít',
-    zoomIn: 'Přiblížit',
-    zoomOut: 'Oddálit',
-    zoomAll: 'Celý rozsah',
-    searchPlaceholder: 'Hledat záznam podle jména…',
+    searchPlaceholder: 'Hledat…',
     noSearchResults: 'Nic nenalezeno',
     legend: 'Kategorie',
-    legendShowAll: 'Zobrazit vše',
-    legendHideAll: 'Skrýt vše',
     withoutCategory: 'Bez kategorie',
     emptyTitle: 'Zatím tu nic není',
-    emptyBody: 'Přihlaste se a přidejte první záznam.',
-    emptyBodyAnonymous: 'Časová osa zatím neobsahuje žádné záznamy.',
     minimapHint: 'Přehled celého rozsahu – tažením posunete výřez',
-    recordCount: (shown: number, total: number) =>
-      shown === total ? `${total} ${plural(total, 'záznam', 'záznamy', 'záznamů')}` : `${shown} z ${total} záznamů`,
-    hiddenByFilter: 'skryto filtrem',
-    scaleHint: 'Kolečkem myši nebo gestem přiblížíte, tažením posunete',
   },
 
   detail: {
@@ -167,7 +149,7 @@ export const cs = {
     monthNone: '—',
     dayNone: '—',
     approx: 'Přibližné',
-    approxHint: 'Údaj je nejistý (zobrazí se s vlnovkou a rozostřeným okrajem)',
+    approxHint: 'Rok je jen odhad; na ose se pruh na této straně rozplyne do ztracena',
     source: 'Zdroj',
     sourcePlaceholder: 'např. 1. Mojžíšova 7,11',
     note: 'Poznámka',
@@ -241,7 +223,10 @@ export const cs = {
   },
 
   dataIO: {
-    title: 'Export a import',
+    title: 'Data',
+    overview: 'Přehled',
+    counts: (categories: number, events: number) =>
+      `${events} ${plural(events, 'záznam', 'záznamy', 'záznamů')}, ${categories} ${plural(categories, 'kategorie', 'kategorie', 'kategorií')}`,
     export: 'Exportovat data',
     exportHint: 'Stáhne všechny kategorie i záznamy jako jeden JSON soubor.',
     exportFileName: 'biblicka-casova-osa',

@@ -1,16 +1,16 @@
 /**
- * Hlavní pohled: nástrojová lišta, legenda kategorií, plátno osy a minimapa.
+ * Hlavní pohled: nenápadná legenda kategorií, plátno osy a minimapa.
+ *
+ * Nástrojová lišta (skok na rok, tlačítka zoomu, celý rozsah) tu záměrně není:
+ * pinch a tažení zvládnou totéž rychleji a lišta jen zabírala místo.
  */
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { cs } from '../i18n/cs';
-import { formatYear } from '../lib/format';
-import { toAstronomicalYear, type Era } from '../lib/time';
 import {
   clampViewport,
   DEFAULT_DOMAIN,
   viewportForRange,
-  zoomAt,
   type Domain,
   type Viewport,
 } from '../lib/viewport';
@@ -19,14 +19,19 @@ import { eventExtent, NO_CATEGORY_COLOR } from './timeline/layout';
 import { Minimap } from './timeline/Minimap';
 import { TimelineCanvas, type FocusRequest } from './timeline/TimelineCanvas';
 
+export interface ExternalFocus {
+  event: TimelineEvent;
+  nonce: number;
+}
+
 interface Props {
   events: TimelineEvent[];
   categories: Category[];
   categoryMap: Map<string, Category>;
   selectedId: string | null;
   onSelect: (event: TimelineEvent | null) => void;
-  /** požadavek z jiného pohledu (tabulka) – ukázat konkrétní záznam */
-  externalFocus: TimelineEvent | null;
+  /** požadavek z jiného pohledu (tabulka, hledání) – ukázat konkrétní záznam */
+  externalFocus: ExternalFocus | null;
 }
 
 /** Rozsah osy podle dat, s rezervou; bez dat výchozí ~4200 př. n. l. – 200 n. l. */
@@ -54,10 +59,6 @@ export function TimelineView({
   const [hiddenCategories, setHiddenCategories] = useState<Set<string>>(new Set());
   const [view, setView] = useState<Viewport>({ t0: DEFAULT_DOMAIN.min, pxPerYear: 0.2, width: 0 });
   const [focusRequest, setFocusRequest] = useState<FocusRequest | null>(null);
-  const [query, setQuery] = useState('');
-  const [suggestionsOpen, setSuggestionsOpen] = useState(false);
-  const [goToYearValue, setGoToYearValue] = useState('');
-  const [goToEra, setGoToEra] = useState<Era>('bc');
   const nonce = useRef(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const initialized = useRef(false);
@@ -78,10 +79,8 @@ export function TimelineView({
       setView((prev) => {
         if (prev.width === width) return prev;
         if (prev.width === 0) {
-          // první měření – ukázat celý rozsah
           return clampViewport({ t0: domain.min, pxPerYear: width / (domain.max - domain.min), width }, domain);
         }
-        // zachovat střed při změně velikosti okna
         const center = prev.t0 + prev.width / prev.pxPerYear / 2;
         return clampViewport({ ...prev, width, t0: center - width / prev.pxPerYear / 2 }, domain);
       });
@@ -94,11 +93,17 @@ export function TimelineView({
   useEffect(() => {
     if (initialized.current || events.length === 0 || view.width === 0) return;
     initialized.current = true;
-    setView((prev) => clampViewport({ ...prev, t0: domain.min, pxPerYear: prev.width / (domain.max - domain.min) }, domain));
+    setView((prev) =>
+      clampViewport({ ...prev, t0: domain.min, pxPerYear: prev.width / (domain.max - domain.min) }, domain),
+    );
   }, [events.length, domain, view.width]);
 
-  const focusOn = (event: TimelineEvent) => {
-    const extent = eventExtent(event);
+  // Požadavek z hledání nebo z tabulky
+  const lastNonce = useRef(-1);
+  useEffect(() => {
+    if (!externalFocus || externalFocus.nonce === lastNonce.current) return;
+    lastNonce.current = externalFocus.nonce;
+    const extent = eventExtent(externalFocus.event);
     if (view.width > 0) {
       const isPoint = extent.from === extent.to;
       const from = isPoint ? extent.from - 25 : extent.from;
@@ -106,26 +111,9 @@ export function TimelineView({
       setView(viewportForRange(from, to, view.width, domain));
     }
     nonce.current += 1;
-    setFocusRequest({ id: event.id, nonce: nonce.current });
-    onSelect(event);
-  };
-
-  // Požadavek z tabulky
-  const lastExternal = useRef<string | null>(null);
-  useEffect(() => {
-    if (!externalFocus || externalFocus.id === lastExternal.current) return;
-    lastExternal.current = externalFocus.id;
-    focusOn(externalFocus);
+    setFocusRequest({ id: externalFocus.event.id, nonce: nonce.current });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [externalFocus]);
-
-  const suggestions = useMemo(() => {
-    const trimmed = query.trim().toLocaleLowerCase('cs');
-    if (trimmed === '') return [];
-    return events
-      .filter((event) => event.name.toLocaleLowerCase('cs').includes(trimmed))
-      .slice(0, 8);
-  }, [events, query]);
 
   const toggleCategory = (id: string) => {
     setHiddenCategories((prev) => {
@@ -136,164 +124,36 @@ export function TimelineView({
     });
   };
 
-  const allCategoryKeys = useMemo(
-    () => [...categories.map((c) => c.id), ''],
-    [categories],
-  );
-
-  /**
-   * Šířka výřezu, nad kterou skok na rok zároveň přiblíží. Bez toho by se při
-   * plném oddálení nestalo nic viditelného – celý rozsah je vidět už teď.
-   */
-  const GOTO_ZOOM_THRESHOLD_YEARS = 400;
-  const GOTO_WINDOW_YEARS = 200;
-
-  const handleGoToYear = (submitEvent: React.FormEvent) => {
-    submitEvent.preventDefault();
-    const parsed = Number(goToYearValue.trim());
-    if (!Number.isInteger(parsed) || parsed < 1) return;
-    const target = toAstronomicalYear(parsed, goToEra);
-    const visibleYears = view.width / view.pxPerYear;
-    if (visibleYears > GOTO_ZOOM_THRESHOLD_YEARS) {
-      setView(
-        viewportForRange(target - GOTO_WINDOW_YEARS / 2, target + GOTO_WINDOW_YEARS / 2, view.width, domain, 0),
-      );
-      return;
-    }
-    setView(clampViewport({ ...view, t0: target - visibleYears / 2 }, domain));
-  };
-
-  const zoomButton = (factor: number) =>
-    setView(zoomAt(view, view.width / 2, factor, domain));
-
-  const showAll = () =>
-    setView(clampViewport({ ...view, t0: domain.min, pxPerYear: view.width / (domain.max - domain.min) }, domain));
-
   return (
     <div className="timeline-view">
-      <div className="toolbar">
-        <div className="toolbar-group toolbar-search">
-          <input
-            type="search"
-            className="input"
-            value={query}
-            placeholder={cs.timeline.searchPlaceholder}
-            onChange={(e) => {
-              setQuery(e.target.value);
-              setSuggestionsOpen(true);
-            }}
-            onFocus={() => setSuggestionsOpen(true)}
-            onBlur={() => window.setTimeout(() => setSuggestionsOpen(false), 150)}
-            aria-label={cs.timeline.searchPlaceholder}
-          />
-          {suggestionsOpen && query.trim() !== '' ? (
-            <ul className="suggestions">
-              {suggestions.length === 0 ? (
-                <li className="suggestion-empty">{cs.timeline.noSearchResults}</li>
-              ) : (
-                suggestions.map((event) => (
-                  <li key={event.id}>
-                    <button
-                      type="button"
-                      className="suggestion"
-                      onMouseDown={(e) => e.preventDefault()}
-                      onClick={() => {
-                        focusOn(event);
-                        setSuggestionsOpen(false);
-                      }}
-                    >
-                      <span
-                        className="suggestion-color"
-                        style={{
-                          background:
-                            categoryMap.get(event.categoryId ?? '')?.color ?? NO_CATEGORY_COLOR,
-                        }}
-                      />
-                      <span className="suggestion-name">{event.name}</span>
-                      <span className="suggestion-year">{formatYear(event.start.year)}</span>
-                    </button>
-                  </li>
-                ))
-              )}
-            </ul>
-          ) : null}
-        </div>
-
-        <form className="toolbar-group" onSubmit={handleGoToYear}>
-          <label className="toolbar-label" htmlFor="goto-year">
-            {cs.timeline.goToYear}
-          </label>
-          <input
-            id="goto-year"
-            className="input input-year"
-            type="number"
-            min={1}
-            inputMode="numeric"
-            value={goToYearValue}
-            onChange={(e) => setGoToYearValue(e.target.value)}
-          />
-          <select
-            className="input input-era"
-            value={goToEra}
-            onChange={(e) => setGoToEra(e.target.value as Era)}
-            aria-label={cs.form.era}
-          >
-            <option value="bc">{cs.era.bc}</option>
-            <option value="ad">{cs.era.ad}</option>
-          </select>
-          <button type="submit" className="button">
-            {cs.timeline.go}
-          </button>
-        </form>
-
-        <div className="toolbar-group toolbar-zoom">
-          <button type="button" className="button" onClick={() => zoomButton(1 / 1.6)} aria-label={cs.timeline.zoomOut}>
-            −
-          </button>
-          <button type="button" className="button" onClick={() => zoomButton(1.6)} aria-label={cs.timeline.zoomIn}>
-            +
-          </button>
-          <button type="button" className="button" onClick={showAll}>
-            {cs.timeline.zoomAll}
-          </button>
-        </div>
-      </div>
-
-      <div className="legend" role="group" aria-label={cs.timeline.legend}>
-        <span className="legend-title">{cs.timeline.legend}</span>
-        {categories.map((category) => (
-          <label key={category.id} className="legend-item">
-            <input
-              type="checkbox"
-              checked={!hiddenCategories.has(category.id)}
-              onChange={() => toggleCategory(category.id)}
-            />
-            <span className="legend-swatch" style={{ background: category.color }} />
-            <span>{category.name}</span>
-          </label>
-        ))}
-        <label className="legend-item">
-          <input
-            type="checkbox"
-            checked={!hiddenCategories.has('')}
-            onChange={() => toggleCategory('')}
-          />
-          <span className="legend-swatch" style={{ background: NO_CATEGORY_COLOR }} />
-          <span>{cs.timeline.withoutCategory}</span>
-        </label>
-        <div className="legend-actions">
-          <button type="button" className="link-button" onClick={() => setHiddenCategories(new Set())}>
-            {cs.timeline.legendShowAll}
-          </button>
+      {categories.length > 0 ? (
+        <div className="legend" role="group" aria-label={cs.timeline.legend}>
+          {categories.map((category) => {
+            const skryta = hiddenCategories.has(category.id);
+            return (
+              <button
+                key={category.id}
+                type="button"
+                className={`legend-chip${skryta ? ' legend-chip-off' : ''}`}
+                onClick={() => toggleCategory(category.id)}
+                aria-pressed={!skryta}
+              >
+                <span className="legend-swatch" style={{ background: category.color }} />
+                {category.name}
+              </button>
+            );
+          })}
           <button
             type="button"
-            className="link-button"
-            onClick={() => setHiddenCategories(new Set(allCategoryKeys))}
+            className={`legend-chip${hiddenCategories.has('') ? ' legend-chip-off' : ''}`}
+            onClick={() => toggleCategory('')}
+            aria-pressed={!hiddenCategories.has('')}
           >
-            {cs.timeline.legendHideAll}
+            <span className="legend-swatch" style={{ background: NO_CATEGORY_COLOR }} />
+            {cs.timeline.withoutCategory}
           </button>
         </div>
-      </div>
+      ) : null}
 
       <div className="timeline-body" ref={containerRef}>
         {events.length === 0 ? (
@@ -321,9 +181,6 @@ export function TimelineView({
           domain={domain}
           onViewChange={setView}
         />
-        <p className="timeline-status">
-          {cs.timeline.recordCount(visibleEvents.length, events.length)} · {cs.timeline.scaleHint}
-        </p>
       </div>
     </div>
   );

@@ -2,10 +2,9 @@
  * Interaktivní plátno časové osy.
  *
  * Ovládání:
- *   - kolečko myši / trackpad = plynulý zoom kolem kurzoru (Shift nebo
- *     vodorovné gesto posouvá),
- *   - tažení = posun (vodorovně i svisle),
- *   - pinch dvěma prsty (iPad) = zoom kolem středu gesta,
+ *   - pinch dvěma prsty (trackpad Macu i iPad) = plynulý zoom kolem středu gesta,
+ *   - dvouprstové posouvání / kolečko = posun vodorovně i svisle,
+ *   - tažení = posun,
  *   - dvojklik = přiblížení, s Alt/Shift oddálení,
  *   - klik/tap na záznam = výběr.
  */
@@ -182,16 +181,22 @@ export function TimelineCanvas({
       event.preventDefault();
       const rect = canvas.getBoundingClientRect();
       const x = event.clientX - rect.left;
-      const horizontal = Math.abs(event.deltaX) > Math.abs(event.deltaY);
 
-      if (!event.ctrlKey && !event.metaKey && (horizontal || event.shiftKey)) {
-        const delta = horizontal ? event.deltaX : event.deltaY;
-        onViewChange(panBy(viewRef.current, -delta, domainRef.current));
+      // Pinch na trackpadu Macu i Ctrl+kolečko přicházejí jako wheel s ctrlKey.
+      // Jen ony přibližují – samotné kolečko a dvouprstové posouvání posouvají.
+      if (event.ctrlKey || event.metaKey) {
+        onViewChange(zoomAt(viewRef.current, x, Math.exp(-event.deltaY * 0.01), domainRef.current));
         return;
       }
-      // Pinch na trackpadu přichází jako wheel s ctrlKey.
-      const factor = Math.exp(-event.deltaY * (event.ctrlKey ? 0.01 : 0.0025));
-      onViewChange(zoomAt(viewRef.current, x, factor, domainRef.current));
+
+      if (event.deltaX !== 0) {
+        onViewChange(panBy(viewRef.current, -event.deltaX, domainRef.current));
+      }
+      if (event.deltaY !== 0) {
+        // Shift + kolečko je zvyklost pro vodorovný posun u myší bez druhé osy.
+        if (event.shiftKey) onViewChange(panBy(viewRef.current, -event.deltaY, domainRef.current));
+        else setScrollTop((prev) => clampScroll(prev + event.deltaY));
+      }
     };
 
     // Safari na iPadu: potlačit vlastní zoom stránky nad plátnem
@@ -207,7 +212,7 @@ export function TimelineCanvas({
       canvas.removeEventListener('gesturechange', preventGesture);
       canvas.removeEventListener('gestureend', preventGesture);
     };
-  }, [onViewChange]);
+  }, [onViewChange, clampScroll]);
 
   const pointers = useRef(new Map<number, { x: number; y: number }>());
   const dragState = useRef<{ moved: number; lastX: number; lastY: number } | null>(null);

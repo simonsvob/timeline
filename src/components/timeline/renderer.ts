@@ -17,7 +17,6 @@ import {
   BAR_HEIGHT,
   LANE_HEIGHT,
   OPEN_END_WIDTH,
-  POINT_RADIUS,
   type EventGeometry,
   type LayoutResult,
 } from './layout';
@@ -41,19 +40,19 @@ export interface Theme {
 }
 
 export const LIGHT_THEME: Theme = {
-  background: '#fbfaf7',
-  axisBackground: '#f2efe9',
-  axisText: '#6b6459',
-  axisTextMajor: '#2f2a24',
-  gridLine: 'rgba(90, 80, 65, 0.08)',
-  gridLineMajor: 'rgba(90, 80, 65, 0.18)',
-  epochLine: 'rgba(163, 86, 60, 0.55)',
-  label: '#332e28',
+  background: '#fbfaf9',
+  axisBackground: '#f7f7fa',
+  axisText: '#7a7a88',
+  axisTextMajor: '#1c1c22',
+  gridLine: 'rgba(60, 60, 90, 0.065)',
+  gridLineMajor: 'rgba(60, 60, 90, 0.14)',
+  epochLine: 'rgba(225, 29, 72, 0.4)',
+  label: '#26262e',
   labelOnBar: '#ffffff',
-  selection: '#1b1815',
-  tooltipBackground: 'rgba(32, 28, 24, 0.92)',
+  selection: '#1c1c22',
+  tooltipBackground: 'rgba(24, 24, 32, 0.93)',
   tooltipText: '#ffffff',
-  laneStripe: 'rgba(90, 80, 65, 0.035)',
+  laneStripe: 'rgba(60, 60, 90, 0.026)',
 };
 
 export interface RenderInput {
@@ -134,7 +133,13 @@ function roundRectPath(
 // ---------------------------------------------------------------------------
 
 /** Maximální délka náběhu do ztracena v pixelech. */
-const MAX_FADE_PX = 56;
+const MAX_FADE_PX = 30;
+/** Šířka svislé čáry bodové události. */
+const POINT_LINE_WIDTH = 2;
+/** Jak daleko do stran sahá rozostření u přibližné události. */
+const POINT_BLUR_PX = 11;
+/** Průhlednost svislé čáry pod pásmem událostí (vodítko přes celou osu). */
+const POINT_GUIDE_ALPHA = 0.16;
 
 export function renderTimeline(input: RenderInput): void {
   const { ctx, view, layout, ticks, contentHeight, scrollTop, theme } = input;
@@ -263,9 +268,9 @@ function drawEvents(ctx: CanvasRenderingContext2D, input: RenderInput): void {
     if (isHovered) hovered = item;
 
     if (item.isPoint) {
-      drawPoint(ctx, item, centerY, selected || isHovered, theme);
+      drawPointLine(ctx, item, centerY, selected || isHovered, theme, input);
       // „po roce X" – rok není znám, jen že leží dál doprava
-      if (item.startOpen) drawOpenEndArrow(ctx, item.centerX + POINT_RADIUS + 2, centerY, item.color);
+      if (item.startOpen) drawOpenEndArrow(ctx, item.centerX + POINT_LINE_WIDTH + 3, centerY, item.color);
     } else {
       drawBar(ctx, item, centerY, selected || isHovered, theme, view.width);
       // „min. X" – konec života/období není znám, čára pokračuje šipkou
@@ -330,44 +335,56 @@ function drawBar(
   }
 }
 
-function drawPoint(
+/**
+ * Bodová událost se kreslí jako svislá čára, ne jako kolečko – jinak se plete
+ * s pruhy životů. Slabé vodítko pokračuje přes celou osu dolů, aby šlo očima
+ * spojit událost s životy, které v tu dobu běžely.
+ *
+ * Nejistota je vodorovná: přibližná událost se do stran rozostří, protože
+ * nejisté je umístění v čase. Tím drží stejný jazyk jako mizející konce pruhů.
+ */
+function drawPointLine(
   ctx: CanvasRenderingContext2D,
   item: EventGeometry,
   centerY: number,
   emphasized: boolean,
   theme: Theme,
+  input: RenderInput,
 ): void {
-  const x = item.centerX;
+  const x = Math.round(item.centerX);
+  const bandBottom = AXIS_HEIGHT + input.layout.pointLaneCount * LANE_HEIGHT - input.scrollTop;
+  const contentBottom = AXIS_HEIGHT + input.contentHeight;
+  const top = centerY - LANE_HEIGHT / 2 + 3;
+  const bottom = centerY + LANE_HEIGHT / 2 - 3;
+
+  // Vodítko pokračuje hned pod značkou, ne až pod celým pásmem – jinak by mezi
+  // událostí a její čarou zůstala mezera a spojitost by se ztratila.
+  if (bottom < contentBottom) {
+    ctx.fillStyle = rgba(item.color, POINT_GUIDE_ALPHA);
+    ctx.fillRect(x - 0.5, bottom, 1, contentBottom - bottom);
+  }
+  void bandBottom;
 
   if (item.startApprox) {
-    // Měkké halo – vizuálně ladí s mizejícími konci pruhů.
-    const haloRadius = POINT_RADIUS * 2.6;
-    const halo = ctx.createRadialGradient(x, centerY, 0, x, centerY, haloRadius);
-    halo.addColorStop(0, rgba(item.color, 0.85));
-    halo.addColorStop(0.45, rgba(item.color, 0.45));
-    halo.addColorStop(1, rgba(item.color, 0));
-    ctx.fillStyle = halo;
-    ctx.beginPath();
-    ctx.arc(x, centerY, haloRadius, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.fillStyle = rgba(item.color, 0.9);
-    ctx.beginPath();
-    ctx.arc(x, centerY, POINT_RADIUS * 0.6, 0, Math.PI * 2);
-    ctx.fill();
+    // rozostření do stran – událost leží „někde tady"
+    const glow = ctx.createLinearGradient(x - POINT_BLUR_PX, 0, x + POINT_BLUR_PX, 0);
+    glow.addColorStop(0, rgba(item.color, 0));
+    glow.addColorStop(0.5, rgba(item.color, 0.55));
+    glow.addColorStop(1, rgba(item.color, 0));
+    ctx.fillStyle = glow;
+    ctx.fillRect(x - POINT_BLUR_PX, top, POINT_BLUR_PX * 2, bottom - top);
   } else {
     ctx.fillStyle = item.color;
-    ctx.beginPath();
-    ctx.arc(x, centerY, POINT_RADIUS, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.fillRect(x - POINT_LINE_WIDTH / 2, top, POINT_LINE_WIDTH, bottom - top);
+    // patky, ať čára působí jako značka, ne jako useknutý pruh
+    ctx.fillRect(x - 3, top, 6, 1.5);
+    ctx.fillRect(x - 3, bottom - 1.5, 6, 1.5);
   }
 
   if (emphasized) {
     ctx.strokeStyle = theme.selection;
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.arc(x, centerY, POINT_RADIUS + 3, 0, Math.PI * 2);
-    ctx.stroke();
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(x - 5.5, top - 2.5, 11, bottom - top + 5);
   }
 }
 

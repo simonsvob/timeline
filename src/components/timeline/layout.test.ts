@@ -108,12 +108,13 @@ describe('rozvržení popisků', () => {
     expect(layout.items[0].labelX).toBeGreaterThan(layout.items[0].x2);
   });
 
-  it('přibližný záznam má v popisku vlnovku', () => {
+  it('popisek nenese vlnovku – přibližnost je vidět z vykreslení', () => {
     const e = pointEvent('Exodus', 1513, {
       start: { year: toAstronomicalYear(1513, 'bc'), month: null, day: null, approx: true, qualifier: null },
     });
     const layout = layoutEvents([e], view(-1600, 1), noCategories, measure);
-    expect(layout.items[0].label).toBe('~Exodus');
+    expect(layout.items[0].label).toBe('Exodus');
+    expect(layout.items[0].startApprox).toBe(true);
   });
 });
 
@@ -156,6 +157,41 @@ describe('řádkování', () => {
     expect(layout.labelsReserved).toBe(true);
     expect(layout.laneCount).toBeLessThanOrEqual(MAX_LANES_WITH_LABELS);
     expect(layout.items.every((i) => i.showLabel)).toBe(true);
+  });
+});
+
+describe('pásma', () => {
+  it('bodové události leží nad rozsahy', () => {
+    const events = [
+      rangeEvent('Adam', 4026, 3096),
+      pointEvent('Potopa', 2370),
+      rangeEvent('Noe', 2970, 2020),
+      pointEvent('Exodus', 1513),
+    ];
+    const layout = layoutEvents(events, view(-4100, 0.2), noCategories, measure);
+    const lane = (name: string) => layout.items.find((i) => i.event.name === name)!.lane;
+    const nejnizsiBod = Math.max(lane('Potopa'), lane('Exodus'));
+    const nejvyssiRozsah = Math.min(lane('Adam'), lane('Noe'));
+    expect(nejnizsiBod).toBeLessThan(nejvyssiRozsah);
+    expect(layout.pointLaneCount).toBeGreaterThan(0);
+  });
+
+  it('mezi pásmy je prázdný řádek', () => {
+    const layout = layoutEvents(
+      [pointEvent('Potopa', 2370), rangeEvent('Noe', 2970, 2020)],
+      view(-3000, 0.2),
+      noCategories,
+      measure,
+    );
+    const bod = layout.items.find((i) => i.isPoint)!;
+    const rozsah = layout.items.find((i) => !i.isPoint)!;
+    expect(rozsah.lane).toBe(bod.lane + 2);
+  });
+
+  it('samotné rozsahy začínají hned nahoře', () => {
+    const layout = layoutEvents([rangeEvent('Noe', 2970, 2020)], view(-3000, 0.2), noCategories, measure);
+    expect(layout.pointLaneCount).toBe(0);
+    expect(layout.items[0].lane).toBe(0);
   });
 });
 

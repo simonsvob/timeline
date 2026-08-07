@@ -8,25 +8,21 @@
  * Rozhodnutí zadavatele promítnutá do převodu:
  *   - žádné kategorie (záznamy se importují bez kategorie),
  *   - duplicity (Samuel, SVĚTOVÁ VELMOC: Egypt) jen jednou, s poznámkou,
- *   - Štěpán: konec 33 n. l., varianta 34 zůstává v poznámce.
+ *   - Štěpán: konec 33 n. l., varianta 34 zůstává v poznámce,
+ *   - zdroj je jen zkratka knihy „wcg", štítky se negenerují.
  */
 
 import { createHash } from 'node:crypto';
 import { readFileSync, writeFileSync } from 'node:fs';
 
-const STRANY = { 1: '14–15', 2: '104–105', 3: '186–187' };
-const NAZEV_KNIHY = 'Odvážně choď s Bohem';
+/** Do zdroje jde jen zkratka knihy, nic dalšího. */
+const ZKRATKA_KNIHY = 'wcg';
 
 /** Slugy, které se v knize opakují a naimportují se jen jednou. */
 const VYNECHAT = new Set(['p2-samuel', 'p2-ev-velmoc-egypt']);
 
 const POZNAMKA_DUPLICITY =
   'V knize je uvedeno na obou časových osách (1. i 2. část) se stejnými roky.';
-
-const STITKY_PRIZNAKU = {
-  world_power: 'světová velmoc',
-  merged_lifespans: 'sloučené životy',
-};
 
 /** Stabilní UUID ze slugu (UUID v5), aby byl opakovaný import idempotentní. */
 const NAMESPACE = '6ba7b811-9dad-11d1-80b4-00c04fd430c8';
@@ -68,13 +64,6 @@ function prevedZaznam(z) {
     poznamky.push(`Kniha uvádí ${z.end.year}/${z.end.alt_year} ${z.end.era === 'CE' ? 'n. l.' : 'př. n. l.'}`);
   }
 
-  const stitky = [
-    ...z.people,
-    ...(z.section ? [z.section] : []),
-    `${z.part}. část`,
-    ...z.flags.map((f) => STITKY_PRIZNAKU[f]).filter(Boolean),
-  ];
-
   return {
     id: uuidZeSlugu(z.id),
     name: z.title,
@@ -82,12 +71,13 @@ function prevedZaznam(z) {
     categoryId: null,
     start: prevedCas(z.start),
     end: z.kind === 'range' ? konec : null,
-    source: `${NAZEV_KNIHY}, ${z.part}. část (str. ${STRANY[z.part]})`,
+    source: ZKRATKA_KNIHY,
     note: poznamky.length > 0 ? poznamky.join(' ') : null,
     placeName: null,
     lat: null,
     lng: null,
-    tags: [...new Set(stitky)],
+    // Štítky se zatím nepoužívají – zadavatel se teprve rozhodne, jak s nimi naloží.
+    tags: [],
     createdAt: '',
     updatedAt: '',
   };

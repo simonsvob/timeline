@@ -9,20 +9,20 @@ import { isValidHexColor, validateCategoryForm } from '../lib/validation';
 import type { Category, CategoryDraft, TimelineEvent } from '../data/types';
 import { ConfirmDialog, Modal } from './ui';
 
-/** Paleta laděná k přírodním, „pergamenovým" barvám osy. */
+/** Paleta k chladné neutrální osě – syté, ale ne křiklavé. */
 export const COLOR_PALETTE = [
-  '#a2563c',
-  '#c07b3a',
-  '#d9a441',
-  '#7d8c46',
-  '#3f7a6a',
-  '#3a6b8c',
-  '#4c5b9c',
-  '#7a4b8c',
-  '#a34a6b',
-  '#6b6357',
-  '#8c6b4a',
-  '#2f4858',
+  '#4f46e5',
+  '#0d9488',
+  '#e11d48',
+  '#d97706',
+  '#7c3aed',
+  '#0284c7',
+  '#65a30d',
+  '#db2777',
+  '#ea580c',
+  '#0891b2',
+  '#9333ea',
+  '#475569',
 ];
 
 interface Props {

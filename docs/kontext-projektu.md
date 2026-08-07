@@ -38,12 +38,10 @@ i `authenticated`, ne jen existencí politik.
 
 ### Co je rozdělané
 
-- **Tři testovací záznamy v databázi** — Adam, Enoch, Noe bez zdroje a štítků,
-  vytvořené při zkoušení přihlášení. Mají stejné roky jako naimportované, takže
-  se na ose kreslí dvakrát. Čeká se na rozhodnutí, jestli je smazat.
 - **Žádné kategorie.** Všech 68 záznamů má `category_id` null, na ose jsou tedy
-  šedé. Struktura knihy je zachovaná ve štítcích, takže z nich jdou kategorie
-  kdykoli vyrobit.
+  šedé. Legenda se proto vůbec nezobrazuje.
+- **Žádné štítky.** Zadavatel je nechal smazat a teprve se rozhodne, jestli
+  a jak je bude používat. Skript je proto negeneruje.
 
 ## Rozhodnutí a proč
 
@@ -73,6 +71,14 @@ a další jde přidat kdykoli. Aplikace si u záznamů nepamatuje autora.
 
 **Editace jen formulářem.** Na ose se záměrně nic nepřetahuje.
 
+**Osa nemá nástrojovou lištu.** Skok na rok, tlačítka zoomu ani „celý rozsah"
+tam nejsou — pinch a tažení to zvládnou rychleji a lišta jen ubírala místo.
+Hledání se přesunulo do hlavičky, přihlášení je jen ikona zámku.
+
+**Události nahoře, životy dole.** Bodové události mají vlastní pásmo nahoře
+a kreslí se jako svislé značky. Rozházené mezi pruhy se ztrácely a kolečka se
+s pruhy pletla.
+
 **Duplicity z knihy jednou.** Samuel a „SVĚTOVÁ VELMOC: Egypt" jsou v knize na
 dvou osách se stejnými roky. V databázi jsou jednou, s poznámkou — aplikace nemá
 deduplikační vrstvu a dva shodné pruhy pod sebou by byly chyba, ne informace.
@@ -94,6 +100,8 @@ Konvence v datech:
   „sloučené životy"). Celkem 73 unikátních štítků.
 - **poznámka** — text z knihy, u sloučených životů vysvětlení, u duplicit
   informace o dvojím výskytu.
+
+Zdroj je záměrně jen zkratka `wcg`, bez názvu a stran.
 
 ## Co se záměrně nestaví
 

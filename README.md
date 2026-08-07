@@ -156,16 +156,30 @@ ukládají a zobrazují tak, jak byla zadána.
 
 ## Ovládání osy
 
-| Akce | Myš / trackpad | iPad |
+Osa nemá nástrojovou lištu — gesta zvládnou totéž rychleji.
+
+| Akce | Trackpad / myš | iPad |
 | --- | --- | --- |
-| Zoom | kolečko nebo pinch na trackpadu (kolem kurzoru) | pinch dvěma prsty |
-| Posun | tažení, Shift + kolečko, vodorovné gesto | tažení prstem |
+| Zoom | pinch dvěma prsty (nebo Ctrl + kolečko) | pinch dvěma prsty |
+| Posun | dvouprstové posouvání, tažení | tažení prstem |
 | Přiblížit / oddálit skokem | dvojklik / Alt + dvojklik | — |
 | Výběr záznamu | klik | ťuknutí |
 
-Dále: pole **Přejít na rok**, **našeptávač jmen**, **minimapa** (tažením výřezu
-se osa posouvá, kliknutím skočí) a **legenda kategorií** s checkboxy pro
-skrývání celých kategorií.
+Samotné kolečko myši posouvá, nepřibližuje. **Hledání** v hlavičce odscrolluje
+a přiblíží na vybraný záznam. **Minimapa** dole ukazuje celý rozsah; tažením
+výřezu se osa posouvá, kliknutím skočí. **Legenda kategorií** se objeví, jen
+když nějaké kategorie existují, a klikem se kategorie skrývá.
+
+### Jak se čte vykreslení
+
+Bodové události leží v pásmu nahoře jako svislé značky, životy a období pod
+nimi jako vodorovné pruhy. Přibližnost se pozná z grafiky, ne z textu:
+
+| | pruh | bodová událost |
+| --- | --- | --- |
+| jistý údaj | ostrá hrana | ostrá čára s patkami |
+| přibližný údaj | přechod do ztracena | rozostření do stran |
+| otevřená hranice | ostrá hrana se šipkou | značka se šipkou |
 
 ## Export a import
 

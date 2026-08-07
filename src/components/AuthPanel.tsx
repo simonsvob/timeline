@@ -73,7 +73,6 @@ export function AuthPanel({ onSignIn, onClose }: Props) {
           />
         </Field>
         {error ? <p className="form-error">{error}</p> : null}
-        <p className="muted">{cs.auth.noPublicSignUp}</p>
       </form>
     </Modal>
   );

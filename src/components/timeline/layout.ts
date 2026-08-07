@@ -19,6 +19,8 @@ export const LABEL_PAD = 8;
 export const ITEM_GAP = 10;
 /** Šipka za otevřeným koncem („min." / „po roce"). */
 export const OPEN_END_WIDTH = 13;
+/** Prázdný řádek mezi pásmem událostí a pásmem životů. */
+export const BAND_GAP_LANES = 1;
 /**
  * Nad tento počet řádků se přestane rezervovat místo pro popisky – jinak by
  * při maximálním oddálení s tisíci záznamy osa narostla do nesmyslné výšky.
@@ -26,7 +28,7 @@ export const OPEN_END_WIDTH = 13;
  */
 export const MAX_LANES_WITH_LABELS = 60;
 
-export const NO_CATEGORY_COLOR = '#9aa0a6';
+export const NO_CATEGORY_COLOR = '#8b8b9a';
 
 export interface EventGeometry {
   event: TimelineEvent;
@@ -56,6 +58,8 @@ export interface LayoutResult {
   items: EventGeometry[];
   laneCount: number;
   height: number;
+  /** kolik řádků nahoře zabírá pásmo bodových událostí */
+  pointLaneCount: number;
   /** popisky se rezervovaly v rozvržení (false = zhuštěný režim) */
   labelsReserved: boolean;
 }
@@ -97,7 +101,8 @@ export function layoutEvents(
     const centerX = isPoint ? rawX1 : (rawX1 + rawX2) / 2;
     const x1 = isPoint ? centerX - POINT_RADIUS : rawX1;
     const x2 = isPoint ? centerX + POINT_RADIUS : Math.max(rawX2, rawX1 + 2);
-    const label = event.start.approx || (event.end?.approx ?? false) ? `~${event.name}` : event.name;
+    // Vlnovka v popisku by jen opakovala to, co je vidět z vykreslení.
+    const label = event.name;
     const startOpen = event.start.qualifier != null;
     const endOpen = isPoint ? false : (event.end?.qualifier ?? null) != null;
     return {
@@ -123,23 +128,34 @@ export function layoutEvents(
     ]),
   );
 
-  const withLabels: LaneInput[] = measured.map((m) => ({
-    id: m.event.id,
-    left: m.x1,
-    right: occupiedRight.get(m.event.id) as number,
-  }));
+  // Bodové události se řádkují zvlášť a leží nahoře; životy (rozsahy) pod nimi.
+  // Míchat je dohromady bylo nepřehledné – události se ztrácely mezi pruhy.
+  const bodove = measured.filter((m) => m.isPoint);
+  const rozsahy = measured.filter((m) => !m.isPoint);
 
-  let packed = packLanes(withLabels, ITEM_GAP);
+  const vstupy = (skupina: typeof measured, sPopisky: boolean): LaneInput[] =>
+    skupina.map((m) => ({
+      id: m.event.id,
+      left: m.x1,
+      right: sPopisky ? (occupiedRight.get(m.event.id) as number) : m.x2,
+    }));
+
+  let packedPoints = packLanes(vstupy(bodove, true), ITEM_GAP);
+  let packedRanges = packLanes(vstupy(rozsahy, true), ITEM_GAP);
   let labelsReserved = true;
 
-  if (packed.laneCount > MAX_LANES_WITH_LABELS) {
+  if (packedPoints.laneCount + packedRanges.laneCount > MAX_LANES_WITH_LABELS) {
     // zhuštěný režim: místo pro popisky se nerezervuje
-    packed = packLanes(
-      measured.map((m) => ({ id: m.event.id, left: m.x1, right: m.x2 })),
-      ITEM_GAP,
-    );
+    packedPoints = packLanes(vstupy(bodove, false), ITEM_GAP);
+    packedRanges = packLanes(vstupy(rozsahy, false), ITEM_GAP);
     labelsReserved = false;
   }
+
+  const bandGap = packedPoints.laneCount > 0 && packedRanges.laneCount > 0 ? BAND_GAP_LANES : 0;
+  const rangeOffset = packedPoints.laneCount + bandGap;
+  const lanes = new Map<string, number>(packedPoints.lanes);
+  for (const [id, lane] of packedRanges.lanes) lanes.set(id, lane + rangeOffset);
+  const packed = { lanes, laneCount: rangeOffset + packedRanges.laneCount };
 
   // Kolik místa má záznam ve svém řádku – vlevo i vpravo od sebe.
   const { nextLeft: nextLeftInLane, previousRight } = computeNeighboursInLane(
@@ -202,6 +218,7 @@ export function layoutEvents(
     items,
     laneCount: packed.laneCount,
     height: packed.laneCount * LANE_HEIGHT,
+    pointLaneCount: packedPoints.laneCount,
     labelsReserved,
   };
 }

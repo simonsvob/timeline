@@ -85,6 +85,13 @@ export function DataPanel({ dataset, canEdit, onImport, onClose }: Props) {
         }
       >
         <section className="data-section">
+          <h3>{cs.dataIO.overview}</h3>
+          <p className="data-counts">
+            {cs.dataIO.counts(dataset.categories.length, dataset.events.length)}
+          </p>
+        </section>
+
+        <section className="data-section">
           <h3>{cs.dataIO.export}</h3>
           <p className="muted">{cs.dataIO.exportHint}</p>
           <button type="button" className="button button-primary" onClick={handleExport}>
