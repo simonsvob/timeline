@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   eventExtent,
+  fadeWidth,
   hitTest,
   LABEL_PAD,
   layoutEvents,
@@ -91,6 +92,45 @@ describe('rozvržení popisků', () => {
     expect(item.labelInside).toBe(true);
     expect(item.showLabel).toBe(true);
     expect(item.labelX).toBe(LABEL_PAD);
+  });
+
+  it('popisek uvnitř pruhu začíná až za náběhem do ztracena', () => {
+    const jisty = rangeEvent('Šalomoun', 1037, 998);
+    const priblizny = rangeEvent('Šalomoun', 1037, 998, {
+      start: { year: toAstronomicalYear(1037, 'bc'), month: null, day: null, approx: true, qualifier: null },
+    });
+    const v = view(-1100, 10);
+    const a = layoutEvents([jisty], v, noCategories, measure).items[0];
+    const b = layoutEvents([priblizny], v, noCategories, measure).items[0];
+
+    expect(a.labelInside).toBe(true);
+    expect(b.labelInside).toBe(true);
+    // přibližný začátek posune popisek doprava přesně o délku náběhu
+    expect(b.labelX - a.labelX).toBeCloseTo(fadeWidth(b.x2 - b.x1), 6);
+    expect(b.labelX).toBeGreaterThanOrEqual(b.x1 + fadeWidth(b.x2 - b.x1));
+  });
+
+  it('popisek nezasahuje do náběhu na konci pruhu', () => {
+    const e = rangeEvent('Šalomoun', 1037, 998, {
+      end: { year: toAstronomicalYear(998, 'bc'), month: null, day: null, approx: true, qualifier: null },
+    });
+    const item = layoutEvents([e], view(-1100, 10), noCategories, measure).items[0];
+    if (item.labelInside) {
+      expect(item.labelX + item.labelWidth).toBeLessThanOrEqual(
+        item.x2 - fadeWidth(item.x2 - item.x1) + 0.001,
+      );
+    }
+  });
+
+  it('pruh s náběhy na obou stranách popisek radši vystrčí ven', () => {
+    // úzký pruh: po odečtení obou náběhů se text dovnitř nevejde
+    const e = rangeEvent('Šalomoun', 1037, 1027, {
+      start: { year: toAstronomicalYear(1037, 'bc'), month: null, day: null, approx: true, qualifier: null },
+      end: { year: toAstronomicalYear(1027, 'bc'), month: null, day: null, approx: true, qualifier: null },
+    });
+    const item = layoutEvents([e], view(-1100, 10), noCategories, measure).items[0];
+    expect(item.labelInside).toBe(false);
+    expect(item.labelX).toBeGreaterThan(item.x2);
   });
 
   it('popisek u pravého okraje plátna se překlopí doleva od značky', () => {

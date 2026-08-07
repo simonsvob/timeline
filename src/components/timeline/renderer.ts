@@ -15,7 +15,9 @@ import type { Tick, Viewport } from '../../lib/viewport';
 import { xOf } from '../../lib/viewport';
 import {
   BAR_HEIGHT,
+  fadeWidth,
   LANE_HEIGHT,
+  MAX_FADE_PX,
   OPEN_END_WIDTH,
   type EventGeometry,
   type LayoutResult,
@@ -132,8 +134,7 @@ function roundRectPath(
 // Hlavní vykreslení
 // ---------------------------------------------------------------------------
 
-/** Maximální délka náběhu do ztracena v pixelech. */
-const MAX_FADE_PX = 30;
+
 /** Šířka svislé čáry bodové události. */
 const POINT_LINE_WIDTH = 2;
 /** Jak daleko do stran sahá rozostření u přibližné události. */
@@ -306,7 +307,7 @@ function drawBar(
 
   if (item.startApprox || item.endApprox) {
     // Plynulý přechod do ztracena na nejisté straně; jistá strana zůstává ostrá.
-    const fade = Math.min(MAX_FADE_PX, w * 0.4);
+    const fade = fadeWidth(w);
     const gradient = ctx.createLinearGradient(x1, 0, x2, 0);
     const fadeStop = w > 0 ? fade / w : 0.4;
     if (item.startApprox) {

@@ -21,6 +21,17 @@ export const ITEM_GAP = 10;
 export const OPEN_END_WIDTH = 13;
 /** Prázdný řádek mezi pásmem událostí a pásmem životů. */
 export const BAND_GAP_LANES = 1;
+/** Maximální délka náběhu do ztracena u přibližné hranice, v pixelech. */
+export const MAX_FADE_PX = 30;
+
+/**
+ * Jak dlouhý je přechod do ztracena u pruhu dané šířky. Sdílí ho rozvržení
+ * i vykreslení: popisek musí začínat až za náběhem, jinak by prvních pár
+ * písmen leželo v poloprůhledné části a špatně se četlo.
+ */
+export function fadeWidth(barWidth: number): number {
+  return Math.min(MAX_FADE_PX, barWidth * 0.4);
+}
 /**
  * Nad tento počet řádků se přestane rezervovat místo pro popisky – jinak by
  * při maximálním oddálení s tisíci záznamy osa narostla do nesmyslné výšky.
@@ -110,6 +121,8 @@ export function layoutEvents(
       isPoint,
       startOpen,
       endOpen,
+      startApprox: event.start.approx,
+      endApprox: isPoint ? false : (event.end?.approx ?? false),
       x1,
       x2,
       centerX,
@@ -178,9 +191,11 @@ export function layoutEvents(
     let labelX: number;
     if (inside) {
       // „Přilepený" popisek: u pruhu delšího než výřez zůstane u okraje plátna.
-      const min = LABEL_PAD;
-      const max = m.x2 - m.labelWidth - LABEL_PAD;
-      labelX = Math.min(Math.max(m.x1 + LABEL_PAD, min), Math.max(max, m.x1 + LABEL_PAD));
+      // Začíná až za náběhem do ztracena, ať se první písmena neztrácejí.
+      const f = fades(m);
+      const from = m.x1 + f.start + LABEL_PAD;
+      const max = m.x2 - f.end - m.labelWidth - LABEL_PAD;
+      labelX = Math.min(Math.max(from, LABEL_PAD), Math.max(max, from));
     } else {
       labelX = m.x2 + openEndSpace(m) + LABEL_GAP;
       // U pravého okraje plátna by popisek utekl mimo. Překlopíme ho doleva od
@@ -228,6 +243,8 @@ interface MeasuredEvent {
   isPoint: boolean;
   startOpen: boolean;
   endOpen: boolean;
+  startApprox: boolean;
+  endApprox: boolean;
   x1: number;
   x2: number;
   labelWidth: number;
@@ -239,10 +256,26 @@ function openEndSpace(m: Pick<MeasuredEvent, 'isPoint' | 'startOpen' | 'endOpen'
   return open ? OPEN_END_WIDTH : 0;
 }
 
-/** Vejde se popisek dovnitř pruhu? U bodů nikdy. */
-function labelFitsInside(m: Pick<MeasuredEvent, 'isPoint' | 'x1' | 'x2' | 'labelWidth'>): boolean {
+/** Náběhy do ztracena na obou stranách pruhu (0, když je hranice jistá). */
+function fades(m: Pick<MeasuredEvent, 'isPoint' | 'x1' | 'x2' | 'startApprox' | 'endApprox'>): {
+  start: number;
+  end: number;
+} {
+  if (m.isPoint) return { start: 0, end: 0 };
+  const width = m.x2 - m.x1;
+  return {
+    start: m.startApprox ? fadeWidth(width) : 0,
+    end: m.endApprox ? fadeWidth(width) : 0,
+  };
+}
+
+/** Vejde se popisek dovnitř pruhu, mimo náběhy? U bodů nikdy. */
+function labelFitsInside(
+  m: Pick<MeasuredEvent, 'isPoint' | 'x1' | 'x2' | 'labelWidth' | 'startApprox' | 'endApprox'>,
+): boolean {
   if (m.isPoint) return false;
-  return m.x2 - m.x1 >= m.labelWidth + 2 * LABEL_PAD;
+  const f = fades(m);
+  return m.x2 - f.end - (m.x1 + f.start) >= m.labelWidth + 2 * LABEL_PAD;
 }
 
 /**

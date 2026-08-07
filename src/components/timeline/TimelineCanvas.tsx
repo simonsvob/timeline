@@ -21,6 +21,15 @@ const AXIS_FONT = '12px -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui
 /** Práh v pixelech, do kterého se tažení ještě považuje za klik. */
 const CLICK_SLOP = 6;
 
+/**
+ * Safari posílá za pinch vlastní GestureEvent, který standardní typy DOM
+ * neznají. `scale` je poměr vůči začátku gesta, ne přírůstek.
+ */
+interface GestureLikeEvent extends Event {
+  scale: number;
+  clientX: number;
+}
+
 const measureCache = new Map<string, number>();
 let measureCtx: CanvasRenderingContext2D | null = null;
 
@@ -172,6 +181,8 @@ export function TimelineCanvas({
     return Math.min(Math.max(value, 0), maxScrollRef.current);
   }, []);
 
+  const pointers = useRef(new Map<number, { x: number; y: number }>());
+
   // Kolečko / trackpad – nesmí být passive, jinak nejde zabránit zoomu stránky.
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -199,22 +210,48 @@ export function TimelineCanvas({
       }
     };
 
-    // Safari na iPadu: potlačit vlastní zoom stránky nad plátnem
-    const preventGesture = (event: Event) => event.preventDefault();
+    // Safari (Mac i iPad) neposílá za pinch na trackpadu wheel s ctrlKey jako
+    // Chrome, ale vlastní gesture* události. Bez jejich obsluhy by v Safari
+    // pinch nedělal vůbec nic.
+    let lastScale = 1;
+
+    // Na iPadu posílá Safari gesture* události SOUČASNĚ s dotyky, které už
+    // obsluhuje pinch přes pointery – bez téhle pojistky by se zoom sečetl.
+    const dotykovyPinch = () => pointers.current.size >= 2;
+
+    const onGestureStart = (event: GestureLikeEvent) => {
+      event.preventDefault();
+      lastScale = event.scale || 1;
+    };
+
+    const onGestureChange = (event: GestureLikeEvent) => {
+      event.preventDefault();
+      if (dotykovyPinch()) return;
+      const scale = event.scale || 1;
+      if (lastScale <= 0 || scale <= 0) return;
+      const rect = canvas.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      onViewChange(zoomAt(viewRef.current, x, scale / lastScale, domainRef.current));
+      lastScale = scale;
+    };
+
+    const onGestureEnd = (event: GestureLikeEvent) => {
+      event.preventDefault();
+      lastScale = 1;
+    };
 
     canvas.addEventListener('wheel', onWheel, { passive: false });
-    canvas.addEventListener('gesturestart', preventGesture);
-    canvas.addEventListener('gesturechange', preventGesture);
-    canvas.addEventListener('gestureend', preventGesture);
+    canvas.addEventListener('gesturestart', onGestureStart as EventListener);
+    canvas.addEventListener('gesturechange', onGestureChange as EventListener);
+    canvas.addEventListener('gestureend', onGestureEnd as EventListener);
     return () => {
       canvas.removeEventListener('wheel', onWheel);
-      canvas.removeEventListener('gesturestart', preventGesture);
-      canvas.removeEventListener('gesturechange', preventGesture);
-      canvas.removeEventListener('gestureend', preventGesture);
+      canvas.removeEventListener('gesturestart', onGestureStart as EventListener);
+      canvas.removeEventListener('gesturechange', onGestureChange as EventListener);
+      canvas.removeEventListener('gestureend', onGestureEnd as EventListener);
     };
   }, [onViewChange, clampScroll]);
 
-  const pointers = useRef(new Map<number, { x: number; y: number }>());
   const dragState = useRef<{ moved: number; lastX: number; lastY: number } | null>(null);
   const pinchState = useRef<{ distance: number; centerX: number } | null>(null);
 

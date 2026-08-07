@@ -100,10 +100,18 @@ přes 6000 let a vlastního vykreslení nejistoty.
   při změně fontu je potřeba cache zneplatnit.
 - Popisek u pravého okraje se překlopí doleva od značky, a když ani tam není
   místo, skryje se.
+- Popisek uvnitř pruhu začíná až za náběhem do ztracena (`fadeWidth`), jinak by
+  první písmena ležela v poloprůhledné části. Stejný výpočet používá rozvržení
+  i vykreslení — musí zůstat sdílený.
 
-**Gesta.** Přibližuje jen pinch (na trackpadu i myši přichází jako wheel
-s `ctrlKey`); samotné kolečko posouvá. Osa nemá nástrojovou lištu, zoom
-tlačítky ani skok na rok — gesta je nahradila.
+**Gesta.** Přibližuje jen pinch, samotné kolečko posouvá. Pinch chodí do
+aplikace **dvěma různými cestami** a obě je potřeba obsluhovat: Chrome a Firefox
+posílají `wheel` s `ctrlKey`, Safari (Mac i iPad) vlastní `gesturestart` /
+`gesturechange` / `gestureend`, kde `scale` je poměr vůči začátku gesta, ne
+přírůstek. Na iPadu navíc Safari posílá gesta souběžně s dotyky, které řeší
+pinch přes pointery — proto se obsluha gest při dvou aktivních ukazatelích
+přeskakuje, jinak by se zoom sečetl. Osa nemá nástrojovou lištu ani skok na
+rok, gesta je nahradila.
 
 **Zoom a měřítko** (`src/lib/viewport.ts`): výřez je `{ t0, pxPerYear, width }`.
 Dělení osy se vybírá jako **nejjemnější, které se ještě vejde** (`chooseTickLevel`),
