@@ -1,0 +1,1745 @@
+[
+ {
+  "id": "p1-adam",
+  "part": 1,
+  "section": "Před potopou",
+  "type": "person",
+  "title": "Adam",
+  "people": [
+   "Adam"
+  ],
+  "kind": "range",
+  "start": {
+   "year": 4026,
+   "era": "BCE",
+   "approx": false,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": {
+   "year": 3096,
+   "era": "BCE",
+   "approx": false,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "note": null,
+  "flags": []
+ },
+ {
+  "id": "p1-enoch",
+  "part": 1,
+  "section": "Před potopou",
+  "type": "person",
+  "title": "Enoch",
+  "people": [
+   "Enoch"
+  ],
+  "kind": "range",
+  "start": {
+   "year": 3404,
+   "era": "BCE",
+   "approx": false,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": {
+   "year": 3039,
+   "era": "BCE",
+   "approx": false,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "note": null,
+  "flags": []
+ },
+ {
+  "id": "p1-noe",
+  "part": 1,
+  "section": "Před potopou",
+  "type": "person",
+  "title": "Noe",
+  "people": [
+   "Noe"
+  ],
+  "kind": "range",
+  "start": {
+   "year": 2970,
+   "era": "BCE",
+   "approx": false,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": {
+   "year": 2020,
+   "era": "BCE",
+   "approx": false,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "note": null,
+  "flags": []
+ },
+ {
+  "id": "p1-abraham",
+  "part": 1,
+  "section": "Po potopě",
+  "type": "person",
+  "title": "Abraham",
+  "people": [
+   "Abraham"
+  ],
+  "kind": "range",
+  "start": {
+   "year": 2018,
+   "era": "BCE",
+   "approx": false,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": {
+   "year": 1843,
+   "era": "BCE",
+   "approx": false,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "note": null,
+  "flags": []
+ },
+ {
+  "id": "p1-sara",
+  "part": 1,
+  "section": "Po potopě",
+  "type": "person",
+  "title": "Sára",
+  "people": [
+   "Sára"
+  ],
+  "kind": "range",
+  "start": {
+   "year": 2008,
+   "era": "BCE",
+   "approx": false,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": {
+   "year": 1881,
+   "era": "BCE",
+   "approx": false,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "note": null,
+  "flags": []
+ },
+ {
+  "id": "p1-rebeka",
+  "part": 1,
+  "section": "Po potopě",
+  "type": "person",
+  "title": "Rebeka",
+  "people": [
+   "Rebeka"
+  ],
+  "kind": "range",
+  "start": {
+   "year": 1900,
+   "era": "BCE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": {
+   "year": 1775,
+   "era": "BCE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "note": null,
+  "flags": []
+ },
+ {
+  "id": "p1-jakob",
+  "part": 1,
+  "section": "Po potopě",
+  "type": "person",
+  "title": "Jákob",
+  "people": [
+   "Jákob"
+  ],
+  "kind": "range",
+  "start": {
+   "year": 1858,
+   "era": "BCE",
+   "approx": false,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": {
+   "year": 1711,
+   "era": "BCE",
+   "approx": false,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "note": null,
+  "flags": []
+ },
+ {
+  "id": "p1-josef",
+  "part": 1,
+  "section": "Po potopě",
+  "type": "person",
+  "title": "Josef",
+  "people": [
+   "Josef"
+  ],
+  "kind": "range",
+  "start": {
+   "year": 1767,
+   "era": "BCE",
+   "approx": false,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": {
+   "year": 1657,
+   "era": "BCE",
+   "approx": false,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "note": null,
+  "flags": []
+ },
+ {
+  "id": "p1-sifra-pua-amram-jokebed-miriam",
+  "part": 1,
+  "section": "Po potopě",
+  "type": "person",
+  "title": "Šifra, Pua, Amram, Jokebed, Miriam",
+  "people": [
+   "Šifra",
+   "Pua",
+   "Amram",
+   "Jokebed",
+   "Miriam"
+  ],
+  "kind": "range",
+  "start": {
+   "year": 1645,
+   "era": "BCE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": {
+   "year": 1474,
+   "era": "BCE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "note": "Délky jejich životů jsou sloučené do jedné čáry.",
+  "flags": [
+   "merged_lifespans"
+  ]
+ },
+ {
+  "id": "p1-mojzis",
+  "part": 1,
+  "section": "Po potopě",
+  "type": "person",
+  "title": "Mojžíš",
+  "people": [
+   "Mojžíš"
+  ],
+  "kind": "range",
+  "start": {
+   "year": 1593,
+   "era": "BCE",
+   "approx": false,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": {
+   "year": 1473,
+   "era": "BCE",
+   "approx": false,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "note": null,
+  "flags": []
+ },
+ {
+  "id": "p1-kaleb",
+  "part": 1,
+  "section": "Po potopě",
+  "type": "person",
+  "title": "Kaleb",
+  "people": [
+   "Kaleb"
+  ],
+  "kind": "range",
+  "start": {
+   "year": 1552,
+   "era": "BCE",
+   "approx": false,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": {
+   "year": 1450,
+   "era": "BCE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "note": null,
+  "flags": []
+ },
+ {
+  "id": "p1-jozue",
+  "part": 1,
+  "section": "Po potopě",
+  "type": "person",
+  "title": "Jozue",
+  "people": [
+   "Jozue"
+  ],
+  "kind": "range",
+  "start": {
+   "year": 1560,
+   "era": "BCE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": {
+   "year": 1450,
+   "era": "BCE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "note": null,
+  "flags": []
+ },
+ {
+  "id": "p1-raab",
+  "part": 1,
+  "section": "Po potopě",
+  "type": "person",
+  "title": "Raab",
+  "people": [
+   "Raab"
+  ],
+  "kind": "range",
+  "start": {
+   "year": 1500,
+   "era": "BCE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": {
+   "year": 1400,
+   "era": "BCE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "note": null,
+  "flags": []
+ },
+ {
+  "id": "p1-soudci-skupina",
+  "part": 1,
+  "section": "Období soudců",
+  "type": "person",
+  "title": "Noemi, Rut, Debora, Barak, Jael, Gideon, Samson, Jefta a jeho dcera",
+  "people": [
+   "Noemi",
+   "Rut",
+   "Debora",
+   "Barak",
+   "Jael",
+   "Gideon",
+   "Samson",
+   "Jefta",
+   "Jeftova dcera"
+  ],
+  "kind": "range",
+  "start": {
+   "year": 1450,
+   "era": "BCE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": {
+   "year": 1120,
+   "era": "BCE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "note": "Délky jejich životů jsou sloučené do jednoho úseku dlouhého 330 let. Každý z nich žil podstatně kratší dobu a jejich chronologické pořadí není jisté.",
+  "flags": [
+   "merged_lifespans"
+  ]
+ },
+ {
+  "id": "p1-samuel",
+  "part": 1,
+  "section": "Období soudců",
+  "type": "person",
+  "title": "Samuel",
+  "people": [
+   "Samuel"
+  ],
+  "kind": "range",
+  "start": {
+   "year": 1180,
+   "era": "BCE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": {
+   "year": 1080,
+   "era": "BCE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "note": null,
+  "flags": [
+   "duplicate"
+  ]
+ },
+ {
+  "id": "p1-ev-potopa",
+  "part": 1,
+  "section": "Významné události",
+  "type": "event",
+  "title": "Celosvětová potopa",
+  "people": [],
+  "kind": "point",
+  "start": {
+   "year": 2370,
+   "era": "BCE",
+   "approx": false,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": null,
+  "note": null,
+  "flags": []
+ },
+ {
+  "id": "p1-ev-smlouva-s-abrahamem",
+  "part": 1,
+  "section": "Významné události",
+  "type": "event",
+  "title": "Začíná platit smlouva s Abrahamem",
+  "people": [],
+  "kind": "point",
+  "start": {
+   "year": 1943,
+   "era": "BCE",
+   "approx": false,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": null,
+  "note": null,
+  "flags": []
+ },
+ {
+  "id": "p1-ev-jakob-do-egypta",
+  "part": 1,
+  "section": "Významné události",
+  "type": "event",
+  "title": "Jákobova rodina přichází do Egypta",
+  "people": [],
+  "kind": "point",
+  "start": {
+   "year": 1728,
+   "era": "BCE",
+   "approx": false,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": null,
+  "note": null,
+  "flags": []
+ },
+ {
+  "id": "p1-ev-velmoc-egypt",
+  "part": 1,
+  "section": "Významné události",
+  "type": "event",
+  "title": "SVĚTOVÁ VELMOC: Egypt",
+  "people": [],
+  "kind": "point",
+  "start": {
+   "year": 1600,
+   "era": "BCE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": null,
+  "note": "Přibližný rok.",
+  "flags": [
+   "world_power",
+   "duplicate"
+  ]
+ },
+ {
+  "id": "p1-ev-odchod-z-egypta",
+  "part": 1,
+  "section": "Významné události",
+  "type": "event",
+  "title": "Odchod z Egypta",
+  "people": [],
+  "kind": "point",
+  "start": {
+   "year": 1513,
+   "era": "BCE",
+   "approx": false,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": null,
+  "note": null,
+  "flags": []
+ },
+ {
+  "id": "p1-ev-vstup-do-kanaanu",
+  "part": 1,
+  "section": "Významné události",
+  "type": "event",
+  "title": "Izraelský národ vstupuje do Kanaánu",
+  "people": [],
+  "kind": "point",
+  "start": {
+   "year": 1473,
+   "era": "BCE",
+   "approx": false,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": null,
+  "note": null,
+  "flags": []
+ },
+ {
+  "id": "p1-ev-saul-pomazan",
+  "part": 1,
+  "section": "Významné události",
+  "type": "event",
+  "title": "Samuel pomazává Saula za krále",
+  "people": [],
+  "kind": "point",
+  "start": {
+   "year": 1117,
+   "era": "BCE",
+   "approx": false,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": null,
+  "note": null,
+  "flags": []
+ },
+ {
+  "id": "p2-samuel",
+  "part": 2,
+  "section": "Sjednocené království",
+  "type": "person",
+  "title": "Samuel",
+  "people": [
+   "Samuel"
+  ],
+  "kind": "range",
+  "start": {
+   "year": 1180,
+   "era": "BCE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": {
+   "year": 1080,
+   "era": "BCE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "note": null,
+  "flags": [
+   "duplicate"
+  ]
+ },
+ {
+  "id": "p2-jonatan",
+  "part": 2,
+  "section": "Sjednocené království",
+  "type": "person",
+  "title": "Jonatan",
+  "people": [
+   "Jonatan"
+  ],
+  "kind": "range",
+  "start": {
+   "year": 1138,
+   "era": "BCE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": {
+   "year": 1078,
+   "era": "BCE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "note": null,
+  "flags": []
+ },
+ {
+  "id": "p2-david",
+  "part": 2,
+  "section": "Sjednocené království",
+  "type": "person",
+  "title": "David",
+  "people": [
+   "David"
+  ],
+  "kind": "range",
+  "start": {
+   "year": 1107,
+   "era": "BCE",
+   "approx": false,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": {
+   "year": 1037,
+   "era": "BCE",
+   "approx": false,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "note": null,
+  "flags": []
+ },
+ {
+  "id": "p2-abigail-natan",
+  "part": 2,
+  "section": "Sjednocené království",
+  "type": "person",
+  "title": "Abigail, Natan",
+  "people": [
+   "Abigail",
+   "Natan"
+  ],
+  "kind": "range",
+  "start": {
+   "year": 1100,
+   "era": "BCE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": {
+   "year": 1000,
+   "era": "BCE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "note": "Délky jejich životů jsou sloučené do jedné čáry.",
+  "flags": [
+   "merged_lifespans"
+  ]
+ },
+ {
+  "id": "p2-mefiboset",
+  "part": 2,
+  "section": "Sjednocené království",
+  "type": "person",
+  "title": "Mefibošet",
+  "people": [
+   "Mefibošet"
+  ],
+  "kind": "range",
+  "start": {
+   "year": 1083,
+   "era": "BCE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": {
+   "year": 1000,
+   "era": "BCE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "note": null,
+  "flags": []
+ },
+ {
+  "id": "p2-jehojada",
+  "part": 2,
+  "section": "Rozdělené království",
+  "type": "person",
+  "title": "Jehojada",
+  "people": [
+   "Jehojada"
+  ],
+  "kind": "range",
+  "start": {
+   "year": 1005,
+   "era": "BCE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": {
+   "year": 875,
+   "era": "BCE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "note": null,
+  "flags": []
+ },
+ {
+  "id": "p2-asa",
+  "part": 2,
+  "section": "Rozdělené království",
+  "type": "person",
+  "title": "Asa",
+  "people": [
+   "Asa"
+  ],
+  "kind": "range",
+  "start": {
+   "year": 1000,
+   "era": "BCE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": {
+   "year": 937,
+   "era": "BCE",
+   "approx": false,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "note": null,
+  "flags": []
+ },
+ {
+  "id": "p2-elijas-vdova-z-carefatu",
+  "part": 2,
+  "section": "Rozdělené království",
+  "type": "person",
+  "title": "Elijáš, vdova z Carefatu",
+  "people": [
+   "Elijáš",
+   "vdova z Carefatu"
+  ],
+  "kind": "range",
+  "start": {
+   "year": 970,
+   "era": "BCE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": {
+   "year": 900,
+   "era": "BCE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "note": "Délky jejich životů jsou sloučené do jedné čáry.",
+  "flags": [
+   "merged_lifespans"
+  ]
+ },
+ {
+  "id": "p2-elisa",
+  "part": 2,
+  "section": "Rozdělené království",
+  "type": "person",
+  "title": "Eliša",
+  "people": [
+   "Eliša"
+  ],
+  "kind": "range",
+  "start": {
+   "year": 950,
+   "era": "BCE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": {
+   "year": 850,
+   "era": "BCE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "note": null,
+  "flags": []
+ },
+ {
+  "id": "p2-izraelska-holcicka",
+  "part": 2,
+  "section": "Rozdělené království",
+  "type": "person",
+  "title": "izraelská holčička",
+  "people": [
+   "izraelská holčička"
+  ],
+  "kind": "range",
+  "start": {
+   "year": 925,
+   "era": "BCE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": {
+   "year": 825,
+   "era": "BCE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "note": null,
+  "flags": []
+ },
+ {
+  "id": "p2-ezekjas",
+  "part": 2,
+  "section": "Rozdělené království",
+  "type": "person",
+  "title": "Ezekjáš",
+  "people": [
+   "Ezekjáš"
+  ],
+  "kind": "range",
+  "start": {
+   "year": 771,
+   "era": "BCE",
+   "approx": false,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": {
+   "year": 716,
+   "era": "BCE",
+   "approx": false,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "note": null,
+  "flags": []
+ },
+ {
+  "id": "p2-manasse",
+  "part": 2,
+  "section": "Rozdělené království",
+  "type": "person",
+  "title": "Manasse",
+  "people": [
+   "Manasse"
+  ],
+  "kind": "range",
+  "start": {
+   "year": 728,
+   "era": "BCE",
+   "approx": false,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": {
+   "year": 661,
+   "era": "BCE",
+   "approx": false,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "note": null,
+  "flags": []
+ },
+ {
+  "id": "p2-josijas",
+  "part": 2,
+  "section": "Rozdělené království",
+  "type": "person",
+  "title": "Josijáš",
+  "people": [
+   "Josijáš"
+  ],
+  "kind": "range",
+  "start": {
+   "year": 667,
+   "era": "BCE",
+   "approx": false,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": {
+   "year": 628,
+   "era": "BCE",
+   "approx": false,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "note": null,
+  "flags": []
+ },
+ {
+  "id": "p2-daniel-a-tri-hebrejci",
+  "part": 2,
+  "section": "Vyhnanství v Babyloně",
+  "type": "person",
+  "title": "Daniel, Chananjáš, Mišael, Azarjáš",
+  "people": [
+   "Daniel",
+   "Chananjáš",
+   "Mišael",
+   "Azarjáš"
+  ],
+  "kind": "range",
+  "start": {
+   "year": 635,
+   "era": "BCE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": {
+   "year": 535,
+   "era": "BCE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "note": "Délky jejich životů jsou sloučené do jedné čáry.",
+  "flags": [
+   "merged_lifespans"
+  ]
+ },
+ {
+  "id": "p2-ester",
+  "part": 2,
+  "section": "Po návratu z vyhnanství",
+  "type": "person",
+  "title": "Ester",
+  "people": [
+   "Ester"
+  ],
+  "kind": "range",
+  "start": {
+   "year": 515,
+   "era": "BCE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": {
+   "year": 415,
+   "era": "BCE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "note": null,
+  "flags": []
+ },
+ {
+  "id": "p2-nehemjas",
+  "part": 2,
+  "section": "Po návratu z vyhnanství",
+  "type": "person",
+  "title": "Nehemjáš",
+  "people": [
+   "Nehemjáš"
+  ],
+  "kind": "range",
+  "start": {
+   "year": 485,
+   "era": "BCE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": {
+   "year": 385,
+   "era": "BCE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "note": null,
+  "flags": []
+ },
+ {
+  "id": "p2-ev-velmoc-egypt",
+  "part": 2,
+  "section": "Významné události",
+  "type": "event",
+  "title": "SVĚTOVÁ VELMOC: Egypt",
+  "people": [],
+  "kind": "point",
+  "start": {
+   "year": 1600,
+   "era": "BCE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": null,
+  "note": "Přibližný rok.",
+  "flags": [
+   "world_power",
+   "duplicate"
+  ]
+ },
+ {
+  "id": "p2-ev-salomounuv-chram",
+  "part": 2,
+  "section": "Významné události",
+  "type": "event",
+  "title": "Šalomounův chrám je dokončený",
+  "people": [],
+  "kind": "point",
+  "start": {
+   "year": 1027,
+   "era": "BCE",
+   "approx": false,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": null,
+  "note": null,
+  "flags": []
+ },
+ {
+  "id": "p2-ev-rozdeleni-izraele",
+  "part": 2,
+  "section": "Významné události",
+  "type": "event",
+  "title": "Izrael se dělí na dvě království",
+  "people": [],
+  "kind": "point",
+  "start": {
+   "year": 997,
+   "era": "BCE",
+   "approx": false,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": null,
+  "note": null,
+  "flags": []
+ },
+ {
+  "id": "p2-ev-velmoc-asyrie",
+  "part": 2,
+  "section": "Významné události",
+  "type": "event",
+  "title": "SVĚTOVÁ VELMOC: Asýrie",
+  "people": [],
+  "kind": "point",
+  "start": {
+   "year": 874,
+   "era": "BCE",
+   "approx": true,
+   "qualifier": "after",
+   "alt_year": null
+  },
+  "end": null,
+  "note": "Přibližný rok.",
+  "flags": [
+   "world_power"
+  ]
+ },
+ {
+  "id": "p2-ev-asyrie-porazi-desetikmenne",
+  "part": 2,
+  "section": "Významné události",
+  "type": "event",
+  "title": "Asýrie poráží desetikmenné království",
+  "people": [],
+  "kind": "point",
+  "start": {
+   "year": 740,
+   "era": "BCE",
+   "approx": false,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": null,
+  "note": null,
+  "flags": []
+ },
+ {
+  "id": "p2-ev-velmoc-babylon",
+  "part": 2,
+  "section": "Významné události",
+  "type": "event",
+  "title": "SVĚTOVÁ VELMOC: Babylon",
+  "people": [],
+  "kind": "point",
+  "start": {
+   "year": 625,
+   "era": "BCE",
+   "approx": false,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": null,
+  "note": null,
+  "flags": [
+   "world_power"
+  ]
+ },
+ {
+  "id": "p2-ev-zniceni-jeruzalema",
+  "part": 2,
+  "section": "Významné události",
+  "type": "event",
+  "title": "Nebukadnecar ničí Jeruzalém",
+  "people": [],
+  "kind": "point",
+  "start": {
+   "year": 607,
+   "era": "BCE",
+   "approx": false,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": null,
+  "note": null,
+  "flags": []
+ },
+ {
+  "id": "p2-ev-velmoc-medo-persie",
+  "part": 2,
+  "section": "Významné události",
+  "type": "event",
+  "title": "SVĚTOVÁ VELMOC: Médo-Persie",
+  "people": [],
+  "kind": "point",
+  "start": {
+   "year": 539,
+   "era": "BCE",
+   "approx": false,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": null,
+  "note": null,
+  "flags": [
+   "world_power"
+  ]
+ },
+ {
+  "id": "p2-ev-propusteni-z-babylonu",
+  "part": 2,
+  "section": "Významné události",
+  "type": "event",
+  "title": "Židé jsou propuštěni z Babylonu",
+  "people": [],
+  "kind": "point",
+  "start": {
+   "year": 537,
+   "era": "BCE",
+   "approx": false,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": null,
+  "note": null,
+  "flags": []
+ },
+ {
+  "id": "p2-ev-obnova-chramu",
+  "part": 2,
+  "section": "Významné události",
+  "type": "event",
+  "title": "Chrám v Jeruzalémě je znovu postavený",
+  "people": [],
+  "kind": "point",
+  "start": {
+   "year": 515,
+   "era": "BCE",
+   "approx": false,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": null,
+  "note": null,
+  "flags": []
+ },
+ {
+  "id": "p2-ev-obnova-hradeb",
+  "part": 2,
+  "section": "Významné události",
+  "type": "event",
+  "title": "Jeruzalémské hradby jsou opravené",
+  "people": [],
+  "kind": "point",
+  "start": {
+   "year": 455,
+   "era": "BCE",
+   "approx": false,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": null,
+  "note": null,
+  "flags": []
+ },
+ {
+  "id": "p3-zecharjas",
+  "part": 3,
+  "section": null,
+  "type": "person",
+  "title": "Zecharjáš",
+  "people": [
+   "Zecharjáš"
+  ],
+  "kind": "range",
+  "start": {
+   "year": 70,
+   "era": "BCE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": {
+   "year": 2,
+   "era": "BCE",
+   "approx": false,
+   "qualifier": "min",
+   "alt_year": null
+  },
+  "note": null,
+  "flags": []
+ },
+ {
+  "id": "p3-alzbeta",
+  "part": 3,
+  "section": null,
+  "type": "person",
+  "title": "Alžběta",
+  "people": [
+   "Alžběta"
+  ],
+  "kind": "range",
+  "start": {
+   "year": 70,
+   "era": "BCE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": {
+   "year": 2,
+   "era": "BCE",
+   "approx": false,
+   "qualifier": "min",
+   "alt_year": null
+  },
+  "note": null,
+  "flags": []
+ },
+ {
+  "id": "p3-marie-matka-jezise",
+  "part": 3,
+  "section": null,
+  "type": "person",
+  "title": "Marie (Ježíšova matka)",
+  "people": [
+   "Marie (Ježíšova matka)"
+  ],
+  "kind": "range",
+  "start": {
+   "year": 20,
+   "era": "BCE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": {
+   "year": 33,
+   "era": "CE",
+   "approx": false,
+   "qualifier": "min",
+   "alt_year": null
+  },
+  "note": null,
+  "flags": []
+ },
+ {
+  "id": "p3-josef",
+  "part": 3,
+  "section": null,
+  "type": "person",
+  "title": "Josef",
+  "people": [
+   "Josef"
+  ],
+  "kind": "range",
+  "start": {
+   "year": 25,
+   "era": "BCE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": {
+   "year": 11,
+   "era": "CE",
+   "approx": false,
+   "qualifier": "min",
+   "alt_year": null
+  },
+  "note": null,
+  "flags": []
+ },
+ {
+  "id": "p3-jan-krtitel",
+  "part": 3,
+  "section": null,
+  "type": "person",
+  "title": "Jan Křtitel",
+  "people": [
+   "Jan Křtitel"
+  ],
+  "kind": "range",
+  "start": {
+   "year": 2,
+   "era": "BCE",
+   "approx": false,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": {
+   "year": 32,
+   "era": "CE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "note": null,
+  "flags": []
+ },
+ {
+  "id": "p3-jezis",
+  "part": 3,
+  "section": null,
+  "type": "person",
+  "title": "Ježíš",
+  "people": [
+   "Ježíš"
+  ],
+  "kind": "range",
+  "start": {
+   "year": 2,
+   "era": "BCE",
+   "approx": false,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": {
+   "year": 33,
+   "era": "CE",
+   "approx": false,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "note": null,
+  "flags": []
+ },
+ {
+  "id": "p3-petr",
+  "part": 3,
+  "section": null,
+  "type": "person",
+  "title": "Petr",
+  "people": [
+   "Petr"
+  ],
+  "kind": "range",
+  "start": {
+   "year": 5,
+   "era": "BCE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": {
+   "year": 64,
+   "era": "CE",
+   "approx": false,
+   "qualifier": "min",
+   "alt_year": null
+  },
+  "note": null,
+  "flags": []
+ },
+ {
+  "id": "p3-marie-magdalena",
+  "part": 3,
+  "section": null,
+  "type": "person",
+  "title": "Marie Magdaléna",
+  "people": [
+   "Marie Magdaléna"
+  ],
+  "kind": "range",
+  "start": {
+   "year": 5,
+   "era": "BCE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": {
+   "year": 33,
+   "era": "CE",
+   "approx": false,
+   "qualifier": "min",
+   "alt_year": null
+  },
+  "note": null,
+  "flags": []
+ },
+ {
+  "id": "p3-marie-lazarova-sestra",
+  "part": 3,
+  "section": null,
+  "type": "person",
+  "title": "Marie (Lazarova sestra)",
+  "people": [
+   "Marie (Lazarova sestra)"
+  ],
+  "kind": "range",
+  "start": {
+   "year": 15,
+   "era": "BCE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": {
+   "year": 33,
+   "era": "CE",
+   "approx": false,
+   "qualifier": "min",
+   "alt_year": null
+  },
+  "note": null,
+  "flags": []
+ },
+ {
+  "id": "p3-stepan",
+  "part": 3,
+  "section": null,
+  "type": "person",
+  "title": "Štěpán",
+  "people": [
+   "Štěpán"
+  ],
+  "kind": "range",
+  "start": {
+   "year": 5,
+   "era": "BCE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": {
+   "year": 33,
+   "era": "CE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": 34
+  },
+  "note": null,
+  "flags": []
+ },
+ {
+  "id": "p3-pavel",
+  "part": 3,
+  "section": null,
+  "type": "person",
+  "title": "Pavel (Saul z Tarsu)",
+  "people": [
+   "Pavel (Saul z Tarsu)"
+  ],
+  "kind": "range",
+  "start": {
+   "year": 3,
+   "era": "CE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": {
+   "year": 65,
+   "era": "CE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "note": null,
+  "flags": []
+ },
+ {
+  "id": "p3-barnabas",
+  "part": 3,
+  "section": null,
+  "type": "person",
+  "title": "Barnabáš",
+  "people": [
+   "Barnabáš"
+  ],
+  "kind": "range",
+  "start": {
+   "year": 5,
+   "era": "BCE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": {
+   "year": 55,
+   "era": "CE",
+   "approx": false,
+   "qualifier": "min",
+   "alt_year": null
+  },
+  "note": null,
+  "flags": []
+ },
+ {
+  "id": "p3-marek",
+  "part": 3,
+  "section": null,
+  "type": "person",
+  "title": "Marek",
+  "people": [
+   "Marek"
+  ],
+  "kind": "range",
+  "start": {
+   "year": 15,
+   "era": "CE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": {
+   "year": 65,
+   "era": "CE",
+   "approx": true,
+   "qualifier": "min",
+   "alt_year": null
+  },
+  "note": null,
+  "flags": []
+ },
+ {
+  "id": "p3-apostol-jan",
+  "part": 3,
+  "section": null,
+  "type": "person",
+  "title": "apoštol Jan",
+  "people": [
+   "apoštol Jan"
+  ],
+  "kind": "range",
+  "start": {
+   "year": 5,
+   "era": "BCE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": {
+   "year": 100,
+   "era": "CE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "note": null,
+  "flags": []
+ },
+ {
+  "id": "p3-ev-velmoc-recko",
+  "part": 3,
+  "section": "Významné události",
+  "type": "event",
+  "title": "SVĚTOVÁ VELMOC: Řecko",
+  "people": [],
+  "kind": "point",
+  "start": {
+   "year": 332,
+   "era": "BCE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": null,
+  "note": "Přibližný rok.",
+  "flags": [
+   "world_power"
+  ]
+ },
+ {
+  "id": "p3-ev-velmoc-rim",
+  "part": 3,
+  "section": "Významné události",
+  "type": "event",
+  "title": "SVĚTOVÁ VELMOC: Řím",
+  "people": [],
+  "kind": "range",
+  "start": {
+   "year": 63,
+   "era": "BCE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": {
+   "year": 30,
+   "era": "BCE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "note": "Přibližný rok.",
+  "flags": [
+   "world_power"
+  ]
+ },
+ {
+  "id": "p3-ev-letnice",
+  "part": 3,
+  "section": "Významné události",
+  "type": "event",
+  "title": "Vylití svatého ducha o Letnicích",
+  "people": [],
+  "kind": "point",
+  "start": {
+   "year": 33,
+   "era": "CE",
+   "approx": false,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": null,
+  "note": null,
+  "flags": []
+ },
+ {
+  "id": "p3-ev-prvni-neobrezani",
+  "part": 3,
+  "section": "Významné události",
+  "type": "event",
+  "title": "Jsou pokřtění první neobřezaní lidé z jiných národů",
+  "people": [],
+  "kind": "point",
+  "start": {
+   "year": 36,
+   "era": "CE",
+   "approx": false,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": null,
+  "note": null,
+  "flags": []
+ },
+ {
+  "id": "p3-ev-matousovo-evangelium",
+  "part": 3,
+  "section": "Významné události",
+  "type": "event",
+  "title": "Matouš píše první evangelium",
+  "people": [],
+  "kind": "point",
+  "start": {
+   "year": 41,
+   "era": "CE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": null,
+  "note": "Přibližný rok.",
+  "flags": []
+ },
+ {
+  "id": "p3-ev-zniceni-jeruzalema-70",
+  "part": 3,
+  "section": "Významné události",
+  "type": "event",
+  "title": "Jeruzalém a chrám jsou zničeny",
+  "people": [],
+  "kind": "point",
+  "start": {
+   "year": 70,
+   "era": "CE",
+   "approx": false,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": null,
+  "note": null,
+  "flags": []
+ },
+ {
+  "id": "p3-ev-dokonceni-bible",
+  "part": 3,
+  "section": "Významné události",
+  "type": "event",
+  "title": "Psaní Bible je dokončeno",
+  "people": [],
+  "kind": "point",
+  "start": {
+   "year": 98,
+   "era": "CE",
+   "approx": true,
+   "qualifier": null,
+   "alt_year": null
+  },
+  "end": null,
+  "note": "Přibližný rok.",
+  "flags": []
+ }
+]

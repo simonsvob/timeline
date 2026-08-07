@@ -4,10 +4,11 @@ import {
   formatTimePoint,
   formatTimePointBare,
   formatYear,
+  isOpenEnded,
   isRangeApprox,
   rangeLengthYears,
 } from './format';
-import { toAstronomicalYear, type TimePoint } from './time';
+import { toAstronomicalYear, type Qualifier, type TimePoint } from './time';
 
 const tp = (
   year: number,
@@ -15,7 +16,8 @@ const tp = (
   month: number | null = null,
   day: number | null = null,
   approx = false,
-): TimePoint => ({ year: toAstronomicalYear(year, era), month, day, approx });
+  qualifier: Qualifier | null = null,
+): TimePoint => ({ year: toAstronomicalYear(year, era), month, day, approx, qualifier });
 
 describe('formátování roku', () => {
   it('rozlišuje éry', () => {
@@ -77,6 +79,45 @@ describe('formátování podle jistoty', () => {
 
   it('varianta bez značky nejistoty vlnovku vynechá', () => {
     expect(formatTimePointBare(tp(1450, 'bc', null, null, true))).toBe('1450 př. n. l.');
+  });
+});
+
+describe('formátování otevřené hranice', () => {
+  it('„min." znamená, že rok není znám', () => {
+    expect(formatTimePoint(tp(64, 'ad', null, null, false, 'min'))).toBe('min. 64 n. l.');
+  });
+
+  it('„po roce" se používá u událostí', () => {
+    expect(formatTimePoint(tp(874, 'bc', null, null, false, 'after'))).toBe('po roce 874 př. n. l.');
+  });
+
+  it('otevřenost je nezávislá na jistotě i přesnosti', () => {
+    // rok úmrtí neznámý a navíc odhadovaný
+    expect(formatTimePoint(tp(65, 'ad', null, null, true, 'min'))).toBe('min. ~65 n. l.');
+    // otevřenost bez přibližnosti nepřidá vlnovku
+    expect(formatTimePoint(tp(65, 'ad', null, null, false, 'min'))).not.toContain('~');
+    // přibližnost bez otevřenosti nepřidá „min."
+    expect(formatTimePoint(tp(65, 'ad', null, null, true))).toBe('~65 n. l.');
+    // otevřenost funguje i s plnou přesností
+    expect(formatTimePoint(tp(33, 'ad', 4, 14, false, 'min'))).toBe('min. 14. dubna 33 n. l.');
+  });
+
+  it('„min." se nesmí zaměnit s přibližností', () => {
+    const otevreny = formatTimePoint(tp(64, 'ad', null, null, false, 'min'));
+    const priblizny = formatTimePoint(tp(64, 'ad', null, null, true));
+    expect(otevreny).not.toBe(priblizny);
+  });
+
+  it('pozná otevřený údaj', () => {
+    expect(isOpenEnded(tp(64, 'ad', null, null, false, 'min'))).toBe(true);
+    expect(isOpenEnded(tp(64, 'ad', null, null, true))).toBe(false);
+    expect(isOpenEnded(null)).toBe(false);
+  });
+
+  it('rozsah s otevřeným koncem', () => {
+    expect(formatRange(tp(5, 'bc', null, null, true), tp(64, 'ad', null, null, false, 'min'))).toBe(
+      '~5 př. n. l. – min. 64 n. l.',
+    );
   });
 });
 

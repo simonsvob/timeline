@@ -141,12 +141,25 @@ export function TimelineView({
     [categories],
   );
 
+  /**
+   * Šířka výřezu, nad kterou skok na rok zároveň přiblíží. Bez toho by se při
+   * plném oddálení nestalo nic viditelného – celý rozsah je vidět už teď.
+   */
+  const GOTO_ZOOM_THRESHOLD_YEARS = 400;
+  const GOTO_WINDOW_YEARS = 200;
+
   const handleGoToYear = (submitEvent: React.FormEvent) => {
     submitEvent.preventDefault();
     const parsed = Number(goToYearValue.trim());
     if (!Number.isInteger(parsed) || parsed < 1) return;
     const target = toAstronomicalYear(parsed, goToEra);
     const visibleYears = view.width / view.pxPerYear;
+    if (visibleYears > GOTO_ZOOM_THRESHOLD_YEARS) {
+      setView(
+        viewportForRange(target - GOTO_WINDOW_YEARS / 2, target + GOTO_WINDOW_YEARS / 2, view.width, domain, 0),
+      );
+      return;
+    }
     setView(clampViewport({ ...view, t0: target - visibleYears / 2 }, domain));
   };
 

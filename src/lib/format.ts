@@ -35,15 +35,24 @@ export function monthNameGenitive(month: number): string {
 }
 
 /**
- * Formátuje časový údaj přesně podle zadané přesnosti a jistoty:
- *   jen rok        -> „607 př. n. l."
- *   rok + měsíc    -> „říjen 607 př. n. l."
+ * Formátuje časový údaj přesně podle zadané přesnosti, jistoty a otevřenosti:
+ *   jen rok         -> „607 př. n. l."
+ *   rok + měsíc     -> „říjen 607 př. n. l."
  *   rok + měsíc+den -> „7. října 607 př. n. l."
- * Přibližný údaj dostane předponu „~".
+ * Přibližný údaj dostane předponu „~", otevřený „min." / „po roce".
+ * Obojí se může potkat: „min. ~65 n. l." = rok úmrtí neznámý, odhad aspoň 65.
  */
 export function formatTimePoint(tp: TimePoint): string {
-  const prefix = tp.approx ? APPROX_PREFIX : '';
-  return prefix + formatTimePointBare(tp);
+  const parts: string[] = [];
+  if (tp.qualifier === 'min') parts.push(cs.qualifier.min);
+  else if (tp.qualifier === 'after') parts.push(cs.qualifier.after);
+  parts.push((tp.approx ? APPROX_PREFIX : '') + formatTimePointBare(tp));
+  return parts.join(' ');
+}
+
+/** Má údaj otevřenou hranici (neznámý rok za zadanou hodnotou)? */
+export function isOpenEnded(tp: Pick<TimePoint, 'qualifier'> | null): boolean {
+  return tp?.qualifier != null;
 }
 
 /** Totéž bez značky nejistoty (když ji vykresluje UI jinak). */

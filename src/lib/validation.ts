@@ -12,6 +12,7 @@ import {
   daysInMonth,
   toAstronomicalYear,
   type Era,
+  type Qualifier,
   type TimePoint,
 } from './time';
 
@@ -25,6 +26,8 @@ export interface TimeInput {
   month: string;
   day: string;
   approx: boolean;
+  /** '' = uzavřená hranice */
+  qualifier: Qualifier | '';
 }
 
 export interface EventFormInput {
@@ -48,7 +51,7 @@ export type ValidationResult =
   | { ok: false; errors: FieldErrors };
 
 export function emptyTimeInput(): TimeInput {
-  return { year: '', era: 'bc', month: '', day: '', approx: false };
+  return { year: '', era: 'bc', month: '', day: '', approx: false, qualifier: '' };
 }
 
 export function emptyEventForm(): EventFormInput {
@@ -149,6 +152,7 @@ function validateTimeInput(
     month: validMonth,
     day: validDay,
     approx: input.approx,
+    qualifier: input.qualifier === '' ? null : input.qualifier,
   };
 }
 

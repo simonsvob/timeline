@@ -17,7 +17,21 @@ export type Era = 'bc' | 'ad';
 /** Co je u údaje skutečně vyplněno. Nezávislé na tom, zda je údaj jistý. */
 export type Precision = 'year' | 'month' | 'day';
 
-/** Jeden časový údaj: přesnost (co je vyplněno) + jistota (`approx`). */
+/**
+ * Otevřený údaj – hranice není známá, jen se ví, že leží za daným rokem:
+ *   'min'   … „žil nejméně do" (rok úmrtí není znám)
+ *   'after' … „po roce" (událost nastala někdy potom)
+ *
+ * Je to TŘETÍ vlastnost, nezávislá na přesnosti i na jistotě. „min. 64 n. l."
+ * není totéž co „~64 n. l.": první říká, že rok neznáme a je aspoň 64, druhé
+ * že rok odhadujeme na 64. Proto se nesmí slévat do `approx`.
+ */
+export type Qualifier = 'min' | 'after';
+
+/**
+ * Jeden časový údaj: přesnost (co je vyplněno), jistota (`approx`)
+ * a otevřenost (`qualifier`) – tři nezávislé vlastnosti.
+ */
 export interface TimePoint {
   /** astronomický rok */
   year: number;
@@ -27,6 +41,8 @@ export interface TimePoint {
   day: number | null;
   /** přibližné („cca") – nezávislé na přesnosti */
   approx: boolean;
+  /** otevřená hranice („min." / „po roce") – nezávislá na obojím */
+  qualifier: Qualifier | null;
 }
 
 /** Který okraj časového údaje nás zajímá při převodu na spojitou osu. */

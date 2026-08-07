@@ -63,6 +63,17 @@ export const cs = {
     adLong: 'našeho letopočtu',
   },
 
+  qualifier: {
+    none: '—',
+    min: 'min.',
+    after: 'po roce',
+    minLabel: 'minimálně do (rok konce není znám)',
+    afterLabel: 'po roce (přesný rok není znám)',
+    openEnd: 'Otevřená hranice',
+    openEndHint: 'Rok není znám, ví se jen, že leží za zadaným rokem',
+    atLeast: 'nejméně',
+  },
+
   months: {
     nominative: [
       'leden',

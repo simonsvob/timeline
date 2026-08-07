@@ -35,10 +35,12 @@ interface EventRow {
   start_month: number | null;
   start_day: number | null;
   start_approx: boolean;
+  start_qualifier: 'min' | 'after' | null;
   end_year: number | null;
   end_month: number | null;
   end_day: number | null;
   end_approx: boolean;
+  end_qualifier: 'min' | 'after' | null;
   source: string | null;
   note: string | null;
   place_name: string | null;
@@ -50,8 +52,8 @@ interface EventRow {
 }
 
 const EVENT_COLUMNS =
-  'id,name,type,category_id,start_year,start_month,start_day,start_approx,' +
-  'end_year,end_month,end_day,end_approx,source,note,place_name,lat,lng,tags,' +
+  'id,name,type,category_id,start_year,start_month,start_day,start_approx,start_qualifier,' +
+  'end_year,end_month,end_day,end_approx,end_qualifier,source,note,place_name,lat,lng,tags,' +
   'created_at,updated_at';
 
 const CATEGORY_COLUMNS = 'id,name,color,sort_order';
@@ -79,6 +81,7 @@ export function eventFromRow(row: EventRow): TimelineEvent {
       month: row.start_month,
       day: row.start_day,
       approx: row.start_approx,
+      qualifier: row.start_qualifier,
     },
     end:
       row.type === 'range' && row.end_year !== null
@@ -87,6 +90,7 @@ export function eventFromRow(row: EventRow): TimelineEvent {
             month: row.end_month,
             day: row.end_day,
             approx: row.end_approx,
+            qualifier: row.end_qualifier,
           }
         : null,
     source: row.source,
@@ -110,10 +114,12 @@ export function eventToRow(draft: EventDraft): Omit<EventRow, 'id' | 'created_at
     start_month: draft.start.month,
     start_day: draft.start.day,
     start_approx: draft.start.approx,
+    start_qualifier: draft.start.qualifier,
     end_year: isRange ? (draft.end as NonNullable<typeof draft.end>).year : null,
     end_month: isRange ? (draft.end as NonNullable<typeof draft.end>).month : null,
     end_day: isRange ? (draft.end as NonNullable<typeof draft.end>).day : null,
     end_approx: isRange ? (draft.end as NonNullable<typeof draft.end>).approx : false,
+    end_qualifier: isRange ? (draft.end as NonNullable<typeof draft.end>).qualifier : null,
     source: draft.source,
     note: draft.note,
     place_name: draft.placeName,

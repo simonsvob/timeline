@@ -17,6 +17,8 @@ export const LABEL_GAP = 6;
 export const LABEL_PAD = 8;
 /** Mezera mezi sousedními záznamy v jednom řádku. */
 export const ITEM_GAP = 10;
+/** Šipka za otevřeným koncem („min." / „po roce"). */
+export const OPEN_END_WIDTH = 13;
 /**
  * Nad tento počet řádků se přestane rezervovat místo pro popisky – jinak by
  * při maximálním oddálení s tisíci záznamy osa narostla do nesmyslné výšky.
@@ -43,6 +45,10 @@ export interface EventGeometry {
   showLabel: boolean;
   startApprox: boolean;
   endApprox: boolean;
+  /** začátek je otevřený („po roce") – rok není znám */
+  startOpen: boolean;
+  /** konec je otevřený („min.") – rok není znám */
+  endOpen: boolean;
   isPoint: boolean;
 }
 
@@ -92,9 +98,13 @@ export function layoutEvents(
     const x1 = isPoint ? centerX - POINT_RADIUS : rawX1;
     const x2 = isPoint ? centerX + POINT_RADIUS : Math.max(rawX2, rawX1 + 2);
     const label = event.start.approx || (event.end?.approx ?? false) ? `~${event.name}` : event.name;
+    const startOpen = event.start.qualifier != null;
+    const endOpen = isPoint ? false : (event.end?.qualifier ?? null) != null;
     return {
       event,
       isPoint,
+      startOpen,
+      endOpen,
       x1,
       x2,
       centerX,
@@ -109,7 +119,7 @@ export function layoutEvents(
   const occupiedRight = new Map<string, number>(
     measured.map((m) => [
       m.event.id,
-      labelFitsInside(m) ? m.x2 : m.x2 + LABEL_GAP + m.labelWidth,
+      labelFitsInside(m) ? m.x2 + openEndSpace(m) : m.x2 + openEndSpace(m) + LABEL_GAP + m.labelWidth,
     ]),
   );
 
@@ -156,7 +166,7 @@ export function layoutEvents(
       const max = m.x2 - m.labelWidth - LABEL_PAD;
       labelX = Math.min(Math.max(m.x1 + LABEL_PAD, min), Math.max(max, m.x1 + LABEL_PAD));
     } else {
-      labelX = m.x2 + LABEL_GAP;
+      labelX = m.x2 + openEndSpace(m) + LABEL_GAP;
       // U pravého okraje plátna by popisek utekl mimo. Překlopíme ho doleva od
       // značky, je-li tam volno; jinak popisek skryjeme – uživatel ho uvidí
       // po najetí a v detailu.
@@ -182,6 +192,8 @@ export function layoutEvents(
       showLabel,
       startApprox: m.event.start.approx,
       endApprox: m.event.end?.approx ?? false,
+      startOpen: m.startOpen,
+      endOpen: m.endOpen,
       isPoint: m.isPoint,
     };
   });
@@ -197,9 +209,17 @@ export function layoutEvents(
 interface MeasuredEvent {
   event: TimelineEvent;
   isPoint: boolean;
+  startOpen: boolean;
+  endOpen: boolean;
   x1: number;
   x2: number;
   labelWidth: number;
+}
+
+/** Místo, které si vyžádá šipka otevřeného konce (u bodu otevřený začátek). */
+function openEndSpace(m: Pick<MeasuredEvent, 'isPoint' | 'startOpen' | 'endOpen'>): number {
+  const open = m.isPoint ? m.startOpen : m.endOpen;
+  return open ? OPEN_END_WIDTH : 0;
 }
 
 /** Vejde se popisek dovnitř pruhu? U bodů nikdy. */

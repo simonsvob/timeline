@@ -10,7 +10,7 @@ const dataset: Dataset = {
       name: 'Potopa',
       type: 'point',
       categoryId: 'c1',
-      start: { year: -2369, month: null, day: null, approx: false },
+      start: { year: -2369, month: null, day: null, approx: false, qualifier: null },
       end: null,
       source: '1. Mojžíšova 7,11',
       note: null,
@@ -26,8 +26,8 @@ const dataset: Dataset = {
       name: 'Metuzalém',
       type: 'range',
       categoryId: 'c1',
-      start: { year: -3338, month: null, day: null, approx: true },
-      end: { year: -2369, month: 10, day: 7, approx: false },
+      start: { year: -3338, month: null, day: null, approx: true, qualifier: null },
+      end: { year: -2369, month: 10, day: 7, approx: false, qualifier: null },
       source: null,
       note: 'Nejdelší život',
       placeName: null,
@@ -72,7 +72,7 @@ describe('import', () => {
     expect(potopa.start.day).toBeNull();
     const metuzalem = result.dataset.events.find((e) => e.id === 'e2')!;
     expect(metuzalem.start.approx).toBe(true);
-    expect(metuzalem.end).toEqual({ year: -2369, month: 10, day: 7, approx: false });
+    expect(metuzalem.end).toEqual({ year: -2369, month: 10, day: 7, approx: false, qualifier: null });
   });
 
   it('odmítne nevalidní JSON', () => {
@@ -85,6 +85,55 @@ describe('import', () => {
     expect(parseImport('[]').ok).toBe(false);
   });
 
+  it('načte i starší verzi schématu bez kvalifikátoru', () => {
+    const stary = {
+      schemaVersion: 1,
+      exportedAt: '',
+      categories: [],
+      events: [{ name: 'Petr', type: 'point', start: { year: -4, approx: true } }],
+    };
+    const result = parseImport(JSON.stringify(stary));
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.schemaVersion).toBe(1);
+    expect(result.dataset.events[0].start.qualifier).toBeNull();
+    expect(result.dataset.events[0].start.approx).toBe(true);
+  });
+
+  it('zachová otevřenou hranici', () => {
+    const result = parseImport(
+      JSON.stringify({
+        schemaVersion: 2,
+        exportedAt: '',
+        categories: [],
+        events: [
+          {
+            name: 'Petr',
+            type: 'range',
+            start: { year: -4, approx: true },
+            end: { year: 64, qualifier: 'min' },
+          },
+        ],
+      }),
+    );
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.dataset.events[0].end?.qualifier).toBe('min');
+  });
+
+  it('neznámý kvalifikátor zahodí', () => {
+    const result = parseImport(
+      JSON.stringify({
+        schemaVersion: 2,
+        exportedAt: '',
+        categories: [],
+        events: [{ name: 'X', type: 'point', start: { year: 1, qualifier: 'nesmysl' } }],
+      }),
+    );
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.dataset.events[0].start.qualifier).toBeNull();
+  });
+
   it('odmítne neznámou verzi schématu', () => {
     const file = { ...buildExport(dataset), schemaVersion: 99 };
     const result = parseImport(JSON.stringify(file));
@@ -95,7 +144,7 @@ describe('import', () => {
   it('odmítne záznam s neplatným datem', () => {
     const broken = {
       ...buildExport(dataset),
-      events: [{ ...dataset.events[0], start: { year: -2369, month: 2, day: 30, approx: false } }],
+      events: [{ ...dataset.events[0], start: { year: -2369, month: 2, day: 30, approx: false, qualifier: null } }],
     };
     expect(parseImport(JSON.stringify(broken)).ok).toBe(false);
   });
@@ -108,7 +157,7 @@ describe('import', () => {
   it('odmítne den bez měsíce', () => {
     const broken = {
       ...buildExport(dataset),
-      events: [{ ...dataset.events[0], start: { year: -2369, month: null, day: 7, approx: false } }],
+      events: [{ ...dataset.events[0], start: { year: -2369, month: null, day: 7, approx: false, qualifier: null } }],
     };
     expect(parseImport(JSON.stringify(broken)).ok).toBe(false);
   });

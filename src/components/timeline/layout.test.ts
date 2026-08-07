@@ -25,8 +25,8 @@ function rangeEvent(
     name,
     type: 'range',
     categoryId: null,
-    start: { year: toAstronomicalYear(fromYearBc, 'bc'), month: null, day: null, approx: false },
-    end: { year: toAstronomicalYear(toYearBc, 'bc'), month: null, day: null, approx: false },
+    start: { year: toAstronomicalYear(fromYearBc, 'bc'), month: null, day: null, approx: false, qualifier: null },
+    end: { year: toAstronomicalYear(toYearBc, 'bc'), month: null, day: null, approx: false, qualifier: null },
     source: null,
     note: null,
     placeName: null,
@@ -110,7 +110,7 @@ describe('rozvržení popisků', () => {
 
   it('přibližný záznam má v popisku vlnovku', () => {
     const e = pointEvent('Exodus', 1513, {
-      start: { year: toAstronomicalYear(1513, 'bc'), month: null, day: null, approx: true },
+      start: { year: toAstronomicalYear(1513, 'bc'), month: null, day: null, approx: true, qualifier: null },
     });
     const layout = layoutEvents([e], view(-1600, 1), noCategories, measure);
     expect(layout.items[0].label).toBe('~Exodus');

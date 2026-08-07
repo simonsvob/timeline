@@ -45,7 +45,12 @@ export interface Dataset {
   events: TimelineEvent[];
 }
 
-export const EXPORT_SCHEMA_VERSION = 1;
+/**
+ * Verze 2 přidala otevřenou hranici (`qualifier`) u časových údajů.
+ * Import umí načíst i verzi 1 – chybějící kvalifikátor je prostě null.
+ */
+export const EXPORT_SCHEMA_VERSION = 2;
+export const SUPPORTED_IMPORT_VERSIONS = [1, 2];
 
 export interface ExportFile {
   schemaVersion: number;

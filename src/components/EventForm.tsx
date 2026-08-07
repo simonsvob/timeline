@@ -7,7 +7,7 @@
 import { useMemo, useState, type FormEvent } from 'react';
 import { cs } from '../i18n/cs';
 import { formatRange } from '../lib/format';
-import { fromAstronomicalYear, type Era, type TimePoint } from '../lib/time';
+import { fromAstronomicalYear, type Era, type Qualifier, type TimePoint } from '../lib/time';
 import {
   emptyEventForm,
   validateEventForm,
@@ -27,7 +27,7 @@ interface Props {
 }
 
 function timePointToInput(tp: TimePoint | null): TimeInput {
-  if (!tp) return { year: '', era: 'bc', month: '', day: '', approx: false };
+  if (!tp) return { year: '', era: 'bc', month: '', day: '', approx: false, qualifier: '' };
   const { year, era } = fromAstronomicalYear(tp.year);
   return {
     year: String(year),
@@ -35,6 +35,7 @@ function timePointToInput(tp: TimePoint | null): TimeInput {
     month: tp.month === null ? '' : String(tp.month),
     day: tp.day === null ? '' : String(tp.day),
     approx: tp.approx,
+    qualifier: tp.qualifier ?? '',
   };
 }
 
@@ -177,6 +178,24 @@ export function EventForm({ event, categories, onSubmit, onClose, onManageCatego
             <span className="field-hint-inline"> — {cs.form.approxHint}</span>
           </span>
         </label>
+
+        <Field
+          label={cs.qualifier.openEnd}
+          htmlFor={`${which}-qualifier`}
+          hint={cs.qualifier.openEndHint}
+          optional
+        >
+          <select
+            id={`${which}-qualifier`}
+            className="input"
+            value={value.qualifier}
+            onChange={(e) => patchTime(which, { qualifier: e.target.value as Qualifier | '' })}
+          >
+            <option value="">{cs.qualifier.none}</option>
+            <option value="min">{cs.qualifier.minLabel}</option>
+            <option value="after">{cs.qualifier.afterLabel}</option>
+          </select>
+        </Field>
       </fieldset>
     );
   };

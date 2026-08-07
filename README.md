@@ -140,6 +140,13 @@ Každý časový údaj má dvě nezávislé vlastnosti:
    vlnovkou (`~1450 př. n. l.`), na ose přechodem do ztracena (pruh) nebo
    měkkým halem (bod).
 
+3. **Otevřenost** — `qualifier`, opět nezávislý na obojím. Rok není znám, ví se
+   jen, že leží za zadanou hodnotou: `min` („žil nejméně do", `min. 64 n. l.`)
+   a `after` („po roce", `po roce 874 př. n. l.`). Na ose končí pruh ostrou
+   hranou se šipkou — vědomě jinak než přibližnost, protože jde o jiné tvrzení:
+   „min. 64" znamená, že rok neznáme; „~64" že ho odhadujeme. Údaj může nést
+   obojí najednou (`min. ~65 n. l.`).
+
 Kalendáře se nepřevádějí (žádný juliánský/gregoriánský přepočet) — data se
 ukládají a zobrazují tak, jak byla zadána.
 
@@ -187,6 +194,25 @@ Pokryté oblasti (Vitest, bez DOM — testuje se čistá logika):
 | `src/lib/viewport.test.ts` | zoom, posun, adaptivní měřítko |
 | `src/components/timeline/layout.test.ts` | rozvržení pruhů a popisků na ose |
 | `src/data/transfer.test.ts` | export a import JSON |
+
+## Data z knihy
+
+V repozitáři je připravený převod tří časových os z knihy *Odvážně choď s Bohem*:
+
+| Soubor | Obsah |
+| --- | --- |
+| `data/zdroj-odvazne-chod-s-bohem.json` | přepis knihy tak, jak přišel (70 záznamů) |
+| `scripts/prevod-wcg.mjs` | převod do formátu aplikace |
+| `data/odvazne-chod-s-bohem.json` | výsledek — nahratelný přes **Data → Importovat** |
+
+```bash
+node scripts/prevod-wcg.mjs         # přegeneruje data/odvazne-chod-s-bohem.json
+node scripts/prevod-wcg.mjs --sql   # vypíše SQL s upsertem podle id
+```
+
+Záznamy dostávají stabilní UUID odvozené ze slugu, takže opakovaný import
+přepíše totéž a nevytvoří kopie. Samuel a „SVĚTOVÁ VELMOC: Egypt" jsou v knize
+na dvou osách se stejnými roky — v datech jsou jednou, s poznámkou.
 
 ## Struktura projektu
 

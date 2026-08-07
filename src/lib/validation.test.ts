@@ -12,7 +12,15 @@ function form(overrides: Partial<EventFormInput> = {}): EventFormInput {
 }
 
 function startInput(over: Partial<EventFormInput['start']> = {}) {
-  return { year: '2370', era: 'bc' as const, month: '', day: '', approx: false, ...over };
+  return {
+    year: '2370',
+    era: 'bc' as const,
+    month: '',
+    day: '',
+    approx: false,
+    qualifier: '' as const,
+    ...over,
+  };
 }
 
 describe('validace jména', () => {
@@ -112,7 +120,7 @@ describe('validace rozsahu', () => {
       form({
         type: 'range',
         start: startInput(startOver),
-        end: { year: '2370', era: 'bc', month: '', day: '', approx: false, ...endOver },
+        end: { year: '2370', era: 'bc', month: '', day: '', approx: false, qualifier: '', ...endOver },
       }),
     );
 
@@ -158,7 +166,7 @@ describe('validace rozsahu', () => {
       form({
         type: 'point',
         start: startInput(),
-        end: { year: '2000', era: 'bc', month: '', day: '', approx: false },
+        end: { year: '2000', era: 'bc', month: '', day: '', approx: false, qualifier: '' },
       }),
     );
     expect(res.ok).toBe(true);
@@ -170,7 +178,7 @@ describe('validace rozsahu', () => {
       form({
         type: 'range',
         start: startInput({ approx: true }),
-        end: { year: '2000', era: 'bc', month: '', day: '', approx: false },
+        end: { year: '2000', era: 'bc', month: '', day: '', approx: false, qualifier: '' },
       }),
     );
     expect(res.ok).toBe(true);
@@ -178,6 +186,53 @@ describe('validace rozsahu', () => {
       expect(res.value.start.approx).toBe(true);
       expect(res.value.end?.approx).toBe(false);
     }
+  });
+});
+
+describe('validace otevřené hranice', () => {
+  it('prázdná hodnota znamená uzavřenou hranici', () => {
+    const res = validateEventForm(form({ start: startInput() }));
+    expect(res.ok).toBe(true);
+    if (res.ok) expect(res.value.start.qualifier).toBeNull();
+  });
+
+  it('přenese „min." i „po roce" do záznamu', () => {
+    const min = validateEventForm(
+      form({
+        type: 'range',
+        start: startInput({ year: '5', era: 'bc' }),
+        end: { year: '64', era: 'ad', month: '', day: '', approx: false, qualifier: 'min' },
+      }),
+    );
+    expect(min.ok).toBe(true);
+    if (min.ok) expect(min.value.end?.qualifier).toBe('min');
+
+    const after = validateEventForm(
+      form({ start: startInput({ year: '874', era: 'bc', qualifier: 'after' }) }),
+    );
+    expect(after.ok).toBe(true);
+    if (after.ok) expect(after.value.start.qualifier).toBe('after');
+  });
+
+  it('otevřenost nezapíná přibližnost', () => {
+    const res = validateEventForm(form({ start: startInput({ qualifier: 'min' }) }));
+    expect(res.ok).toBe(true);
+    if (res.ok) {
+      expect(res.value.start.qualifier).toBe('min');
+      expect(res.value.start.approx).toBe(false);
+    }
+  });
+
+  it('bod zahodí kvalifikátor konce spolu s koncem', () => {
+    const res = validateEventForm(
+      form({
+        type: 'point',
+        start: startInput(),
+        end: { year: '2000', era: 'bc', month: '', day: '', approx: false, qualifier: 'min' },
+      }),
+    );
+    expect(res.ok).toBe(true);
+    if (res.ok) expect(res.value.end).toBeNull();
   });
 });
 

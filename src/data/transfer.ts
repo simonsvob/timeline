@@ -4,8 +4,15 @@
  */
 
 import { cs } from '../i18n/cs';
-import { daysInMonth } from '../lib/time';
-import { EXPORT_SCHEMA_VERSION, type Category, type Dataset, type ExportFile, type TimelineEvent } from './types';
+import { daysInMonth, type Qualifier } from '../lib/time';
+import {
+  EXPORT_SCHEMA_VERSION,
+  SUPPORTED_IMPORT_VERSIONS,
+  type Category,
+  type Dataset,
+  type ExportFile,
+  type TimelineEvent,
+} from './types';
 
 export function buildExport(dataset: Dataset): ExportFile {
   return {
@@ -54,6 +61,7 @@ interface RawTimeFields {
   month: unknown;
   day: unknown;
   approx: unknown;
+  qualifier: unknown;
 }
 
 function parseTimePoint(raw: RawTimeFields) {
@@ -64,7 +72,9 @@ function parseTimePoint(raw: RawTimeFields) {
   if (day === undefined) return undefined;
   if (day !== null && month === null) return undefined;
   if (day !== null && month !== null && day > daysInMonth(month)) return undefined;
-  return { year: raw.year, month, day, approx: raw.approx === true };
+  const qualifier: Qualifier | null =
+    raw.qualifier === 'min' || raw.qualifier === 'after' ? raw.qualifier : null;
+  return { year: raw.year, month, day, approx: raw.approx === true, qualifier };
 }
 
 function parseCategory(raw: unknown): Category | null {
@@ -91,6 +101,7 @@ function parseEvent(raw: unknown): TimelineEvent | null {
     month: startRaw.month,
     day: startRaw.day,
     approx: startRaw.approx,
+    qualifier: startRaw.qualifier,
   });
   if (!start) return null;
 
@@ -103,6 +114,7 @@ function parseEvent(raw: unknown): TimelineEvent | null {
       month: endRaw.month,
       day: endRaw.day,
       approx: endRaw.approx,
+      qualifier: endRaw.qualifier,
     });
     if (!end) return null;
   }
@@ -141,9 +153,10 @@ export function parseImport(text: string): ParseResult {
   if (!isRecord(raw) || !Array.isArray(raw.categories) || !Array.isArray(raw.events)) {
     return { ok: false, error: cs.dataIO.invalidSchema };
   }
-  if (raw.schemaVersion !== EXPORT_SCHEMA_VERSION) {
+  if (typeof raw.schemaVersion !== 'number' || !SUPPORTED_IMPORT_VERSIONS.includes(raw.schemaVersion)) {
     return { ok: false, error: cs.dataIO.unsupportedVersion(raw.schemaVersion) };
   }
+  const schemaVersion = raw.schemaVersion;
 
   const categories: Category[] = [];
   for (const item of raw.categories) {
@@ -167,5 +180,5 @@ export function parseImport(text: string): ParseResult {
       : event,
   );
 
-  return { ok: true, dataset: { categories, events: cleaned }, schemaVersion: EXPORT_SCHEMA_VERSION };
+  return { ok: true, dataset: { categories, events: cleaned }, schemaVersion };
 }

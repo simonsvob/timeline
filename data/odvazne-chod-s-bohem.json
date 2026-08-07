@@ -1,0 +1,2035 @@
+{
+  "schemaVersion": 2,
+  "exportedAt": "2026-08-07T13:45:07.047Z",
+  "categories": [],
+  "events": [
+    {
+      "id": "694c7127-449d-506d-9a56-adf7c4745208",
+      "name": "Adam",
+      "type": "range",
+      "categoryId": null,
+      "start": {
+        "year": -4025,
+        "month": null,
+        "day": null,
+        "approx": false,
+        "qualifier": null
+      },
+      "end": {
+        "year": -3095,
+        "month": null,
+        "day": null,
+        "approx": false,
+        "qualifier": null
+      },
+      "source": "Odvážně choď s Bohem, 1. část (str. 14–15)",
+      "note": null,
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Adam",
+        "Před potopou",
+        "1. část"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "7a0d8a00-4014-5ac3-b1a8-244d70e25009",
+      "name": "Enoch",
+      "type": "range",
+      "categoryId": null,
+      "start": {
+        "year": -3403,
+        "month": null,
+        "day": null,
+        "approx": false,
+        "qualifier": null
+      },
+      "end": {
+        "year": -3038,
+        "month": null,
+        "day": null,
+        "approx": false,
+        "qualifier": null
+      },
+      "source": "Odvážně choď s Bohem, 1. část (str. 14–15)",
+      "note": null,
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Enoch",
+        "Před potopou",
+        "1. část"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "02776eaa-4a00-5547-a22e-5451054274b9",
+      "name": "Noe",
+      "type": "range",
+      "categoryId": null,
+      "start": {
+        "year": -2969,
+        "month": null,
+        "day": null,
+        "approx": false,
+        "qualifier": null
+      },
+      "end": {
+        "year": -2019,
+        "month": null,
+        "day": null,
+        "approx": false,
+        "qualifier": null
+      },
+      "source": "Odvážně choď s Bohem, 1. část (str. 14–15)",
+      "note": null,
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Noe",
+        "Před potopou",
+        "1. část"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "a7570dbc-e0dd-523e-b919-18ad960fc1c4",
+      "name": "Abraham",
+      "type": "range",
+      "categoryId": null,
+      "start": {
+        "year": -2017,
+        "month": null,
+        "day": null,
+        "approx": false,
+        "qualifier": null
+      },
+      "end": {
+        "year": -1842,
+        "month": null,
+        "day": null,
+        "approx": false,
+        "qualifier": null
+      },
+      "source": "Odvážně choď s Bohem, 1. část (str. 14–15)",
+      "note": null,
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Abraham",
+        "Po potopě",
+        "1. část"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "4b850c6b-0ae1-5102-8d6f-dca15853f1f0",
+      "name": "Sára",
+      "type": "range",
+      "categoryId": null,
+      "start": {
+        "year": -2007,
+        "month": null,
+        "day": null,
+        "approx": false,
+        "qualifier": null
+      },
+      "end": {
+        "year": -1880,
+        "month": null,
+        "day": null,
+        "approx": false,
+        "qualifier": null
+      },
+      "source": "Odvážně choď s Bohem, 1. část (str. 14–15)",
+      "note": null,
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Sára",
+        "Po potopě",
+        "1. část"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "b6c471c2-7777-5794-bcf3-1d33123428dc",
+      "name": "Rebeka",
+      "type": "range",
+      "categoryId": null,
+      "start": {
+        "year": -1899,
+        "month": null,
+        "day": null,
+        "approx": true,
+        "qualifier": null
+      },
+      "end": {
+        "year": -1774,
+        "month": null,
+        "day": null,
+        "approx": true,
+        "qualifier": null
+      },
+      "source": "Odvážně choď s Bohem, 1. část (str. 14–15)",
+      "note": null,
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Rebeka",
+        "Po potopě",
+        "1. část"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "382f4972-1859-568a-bae1-b6cc24f36a1d",
+      "name": "Jákob",
+      "type": "range",
+      "categoryId": null,
+      "start": {
+        "year": -1857,
+        "month": null,
+        "day": null,
+        "approx": false,
+        "qualifier": null
+      },
+      "end": {
+        "year": -1710,
+        "month": null,
+        "day": null,
+        "approx": false,
+        "qualifier": null
+      },
+      "source": "Odvážně choď s Bohem, 1. část (str. 14–15)",
+      "note": null,
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Jákob",
+        "Po potopě",
+        "1. část"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "9459a490-791f-5131-b1d8-09f5fc447d4c",
+      "name": "Josef",
+      "type": "range",
+      "categoryId": null,
+      "start": {
+        "year": -1766,
+        "month": null,
+        "day": null,
+        "approx": false,
+        "qualifier": null
+      },
+      "end": {
+        "year": -1656,
+        "month": null,
+        "day": null,
+        "approx": false,
+        "qualifier": null
+      },
+      "source": "Odvážně choď s Bohem, 1. část (str. 14–15)",
+      "note": null,
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Josef",
+        "Po potopě",
+        "1. část"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "690ee511-e0f3-50f6-b2a1-8f122578da9c",
+      "name": "Šifra, Pua, Amram, Jokebed, Miriam",
+      "type": "range",
+      "categoryId": null,
+      "start": {
+        "year": -1644,
+        "month": null,
+        "day": null,
+        "approx": true,
+        "qualifier": null
+      },
+      "end": {
+        "year": -1473,
+        "month": null,
+        "day": null,
+        "approx": true,
+        "qualifier": null
+      },
+      "source": "Odvážně choď s Bohem, 1. část (str. 14–15)",
+      "note": "Délky jejich životů jsou sloučené do jedné čáry.",
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Šifra",
+        "Pua",
+        "Amram",
+        "Jokebed",
+        "Miriam",
+        "Po potopě",
+        "1. část",
+        "sloučené životy"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "5778cc54-8599-57b1-8639-a5c3fee1e5ee",
+      "name": "Mojžíš",
+      "type": "range",
+      "categoryId": null,
+      "start": {
+        "year": -1592,
+        "month": null,
+        "day": null,
+        "approx": false,
+        "qualifier": null
+      },
+      "end": {
+        "year": -1472,
+        "month": null,
+        "day": null,
+        "approx": false,
+        "qualifier": null
+      },
+      "source": "Odvážně choď s Bohem, 1. část (str. 14–15)",
+      "note": null,
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Mojžíš",
+        "Po potopě",
+        "1. část"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "8e194b39-87a9-598c-9dab-eb9f5d8989b5",
+      "name": "Kaleb",
+      "type": "range",
+      "categoryId": null,
+      "start": {
+        "year": -1551,
+        "month": null,
+        "day": null,
+        "approx": false,
+        "qualifier": null
+      },
+      "end": {
+        "year": -1449,
+        "month": null,
+        "day": null,
+        "approx": true,
+        "qualifier": null
+      },
+      "source": "Odvážně choď s Bohem, 1. část (str. 14–15)",
+      "note": null,
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Kaleb",
+        "Po potopě",
+        "1. část"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "0299a01d-4000-52ec-9529-b63d2657a978",
+      "name": "Jozue",
+      "type": "range",
+      "categoryId": null,
+      "start": {
+        "year": -1559,
+        "month": null,
+        "day": null,
+        "approx": true,
+        "qualifier": null
+      },
+      "end": {
+        "year": -1449,
+        "month": null,
+        "day": null,
+        "approx": true,
+        "qualifier": null
+      },
+      "source": "Odvážně choď s Bohem, 1. část (str. 14–15)",
+      "note": null,
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Jozue",
+        "Po potopě",
+        "1. část"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "c6a909b9-def5-51a6-821f-36fb43f5841c",
+      "name": "Raab",
+      "type": "range",
+      "categoryId": null,
+      "start": {
+        "year": -1499,
+        "month": null,
+        "day": null,
+        "approx": true,
+        "qualifier": null
+      },
+      "end": {
+        "year": -1399,
+        "month": null,
+        "day": null,
+        "approx": true,
+        "qualifier": null
+      },
+      "source": "Odvážně choď s Bohem, 1. část (str. 14–15)",
+      "note": null,
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Raab",
+        "Po potopě",
+        "1. část"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "529b2b9e-a035-50af-8193-873cd2b77e75",
+      "name": "Noemi, Rut, Debora, Barak, Jael, Gideon, Samson, Jefta a jeho dcera",
+      "type": "range",
+      "categoryId": null,
+      "start": {
+        "year": -1449,
+        "month": null,
+        "day": null,
+        "approx": true,
+        "qualifier": null
+      },
+      "end": {
+        "year": -1119,
+        "month": null,
+        "day": null,
+        "approx": true,
+        "qualifier": null
+      },
+      "source": "Odvážně choď s Bohem, 1. část (str. 14–15)",
+      "note": "Délky jejich životů jsou sloučené do jednoho úseku dlouhého 330 let. Každý z nich žil podstatně kratší dobu a jejich chronologické pořadí není jisté.",
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Noemi",
+        "Rut",
+        "Debora",
+        "Barak",
+        "Jael",
+        "Gideon",
+        "Samson",
+        "Jefta",
+        "Jeftova dcera",
+        "Období soudců",
+        "1. část",
+        "sloučené životy"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "d29224b2-d8f5-502a-805f-316fa6a024bf",
+      "name": "Samuel",
+      "type": "range",
+      "categoryId": null,
+      "start": {
+        "year": -1179,
+        "month": null,
+        "day": null,
+        "approx": true,
+        "qualifier": null
+      },
+      "end": {
+        "year": -1079,
+        "month": null,
+        "day": null,
+        "approx": true,
+        "qualifier": null
+      },
+      "source": "Odvážně choď s Bohem, 1. část (str. 14–15)",
+      "note": "V knize je uvedeno na obou časových osách (1. i 2. část) se stejnými roky.",
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Samuel",
+        "Období soudců",
+        "1. část"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "8c8f7d75-4822-5697-a702-79027e318937",
+      "name": "Celosvětová potopa",
+      "type": "point",
+      "categoryId": null,
+      "start": {
+        "year": -2369,
+        "month": null,
+        "day": null,
+        "approx": false,
+        "qualifier": null
+      },
+      "end": null,
+      "source": "Odvážně choď s Bohem, 1. část (str. 14–15)",
+      "note": null,
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Významné události",
+        "1. část"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "9092221c-d0dd-5a34-8261-50ccd3be3c1f",
+      "name": "Začíná platit smlouva s Abrahamem",
+      "type": "point",
+      "categoryId": null,
+      "start": {
+        "year": -1942,
+        "month": null,
+        "day": null,
+        "approx": false,
+        "qualifier": null
+      },
+      "end": null,
+      "source": "Odvážně choď s Bohem, 1. část (str. 14–15)",
+      "note": null,
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Významné události",
+        "1. část"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "c3360b72-8369-52cd-a842-91937d2488b7",
+      "name": "Jákobova rodina přichází do Egypta",
+      "type": "point",
+      "categoryId": null,
+      "start": {
+        "year": -1727,
+        "month": null,
+        "day": null,
+        "approx": false,
+        "qualifier": null
+      },
+      "end": null,
+      "source": "Odvážně choď s Bohem, 1. část (str. 14–15)",
+      "note": null,
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Významné události",
+        "1. část"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "fe61b654-daeb-5576-8ae1-18b132762d10",
+      "name": "SVĚTOVÁ VELMOC: Egypt",
+      "type": "point",
+      "categoryId": null,
+      "start": {
+        "year": -1599,
+        "month": null,
+        "day": null,
+        "approx": true,
+        "qualifier": null
+      },
+      "end": null,
+      "source": "Odvážně choď s Bohem, 1. část (str. 14–15)",
+      "note": "Přibližný rok. V knize je uvedeno na obou časových osách (1. i 2. část) se stejnými roky.",
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Významné události",
+        "1. část",
+        "světová velmoc"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "ca4dc20d-8fec-51c2-a66e-2c0a88e68151",
+      "name": "Odchod z Egypta",
+      "type": "point",
+      "categoryId": null,
+      "start": {
+        "year": -1512,
+        "month": null,
+        "day": null,
+        "approx": false,
+        "qualifier": null
+      },
+      "end": null,
+      "source": "Odvážně choď s Bohem, 1. část (str. 14–15)",
+      "note": null,
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Významné události",
+        "1. část"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "075b34f6-e597-5a08-a2a4-18b1c3b5ded6",
+      "name": "Izraelský národ vstupuje do Kanaánu",
+      "type": "point",
+      "categoryId": null,
+      "start": {
+        "year": -1472,
+        "month": null,
+        "day": null,
+        "approx": false,
+        "qualifier": null
+      },
+      "end": null,
+      "source": "Odvážně choď s Bohem, 1. část (str. 14–15)",
+      "note": null,
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Významné události",
+        "1. část"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "43570caf-717e-5d0a-9a0f-23da02134484",
+      "name": "Samuel pomazává Saula za krále",
+      "type": "point",
+      "categoryId": null,
+      "start": {
+        "year": -1116,
+        "month": null,
+        "day": null,
+        "approx": false,
+        "qualifier": null
+      },
+      "end": null,
+      "source": "Odvážně choď s Bohem, 1. část (str. 14–15)",
+      "note": null,
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Významné události",
+        "1. část"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "852dd167-533c-5e54-ab36-93fcb95c8f83",
+      "name": "Jonatan",
+      "type": "range",
+      "categoryId": null,
+      "start": {
+        "year": -1137,
+        "month": null,
+        "day": null,
+        "approx": true,
+        "qualifier": null
+      },
+      "end": {
+        "year": -1077,
+        "month": null,
+        "day": null,
+        "approx": true,
+        "qualifier": null
+      },
+      "source": "Odvážně choď s Bohem, 2. část (str. 104–105)",
+      "note": null,
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Jonatan",
+        "Sjednocené království",
+        "2. část"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "6aaca659-c5ff-5e21-835d-906fdd4bcd37",
+      "name": "David",
+      "type": "range",
+      "categoryId": null,
+      "start": {
+        "year": -1106,
+        "month": null,
+        "day": null,
+        "approx": false,
+        "qualifier": null
+      },
+      "end": {
+        "year": -1036,
+        "month": null,
+        "day": null,
+        "approx": false,
+        "qualifier": null
+      },
+      "source": "Odvážně choď s Bohem, 2. část (str. 104–105)",
+      "note": null,
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "David",
+        "Sjednocené království",
+        "2. část"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "532bcbf8-6e17-57c5-b322-969a4aee10a4",
+      "name": "Abigail, Natan",
+      "type": "range",
+      "categoryId": null,
+      "start": {
+        "year": -1099,
+        "month": null,
+        "day": null,
+        "approx": true,
+        "qualifier": null
+      },
+      "end": {
+        "year": -999,
+        "month": null,
+        "day": null,
+        "approx": true,
+        "qualifier": null
+      },
+      "source": "Odvážně choď s Bohem, 2. část (str. 104–105)",
+      "note": "Délky jejich životů jsou sloučené do jedné čáry.",
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Abigail",
+        "Natan",
+        "Sjednocené království",
+        "2. část",
+        "sloučené životy"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "5baed354-a5cc-5d4f-99b3-1c47a5445d55",
+      "name": "Mefibošet",
+      "type": "range",
+      "categoryId": null,
+      "start": {
+        "year": -1082,
+        "month": null,
+        "day": null,
+        "approx": true,
+        "qualifier": null
+      },
+      "end": {
+        "year": -999,
+        "month": null,
+        "day": null,
+        "approx": true,
+        "qualifier": null
+      },
+      "source": "Odvážně choď s Bohem, 2. část (str. 104–105)",
+      "note": null,
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Mefibošet",
+        "Sjednocené království",
+        "2. část"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "e84416c9-020f-5f6c-96de-d0a5c3d2b8df",
+      "name": "Jehojada",
+      "type": "range",
+      "categoryId": null,
+      "start": {
+        "year": -1004,
+        "month": null,
+        "day": null,
+        "approx": true,
+        "qualifier": null
+      },
+      "end": {
+        "year": -874,
+        "month": null,
+        "day": null,
+        "approx": true,
+        "qualifier": null
+      },
+      "source": "Odvážně choď s Bohem, 2. část (str. 104–105)",
+      "note": null,
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Jehojada",
+        "Rozdělené království",
+        "2. část"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "2d2f960e-edd4-5b67-bd39-0dc9e47a1527",
+      "name": "Asa",
+      "type": "range",
+      "categoryId": null,
+      "start": {
+        "year": -999,
+        "month": null,
+        "day": null,
+        "approx": true,
+        "qualifier": null
+      },
+      "end": {
+        "year": -936,
+        "month": null,
+        "day": null,
+        "approx": false,
+        "qualifier": null
+      },
+      "source": "Odvážně choď s Bohem, 2. část (str. 104–105)",
+      "note": null,
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Asa",
+        "Rozdělené království",
+        "2. část"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "af1531f5-3ec9-5b32-87c6-20021472b107",
+      "name": "Elijáš, vdova z Carefatu",
+      "type": "range",
+      "categoryId": null,
+      "start": {
+        "year": -969,
+        "month": null,
+        "day": null,
+        "approx": true,
+        "qualifier": null
+      },
+      "end": {
+        "year": -899,
+        "month": null,
+        "day": null,
+        "approx": true,
+        "qualifier": null
+      },
+      "source": "Odvážně choď s Bohem, 2. část (str. 104–105)",
+      "note": "Délky jejich životů jsou sloučené do jedné čáry.",
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Elijáš",
+        "vdova z Carefatu",
+        "Rozdělené království",
+        "2. část",
+        "sloučené životy"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "ed23bea2-9f1e-566a-93a6-6c03302a0599",
+      "name": "Eliša",
+      "type": "range",
+      "categoryId": null,
+      "start": {
+        "year": -949,
+        "month": null,
+        "day": null,
+        "approx": true,
+        "qualifier": null
+      },
+      "end": {
+        "year": -849,
+        "month": null,
+        "day": null,
+        "approx": true,
+        "qualifier": null
+      },
+      "source": "Odvážně choď s Bohem, 2. část (str. 104–105)",
+      "note": null,
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Eliša",
+        "Rozdělené království",
+        "2. část"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "eefa37aa-5d2d-558f-abde-a32241ba26ee",
+      "name": "izraelská holčička",
+      "type": "range",
+      "categoryId": null,
+      "start": {
+        "year": -924,
+        "month": null,
+        "day": null,
+        "approx": true,
+        "qualifier": null
+      },
+      "end": {
+        "year": -824,
+        "month": null,
+        "day": null,
+        "approx": true,
+        "qualifier": null
+      },
+      "source": "Odvážně choď s Bohem, 2. část (str. 104–105)",
+      "note": null,
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "izraelská holčička",
+        "Rozdělené království",
+        "2. část"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "b31c36f6-b679-5264-9464-6491ac01c0a8",
+      "name": "Ezekjáš",
+      "type": "range",
+      "categoryId": null,
+      "start": {
+        "year": -770,
+        "month": null,
+        "day": null,
+        "approx": false,
+        "qualifier": null
+      },
+      "end": {
+        "year": -715,
+        "month": null,
+        "day": null,
+        "approx": false,
+        "qualifier": null
+      },
+      "source": "Odvážně choď s Bohem, 2. část (str. 104–105)",
+      "note": null,
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Ezekjáš",
+        "Rozdělené království",
+        "2. část"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "cd3d2bdd-b08d-5745-a940-9e8414edc5d1",
+      "name": "Manasse",
+      "type": "range",
+      "categoryId": null,
+      "start": {
+        "year": -727,
+        "month": null,
+        "day": null,
+        "approx": false,
+        "qualifier": null
+      },
+      "end": {
+        "year": -660,
+        "month": null,
+        "day": null,
+        "approx": false,
+        "qualifier": null
+      },
+      "source": "Odvážně choď s Bohem, 2. část (str. 104–105)",
+      "note": null,
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Manasse",
+        "Rozdělené království",
+        "2. část"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "154ec7ef-2f58-57db-aed1-6641c5b3812a",
+      "name": "Josijáš",
+      "type": "range",
+      "categoryId": null,
+      "start": {
+        "year": -666,
+        "month": null,
+        "day": null,
+        "approx": false,
+        "qualifier": null
+      },
+      "end": {
+        "year": -627,
+        "month": null,
+        "day": null,
+        "approx": false,
+        "qualifier": null
+      },
+      "source": "Odvážně choď s Bohem, 2. část (str. 104–105)",
+      "note": null,
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Josijáš",
+        "Rozdělené království",
+        "2. část"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "f3be3b16-4aa0-5f48-a132-9335589bdc98",
+      "name": "Daniel, Chananjáš, Mišael, Azarjáš",
+      "type": "range",
+      "categoryId": null,
+      "start": {
+        "year": -634,
+        "month": null,
+        "day": null,
+        "approx": true,
+        "qualifier": null
+      },
+      "end": {
+        "year": -534,
+        "month": null,
+        "day": null,
+        "approx": true,
+        "qualifier": null
+      },
+      "source": "Odvážně choď s Bohem, 2. část (str. 104–105)",
+      "note": "Délky jejich životů jsou sloučené do jedné čáry.",
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Daniel",
+        "Chananjáš",
+        "Mišael",
+        "Azarjáš",
+        "Vyhnanství v Babyloně",
+        "2. část",
+        "sloučené životy"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "b6a3b6e1-77af-5722-9672-6e200ff38a47",
+      "name": "Ester",
+      "type": "range",
+      "categoryId": null,
+      "start": {
+        "year": -514,
+        "month": null,
+        "day": null,
+        "approx": true,
+        "qualifier": null
+      },
+      "end": {
+        "year": -414,
+        "month": null,
+        "day": null,
+        "approx": true,
+        "qualifier": null
+      },
+      "source": "Odvážně choď s Bohem, 2. část (str. 104–105)",
+      "note": null,
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Ester",
+        "Po návratu z vyhnanství",
+        "2. část"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "45f62467-9247-5d48-9842-3555b4701706",
+      "name": "Nehemjáš",
+      "type": "range",
+      "categoryId": null,
+      "start": {
+        "year": -484,
+        "month": null,
+        "day": null,
+        "approx": true,
+        "qualifier": null
+      },
+      "end": {
+        "year": -384,
+        "month": null,
+        "day": null,
+        "approx": true,
+        "qualifier": null
+      },
+      "source": "Odvážně choď s Bohem, 2. část (str. 104–105)",
+      "note": null,
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Nehemjáš",
+        "Po návratu z vyhnanství",
+        "2. část"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "a4ae7d65-d849-5acd-bba4-2395e93d2201",
+      "name": "Šalomounův chrám je dokončený",
+      "type": "point",
+      "categoryId": null,
+      "start": {
+        "year": -1026,
+        "month": null,
+        "day": null,
+        "approx": false,
+        "qualifier": null
+      },
+      "end": null,
+      "source": "Odvážně choď s Bohem, 2. část (str. 104–105)",
+      "note": null,
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Významné události",
+        "2. část"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "cee0c0f8-cd2d-57a0-879a-eb1e3f2c489a",
+      "name": "Izrael se dělí na dvě království",
+      "type": "point",
+      "categoryId": null,
+      "start": {
+        "year": -996,
+        "month": null,
+        "day": null,
+        "approx": false,
+        "qualifier": null
+      },
+      "end": null,
+      "source": "Odvážně choď s Bohem, 2. část (str. 104–105)",
+      "note": null,
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Významné události",
+        "2. část"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "535637e6-77da-5661-9e65-ef6e292da835",
+      "name": "SVĚTOVÁ VELMOC: Asýrie",
+      "type": "point",
+      "categoryId": null,
+      "start": {
+        "year": -873,
+        "month": null,
+        "day": null,
+        "approx": true,
+        "qualifier": "after"
+      },
+      "end": null,
+      "source": "Odvážně choď s Bohem, 2. část (str. 104–105)",
+      "note": "Přibližný rok.",
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Významné události",
+        "2. část",
+        "světová velmoc"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "4a0af9e3-2574-577b-882a-9414641a95bc",
+      "name": "Asýrie poráží desetikmenné království",
+      "type": "point",
+      "categoryId": null,
+      "start": {
+        "year": -739,
+        "month": null,
+        "day": null,
+        "approx": false,
+        "qualifier": null
+      },
+      "end": null,
+      "source": "Odvážně choď s Bohem, 2. část (str. 104–105)",
+      "note": null,
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Významné události",
+        "2. část"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "8e69e5cd-d68c-5b00-b4a8-8873244e66f7",
+      "name": "SVĚTOVÁ VELMOC: Babylon",
+      "type": "point",
+      "categoryId": null,
+      "start": {
+        "year": -624,
+        "month": null,
+        "day": null,
+        "approx": false,
+        "qualifier": null
+      },
+      "end": null,
+      "source": "Odvážně choď s Bohem, 2. část (str. 104–105)",
+      "note": null,
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Významné události",
+        "2. část",
+        "světová velmoc"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "8d59ad74-f08c-5e49-83ef-bec9760febd3",
+      "name": "Nebukadnecar ničí Jeruzalém",
+      "type": "point",
+      "categoryId": null,
+      "start": {
+        "year": -606,
+        "month": null,
+        "day": null,
+        "approx": false,
+        "qualifier": null
+      },
+      "end": null,
+      "source": "Odvážně choď s Bohem, 2. část (str. 104–105)",
+      "note": null,
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Významné události",
+        "2. část"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "0f73e671-96cb-56b9-8376-036c4eceeaf9",
+      "name": "SVĚTOVÁ VELMOC: Médo-Persie",
+      "type": "point",
+      "categoryId": null,
+      "start": {
+        "year": -538,
+        "month": null,
+        "day": null,
+        "approx": false,
+        "qualifier": null
+      },
+      "end": null,
+      "source": "Odvážně choď s Bohem, 2. část (str. 104–105)",
+      "note": null,
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Významné události",
+        "2. část",
+        "světová velmoc"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "396b596b-75bd-5edb-ac0a-e05b89188ec3",
+      "name": "Židé jsou propuštěni z Babylonu",
+      "type": "point",
+      "categoryId": null,
+      "start": {
+        "year": -536,
+        "month": null,
+        "day": null,
+        "approx": false,
+        "qualifier": null
+      },
+      "end": null,
+      "source": "Odvážně choď s Bohem, 2. část (str. 104–105)",
+      "note": null,
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Významné události",
+        "2. část"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "0d6ff48b-8508-5e89-9016-1b45eb37c8e0",
+      "name": "Chrám v Jeruzalémě je znovu postavený",
+      "type": "point",
+      "categoryId": null,
+      "start": {
+        "year": -514,
+        "month": null,
+        "day": null,
+        "approx": false,
+        "qualifier": null
+      },
+      "end": null,
+      "source": "Odvážně choď s Bohem, 2. část (str. 104–105)",
+      "note": null,
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Významné události",
+        "2. část"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "41a1da86-0fc2-596b-a1a1-ee1d89abcf8b",
+      "name": "Jeruzalémské hradby jsou opravené",
+      "type": "point",
+      "categoryId": null,
+      "start": {
+        "year": -454,
+        "month": null,
+        "day": null,
+        "approx": false,
+        "qualifier": null
+      },
+      "end": null,
+      "source": "Odvážně choď s Bohem, 2. část (str. 104–105)",
+      "note": null,
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Významné události",
+        "2. část"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "a5be5a36-27e7-53df-824c-51f40cc24662",
+      "name": "Zecharjáš",
+      "type": "range",
+      "categoryId": null,
+      "start": {
+        "year": -69,
+        "month": null,
+        "day": null,
+        "approx": true,
+        "qualifier": null
+      },
+      "end": {
+        "year": -1,
+        "month": null,
+        "day": null,
+        "approx": false,
+        "qualifier": "min"
+      },
+      "source": "Odvážně choď s Bohem, 3. část (str. 186–187)",
+      "note": null,
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Zecharjáš",
+        "3. část"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "1c313171-2781-57ab-a6bb-53c3ff881fa3",
+      "name": "Alžběta",
+      "type": "range",
+      "categoryId": null,
+      "start": {
+        "year": -69,
+        "month": null,
+        "day": null,
+        "approx": true,
+        "qualifier": null
+      },
+      "end": {
+        "year": -1,
+        "month": null,
+        "day": null,
+        "approx": false,
+        "qualifier": "min"
+      },
+      "source": "Odvážně choď s Bohem, 3. část (str. 186–187)",
+      "note": null,
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Alžběta",
+        "3. část"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "2c733cb5-5a35-5231-9514-6a96ac060502",
+      "name": "Marie (Ježíšova matka)",
+      "type": "range",
+      "categoryId": null,
+      "start": {
+        "year": -19,
+        "month": null,
+        "day": null,
+        "approx": true,
+        "qualifier": null
+      },
+      "end": {
+        "year": 33,
+        "month": null,
+        "day": null,
+        "approx": false,
+        "qualifier": "min"
+      },
+      "source": "Odvážně choď s Bohem, 3. část (str. 186–187)",
+      "note": null,
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Marie (Ježíšova matka)",
+        "3. část"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "502b3441-6724-5e17-8ed6-b53f00364c4e",
+      "name": "Josef",
+      "type": "range",
+      "categoryId": null,
+      "start": {
+        "year": -24,
+        "month": null,
+        "day": null,
+        "approx": true,
+        "qualifier": null
+      },
+      "end": {
+        "year": 11,
+        "month": null,
+        "day": null,
+        "approx": false,
+        "qualifier": "min"
+      },
+      "source": "Odvážně choď s Bohem, 3. část (str. 186–187)",
+      "note": null,
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Josef",
+        "3. část"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "918aeb02-2d6a-5f28-9944-6db5ef5d510f",
+      "name": "Jan Křtitel",
+      "type": "range",
+      "categoryId": null,
+      "start": {
+        "year": -1,
+        "month": null,
+        "day": null,
+        "approx": false,
+        "qualifier": null
+      },
+      "end": {
+        "year": 32,
+        "month": null,
+        "day": null,
+        "approx": true,
+        "qualifier": null
+      },
+      "source": "Odvážně choď s Bohem, 3. část (str. 186–187)",
+      "note": null,
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Jan Křtitel",
+        "3. část"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "a7709fa0-2263-5cdf-9b93-85d587adf4e8",
+      "name": "Ježíš",
+      "type": "range",
+      "categoryId": null,
+      "start": {
+        "year": -1,
+        "month": null,
+        "day": null,
+        "approx": false,
+        "qualifier": null
+      },
+      "end": {
+        "year": 33,
+        "month": null,
+        "day": null,
+        "approx": false,
+        "qualifier": null
+      },
+      "source": "Odvážně choď s Bohem, 3. část (str. 186–187)",
+      "note": null,
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Ježíš",
+        "3. část"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "001e2d86-186d-5111-9239-f08626fbe732",
+      "name": "Petr",
+      "type": "range",
+      "categoryId": null,
+      "start": {
+        "year": -4,
+        "month": null,
+        "day": null,
+        "approx": true,
+        "qualifier": null
+      },
+      "end": {
+        "year": 64,
+        "month": null,
+        "day": null,
+        "approx": false,
+        "qualifier": "min"
+      },
+      "source": "Odvážně choď s Bohem, 3. část (str. 186–187)",
+      "note": null,
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Petr",
+        "3. část"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "2fa39212-3cc5-5182-8c23-546fbc8db371",
+      "name": "Marie Magdaléna",
+      "type": "range",
+      "categoryId": null,
+      "start": {
+        "year": -4,
+        "month": null,
+        "day": null,
+        "approx": true,
+        "qualifier": null
+      },
+      "end": {
+        "year": 33,
+        "month": null,
+        "day": null,
+        "approx": false,
+        "qualifier": "min"
+      },
+      "source": "Odvážně choď s Bohem, 3. část (str. 186–187)",
+      "note": null,
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Marie Magdaléna",
+        "3. část"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "32faa03e-b055-5b65-a794-79bd4438aa97",
+      "name": "Marie (Lazarova sestra)",
+      "type": "range",
+      "categoryId": null,
+      "start": {
+        "year": -14,
+        "month": null,
+        "day": null,
+        "approx": true,
+        "qualifier": null
+      },
+      "end": {
+        "year": 33,
+        "month": null,
+        "day": null,
+        "approx": false,
+        "qualifier": "min"
+      },
+      "source": "Odvážně choď s Bohem, 3. část (str. 186–187)",
+      "note": null,
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Marie (Lazarova sestra)",
+        "3. část"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "90c857f6-e170-5542-83ae-c6aca5c45ebd",
+      "name": "Štěpán",
+      "type": "range",
+      "categoryId": null,
+      "start": {
+        "year": -4,
+        "month": null,
+        "day": null,
+        "approx": true,
+        "qualifier": null
+      },
+      "end": {
+        "year": 33,
+        "month": null,
+        "day": null,
+        "approx": true,
+        "qualifier": null
+      },
+      "source": "Odvážně choď s Bohem, 3. část (str. 186–187)",
+      "note": "Kniha uvádí 33/34 n. l.",
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Štěpán",
+        "3. část"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "8e2868b4-d2f8-5023-bfc4-a977a244d62b",
+      "name": "Pavel (Saul z Tarsu)",
+      "type": "range",
+      "categoryId": null,
+      "start": {
+        "year": 3,
+        "month": null,
+        "day": null,
+        "approx": true,
+        "qualifier": null
+      },
+      "end": {
+        "year": 65,
+        "month": null,
+        "day": null,
+        "approx": true,
+        "qualifier": null
+      },
+      "source": "Odvážně choď s Bohem, 3. část (str. 186–187)",
+      "note": null,
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Pavel (Saul z Tarsu)",
+        "3. část"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "221284e4-0133-5175-a13f-3c4f9d1dec95",
+      "name": "Barnabáš",
+      "type": "range",
+      "categoryId": null,
+      "start": {
+        "year": -4,
+        "month": null,
+        "day": null,
+        "approx": true,
+        "qualifier": null
+      },
+      "end": {
+        "year": 55,
+        "month": null,
+        "day": null,
+        "approx": false,
+        "qualifier": "min"
+      },
+      "source": "Odvážně choď s Bohem, 3. část (str. 186–187)",
+      "note": null,
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Barnabáš",
+        "3. část"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "23de1c8a-3e52-5ea8-83e4-1543fd103e2d",
+      "name": "Marek",
+      "type": "range",
+      "categoryId": null,
+      "start": {
+        "year": 15,
+        "month": null,
+        "day": null,
+        "approx": true,
+        "qualifier": null
+      },
+      "end": {
+        "year": 65,
+        "month": null,
+        "day": null,
+        "approx": true,
+        "qualifier": "min"
+      },
+      "source": "Odvážně choď s Bohem, 3. část (str. 186–187)",
+      "note": null,
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Marek",
+        "3. část"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "5bb5d994-93a0-56f1-a789-750ca51b79ee",
+      "name": "apoštol Jan",
+      "type": "range",
+      "categoryId": null,
+      "start": {
+        "year": -4,
+        "month": null,
+        "day": null,
+        "approx": true,
+        "qualifier": null
+      },
+      "end": {
+        "year": 100,
+        "month": null,
+        "day": null,
+        "approx": true,
+        "qualifier": null
+      },
+      "source": "Odvážně choď s Bohem, 3. část (str. 186–187)",
+      "note": null,
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "apoštol Jan",
+        "3. část"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "44181ac1-fad2-52b0-be07-acb8e51f14a3",
+      "name": "SVĚTOVÁ VELMOC: Řecko",
+      "type": "point",
+      "categoryId": null,
+      "start": {
+        "year": -331,
+        "month": null,
+        "day": null,
+        "approx": true,
+        "qualifier": null
+      },
+      "end": null,
+      "source": "Odvážně choď s Bohem, 3. část (str. 186–187)",
+      "note": "Přibližný rok.",
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Významné události",
+        "3. část",
+        "světová velmoc"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "b3d445fd-ea72-5dd9-a6c1-c90bcfa491b3",
+      "name": "SVĚTOVÁ VELMOC: Řím",
+      "type": "range",
+      "categoryId": null,
+      "start": {
+        "year": -62,
+        "month": null,
+        "day": null,
+        "approx": true,
+        "qualifier": null
+      },
+      "end": {
+        "year": -29,
+        "month": null,
+        "day": null,
+        "approx": true,
+        "qualifier": null
+      },
+      "source": "Odvážně choď s Bohem, 3. část (str. 186–187)",
+      "note": "Přibližný rok.",
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Významné události",
+        "3. část",
+        "světová velmoc"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "ca9dd9ce-5462-5e7c-94c7-b358502b9d94",
+      "name": "Vylití svatého ducha o Letnicích",
+      "type": "point",
+      "categoryId": null,
+      "start": {
+        "year": 33,
+        "month": null,
+        "day": null,
+        "approx": false,
+        "qualifier": null
+      },
+      "end": null,
+      "source": "Odvážně choď s Bohem, 3. část (str. 186–187)",
+      "note": null,
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Významné události",
+        "3. část"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "4bd5ccd8-23d7-515d-821e-078d4223f832",
+      "name": "Jsou pokřtění první neobřezaní lidé z jiných národů",
+      "type": "point",
+      "categoryId": null,
+      "start": {
+        "year": 36,
+        "month": null,
+        "day": null,
+        "approx": false,
+        "qualifier": null
+      },
+      "end": null,
+      "source": "Odvážně choď s Bohem, 3. část (str. 186–187)",
+      "note": null,
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Významné události",
+        "3. část"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "c9655559-5fc2-5c36-968d-c7a30885f0a7",
+      "name": "Matouš píše první evangelium",
+      "type": "point",
+      "categoryId": null,
+      "start": {
+        "year": 41,
+        "month": null,
+        "day": null,
+        "approx": true,
+        "qualifier": null
+      },
+      "end": null,
+      "source": "Odvážně choď s Bohem, 3. část (str. 186–187)",
+      "note": "Přibližný rok.",
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Významné události",
+        "3. část"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "cc2444b3-e241-5fac-8671-125e3d9b2746",
+      "name": "Jeruzalém a chrám jsou zničeny",
+      "type": "point",
+      "categoryId": null,
+      "start": {
+        "year": 70,
+        "month": null,
+        "day": null,
+        "approx": false,
+        "qualifier": null
+      },
+      "end": null,
+      "source": "Odvážně choď s Bohem, 3. část (str. 186–187)",
+      "note": null,
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Významné události",
+        "3. část"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    {
+      "id": "74a195d3-e0d6-5ba3-a78a-4a11f3df082f",
+      "name": "Psaní Bible je dokončeno",
+      "type": "point",
+      "categoryId": null,
+      "start": {
+        "year": 98,
+        "month": null,
+        "day": null,
+        "approx": true,
+        "qualifier": null
+      },
+      "end": null,
+      "source": "Odvážně choď s Bohem, 3. část (str. 186–187)",
+      "note": "Přibližný rok.",
+      "placeName": null,
+      "lat": null,
+      "lng": null,
+      "tags": [
+        "Významné události",
+        "3. část"
+      ],
+      "createdAt": "",
+      "updatedAt": ""
+    }
+  ]
+}

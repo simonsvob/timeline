@@ -20,6 +20,8 @@ interface Props {
 export function DetailPanel({ event, category, canEdit, onEdit, onDelete, onClose }: Props) {
   const length = rangeLengthYears(event.start, event.end);
   const approxLength = event.start.approx || (event.end?.approx ?? false);
+  // U otevřeného konce je délka jen dolní odhad – rok konce není znám.
+  const openLength = event.end?.qualifier != null;
 
   return (
     <aside className="detail-panel" aria-label={cs.detail.title}>
@@ -56,7 +58,7 @@ export function DetailPanel({ event, category, canEdit, onEdit, onDelete, onClos
           <>
             <dt>{cs.detail.duration}</dt>
             <dd>
-              {approxLength ? `${cs.detail.durationApprox} ` : ''}
+              {openLength ? `${cs.qualifier.atLeast} ` : approxLength ? `${cs.detail.durationApprox} ` : ''}
               {formatNumber(Math.floor(length))} {plural(Math.floor(length), 'rok', 'roky', 'let')}
             </dd>
           </>

@@ -13,7 +13,14 @@
 
 import type { Tick, Viewport } from '../../lib/viewport';
 import { xOf } from '../../lib/viewport';
-import { BAR_HEIGHT, LANE_HEIGHT, POINT_RADIUS, type EventGeometry, type LayoutResult } from './layout';
+import {
+  BAR_HEIGHT,
+  LANE_HEIGHT,
+  OPEN_END_WIDTH,
+  POINT_RADIUS,
+  type EventGeometry,
+  type LayoutResult,
+} from './layout';
 
 export const AXIS_HEIGHT = 44;
 
@@ -257,8 +264,14 @@ function drawEvents(ctx: CanvasRenderingContext2D, input: RenderInput): void {
 
     if (item.isPoint) {
       drawPoint(ctx, item, centerY, selected || isHovered, theme);
+      // „po roce X" – rok není znám, jen že leží dál doprava
+      if (item.startOpen) drawOpenEndArrow(ctx, item.centerX + POINT_RADIUS + 2, centerY, item.color);
     } else {
       drawBar(ctx, item, centerY, selected || isHovered, theme, view.width);
+      // „min. X" – konec života/období není znám, čára pokračuje šipkou
+      if (item.endOpen && item.x2 < view.width + OPEN_END_WIDTH) {
+        drawOpenEndArrow(ctx, item.x2 + 2, centerY, item.color);
+      }
     }
 
     if (item.showLabel) {
@@ -356,6 +369,33 @@ function drawPoint(
     ctx.arc(x, centerY, POINT_RADIUS + 3, 0, Math.PI * 2);
     ctx.stroke();
   }
+}
+
+/**
+ * Šipka za otevřenou hranicí. Záměrně se liší od přechodu do ztracena, kterým
+ * se kreslí přibližnost: „min. 64 n. l." není odhad roku, ale neznámý rok.
+ */
+function drawOpenEndArrow(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  centerY: number,
+  color: string,
+): void {
+  const height = BAR_HEIGHT * 0.86;
+  const width = OPEN_END_WIDTH - 3;
+
+  // krátký dřík navazující na pruh
+  ctx.fillStyle = rgba(color, 0.75);
+  ctx.fillRect(x, centerY - height * 0.18, width * 0.45, height * 0.36);
+
+  // hrot
+  ctx.beginPath();
+  ctx.moveTo(x + width * 0.4, centerY - height / 2);
+  ctx.lineTo(x + width, centerY);
+  ctx.lineTo(x + width * 0.4, centerY + height / 2);
+  ctx.closePath();
+  ctx.fillStyle = rgba(color, 0.75);
+  ctx.fill();
 }
 
 function drawTooltip(
