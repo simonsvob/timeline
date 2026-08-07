@@ -178,8 +178,8 @@ nimi jako vodorovné pruhy. Přibližnost se pozná z grafiky, ne z textu:
 
 | | pruh (život, období) | bodová událost |
 | --- | --- | --- |
-| jistý údaj | ostrá hrana s obrysem, tečka u začátku | plný uzel na čáře |
-| přibližný údaj | výplň se rozplyne, obrys mizí až na špičce | — |
+| jistý údaj | uzavřený kraj se zaobleným rohem | plný uzel na čáře |
+| přibližný údaj | otevřený kraj — obrys jen nahoře a dole | vlnovka u roku |
 | otevřená hranice | šipka na stranu, kam je údaj otevřený | šipka u uzlu |
 
 Kategorie s vyplněným rozsahem let se chovají jako **období**: barví centrální

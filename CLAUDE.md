@@ -49,9 +49,10 @@ vlastní, nad celočíselnými roky.
 `openDirection` v `time.ts` říká, na kterou stranu je hranice otevřená:
 `before` doleva, `min` i `after` doprava.
 
-Přibližná hranice se pozná z vykreslení: výplň pruhu se rozplyne do průhledna.
-**Obrys ale zůstává** a mizí až na poslední třetině náběhu (`outlineStop`
-v `renderer.ts`) — bez toho vypadaly přibližné pruhy jako jiný druh objektu.
+Přibližná hranice se pozná z vykreslení: pruh vypadá **stejně jako jistý**, jen
+se na té straně neuzavře — obrys tam vede jen nahoře a dole a roh není zaoblený
+(`barPath` v `renderer.ts` bere zaoblení vlevo a vpravo zvlášť). Výplň se
+nikam nerozplývá, takže se jméno vejde i do úzkého pruhu.
 
 Můžou se potkat: `min. ~65 n. l.` = rok úmrtí neznáme a odhadujeme ho na 65.
 **Nikde se nesmí zobrazit přesnost, která nebyla zadána** — záznam s vyplněným
@@ -112,11 +113,10 @@ přes 6000 let a vlastního vykreslení nejistoty.
   nevejdou, se skryjí (ukážou se po najetí a v detailu).
 - Měření textu je cachované podle řetězce (`measureText` v `TimelineCanvas.tsx`);
   při změně fontu je potřeba cache zneplatnit.
-- Popisek uvnitř pruhu začíná až za náběhem do ztracena (`fadeWidth`), jinak by
-  první písmena ležela v poloprůhledné části. Stejný výpočet používá rozvržení
-  i vykreslení — musí zůstat sdílený.
 - Popisek degraduje podle místa (`LabelMode`): jméno + roky uvnitř → jen jméno
   uvnitř → vedle pruhu → nic. Řádkování počítá s reálnou šířkou popisku.
+- Jméno na pruhu nese barvu kategorie ztmavenou o 42 % (`darken`), roky tutéž
+  barvu poloprůhlednou. Neutrální černá se nepoužívá — text má patřit k pruhu.
 
 **Gesta.** Přibližuje jen pinch, samotné kolečko posouvá. Pinch chodí do
 aplikace **dvěma různými cestami** a obě je potřeba obsluhovat: Chrome a Firefox

@@ -32,8 +32,8 @@ export const RANGE_LANE_HEIGHT = 44;
 /** Horní hrana prvního řádku pruhů pod čárou. */
 export const RANGE_FIRST_OFFSET = 36;
 export const BAR_HEIGHT = 28;
-/** Odsazení popisku uvnitř pruhu (za tečkou začátku). */
-export const BAR_LABEL_INSET = 26;
+/** Odsazení popisku uvnitř pruhu. */
+export const BAR_LABEL_INSET = 13;
 export const BAR_LABEL_GAP = 9;
 /** Mezera mezi pruhem a popiskem vedle něj. */
 export const LABEL_GAP = 10;
@@ -41,9 +41,6 @@ export const LABEL_GAP = 10;
 export const ITEM_GAP = 10;
 /** Šipka za otevřenou hranicí. */
 export const OPEN_END_WIDTH = 13;
-/** Maximální délka náběhu do ztracena u přibližné hranice. */
-export const MAX_FADE_PX = 60;
-
 export const NO_CATEGORY_COLOR = '#9a9384';
 
 /**
@@ -58,15 +55,6 @@ export const MAX_LANES_WITH_LABELS = 40;
  * pilulky vytlačily osu mimo obrazovku.
  */
 export const MAX_POINT_LANES = 5;
-
-/**
- * Jak dlouhý je přechod do ztracena u pruhu dané šířky. Sdílí ho rozvržení
- * i vykreslení: popisek musí začínat až za náběhem, jinak by prvních pár
- * písmen leželo v poloprůhledné části.
- */
-export function fadeWidth(barWidth: number): number {
-  return Math.min(MAX_FADE_PX, barWidth * 0.35);
-}
 
 export type Band = 'point' | 'range';
 
@@ -161,24 +149,10 @@ interface Measured {
   pillWidth: number;
 }
 
-/** Náběhy do ztracena na obou stranách pruhu (0, když je hranice jistá). */
-function fades(m: Pick<Measured, 'isPoint' | 'x1' | 'x2' | 'startApprox' | 'endApprox'>): {
-  start: number;
-  end: number;
-} {
-  if (m.isPoint) return { start: 0, end: 0 };
-  const width = m.x2 - m.x1;
-  return {
-    start: m.startApprox ? fadeWidth(width) : 0,
-    end: m.endApprox ? fadeWidth(width) : 0,
-  };
-}
-
 /** Vybere nejbohatší popisek, který se do pruhu (nebo vedle něj) vejde. */
 function chooseLabelMode(m: Measured, reserveOutside: boolean): LabelMode {
   if (m.isPoint) return 'inside-full';
-  const f = fades(m);
-  const usable = m.x2 - f.end - (m.x1 + f.start) - BAR_LABEL_INSET - 12;
+  const usable = m.x2 - m.x1 - BAR_LABEL_INSET - 12;
   if (usable >= m.nameWidth + BAR_LABEL_GAP + m.yearsWidth) return 'inside-full';
   if (usable >= m.nameWidth) return 'inside-name';
   if (!reserveOutside) return 'none';
@@ -279,17 +253,15 @@ export function layoutEvents(
     const bezPilulky = m.isPoint && pillHidden.has(m.event.id);
     const lane = bezPilulky ? 0 : (packed.lanes.get(m.event.id) ?? 0);
     const mode: LabelMode = bezPilulky ? 'none' : chooseLabelMode(m, labelsReserved);
-    const f = fades(m);
 
     let labelX: number;
     if (m.isPoint) {
       labelX = m.x1 + PILL_PADDING_X;
     } else if (mode === 'inside-full' || mode === 'inside-name') {
       // „Přilepený" popisek: u pruhu delšího než výřez zůstane u okraje plátna.
-      // Začíná až za náběhem do ztracena, ať se první písmena neztrácejí.
-      const from = m.x1 + f.start + BAR_LABEL_INSET;
+      const from = m.x1 + BAR_LABEL_INSET;
       const width = mode === 'inside-full' ? m.nameWidth + BAR_LABEL_GAP + m.yearsWidth : m.nameWidth;
-      const max = m.x2 - f.end - width - 12;
+      const max = m.x2 - width - 12;
       labelX = Math.min(Math.max(from, BAR_LABEL_INSET), Math.max(max, from));
     } else {
       labelX = m.x2 + (m.endOpen === 'right' ? OPEN_END_WIDTH : 0) + LABEL_GAP;

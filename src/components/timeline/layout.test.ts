@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
   eventExtent,
-  fadeWidth,
   hitTest,
   layoutEvents,
   MAX_POINT_LANES,
@@ -120,7 +119,7 @@ describe('popisky rozsahů', () => {
     expect(uzky.labelMode).toBe('outside-full');
   });
 
-  it('popisek uvnitř začíná až za náběhem do ztracena', () => {
+  it('přibližná hranice popisek neposouvá – kraj je otevřený, ne rozplynutý', () => {
     const v = view(-3000, 1);
     const jisty = layout([rangeEvent('Noe', 2970, 2020)], v).items[0];
     const priblizny = layout(
@@ -132,7 +131,8 @@ describe('popisky rozsahů', () => {
       v,
     ).items[0];
     expect(jisty.labelX).toBeCloseTo(jisty.x1 + BAR_LABEL_INSET, 6);
-    expect(priblizny.labelX - jisty.labelX).toBeCloseTo(fadeWidth(priblizny.x2 - priblizny.x1), 6);
+    expect(priblizny.labelX).toBeCloseTo(jisty.labelX, 6);
+    expect(priblizny.labelMode).toBe(jisty.labelMode);
   });
 
   it('u pruhu delšího než výřez zůstane popisek u okraje plátna', () => {

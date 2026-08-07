@@ -17,7 +17,6 @@ import {
   AXIS_LINE_HEIGHT,
   BAR_HEIGHT,
   BAR_LABEL_GAP,
-  fadeWidth,
   NODE_RADIUS,
   OPEN_END_WIDTH,
   PILL_HEIGHT,
@@ -101,6 +100,13 @@ function hexToRgb(hex: string): [number, number, number] {
 export function rgba(hex: string, alpha: number): string {
   const [r, g, b] = hexToRgb(hex);
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+/** Barva ztmavená k černé – popisek v barvě kategorie musí zůstat čitelný. */
+export function darken(hex: string, amount: number): string {
+  const [r, g, b] = hexToRgb(hex);
+  const d = (c: number) => Math.round(c * (1 - amount));
+  return `rgb(${d(r)}, ${d(g)}, ${d(b)})`;
 }
 
 /** Barva smíchaná s bílou – výplň pruhu je kategorie na 15 %. */
@@ -274,55 +280,42 @@ function drawBar(
   const x2 = Math.min(item.x2, view.width + MAX_OVERFLOW);
   const w = Math.max(x2 - x1, 3);
   const y = centerY - BAR_HEIGHT / 2 - (hovered ? 1 : 0);
-  const radius = BAR_HEIGHT / 2;
+  const r = BAR_HEIGHT / 2;
 
-  const fade = fadeWidth(w);
-  const fadeStop = w > 0 ? Math.min(fade / w, 0.5) : 0.35;
+  // Přibližná hranice = OTEVŘENÝ kraj: políčko vypadá stejně jako u jistých
+  // roků, jen se na té straně neuzavře — obrys tam vede jen nahoře a dole.
+  // Ořez na okraj plátna nesmí kraj „uzavřít", proto se hlídá i přesah.
+  const openLeft = item.startApprox || item.x1 < -MAX_OVERFLOW;
+  const openRight = item.endApprox || item.x2 > view.width + MAX_OVERFLOW;
+  const leftR = openLeft ? 0 : Math.min(r, w / 2);
+  const rightR = openRight ? 0 : Math.min(r, w / 2);
 
-  // výplň: kategorie 15 % do bílé, na nejisté straně do průhledna
-  const fillBase = mixWithWhite(item.color, 0.15);
-  let fill: string | CanvasGradient = fillBase;
-  if (item.startApprox || item.endApprox) {
-    const gradient = ctx.createLinearGradient(x1, 0, x2, 0);
-    gradient.addColorStop(0, item.startApprox ? rgba(item.color, 0) : fillBase);
-    gradient.addColorStop(item.startApprox ? fadeStop : 0, fillBase);
-    gradient.addColorStop(item.endApprox ? Math.max(1 - fadeStop, fadeStop) : 1, fillBase);
-    gradient.addColorStop(1, item.endApprox ? rgba(item.color, 0) : fillBase);
-    fill = gradient;
-  }
-
-  roundRectPath(ctx, x1, y, w, BAR_HEIGHT, radius);
+  barPath(ctx, x1, y, w, BAR_HEIGHT, leftR, rightR);
   if (hovered || selected) {
     withShadow(ctx, theme.shadow, hovered ? 20 : 10, hovered ? 7 : 3, () => {
-      ctx.fillStyle = fillBase;
+      ctx.fillStyle = mixWithWhite(item.color, 0.15);
       ctx.fill();
     });
   }
-  ctx.fillStyle = fill;
+  ctx.fillStyle = mixWithWhite(item.color, 0.15);
   ctx.fill();
 
-  // Obrys mají i přibližné pruhy – bez něj by vypadaly jako jiný druh objektu.
-  // Drží se ale déle než výplň (mizí až na poslední třetině náběhu), jinak by
-  // se ztratil dřív, než ho oko stihne přečíst jako ohraničení.
-  const outline = ctx.createLinearGradient(x1, 0, x2, 0);
-  const outlineColor = rgba(item.color, 0.55);
-  const outlineStop = fadeStop * 0.35;
-  outline.addColorStop(0, item.startApprox ? rgba(item.color, 0) : outlineColor);
-  outline.addColorStop(item.startApprox ? outlineStop : 0, outlineColor);
-  outline.addColorStop(item.endApprox ? Math.max(1 - outlineStop, outlineStop) : 1, outlineColor);
-  outline.addColorStop(1, item.endApprox ? rgba(item.color, 0) : outlineColor);
-  roundRectPath(ctx, x1 + 0.5, y + 0.5, w - 1, BAR_HEIGHT - 1, radius - 0.5);
-  ctx.strokeStyle = outline;
+  // obrys: vodorovné hrany vždy, svislé jen na uzavřené straně
+  ctx.strokeStyle = rgba(item.color, 0.55);
   ctx.lineWidth = 1;
-  ctx.stroke();
-
-  // tečka u jistého začátku
-  if (!item.startApprox && item.startOpen === null && x1 > -20) {
-    ctx.fillStyle = item.color;
-    ctx.beginPath();
-    ctx.arc(x1 + 14, centerY - (hovered ? 1 : 0), 4, 0, Math.PI * 2);
-    ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(x1 + leftR, y + 0.5);
+  ctx.lineTo(x2 - rightR, y + 0.5);
+  if (!openRight) {
+    ctx.arc(x2 - rightR, centerY - (hovered ? 1 : 0), rightR - 0.5, -Math.PI / 2, Math.PI / 2);
+  } else {
+    ctx.moveTo(x2, y + BAR_HEIGHT - 0.5);
   }
+  ctx.lineTo(x1 + leftR, y + BAR_HEIGHT - 0.5);
+  if (!openLeft) {
+    ctx.arc(x1 + leftR, centerY - (hovered ? 1 : 0), leftR - 0.5, Math.PI / 2, -Math.PI / 2);
+  }
+  ctx.stroke();
 
   if (item.startOpen === 'left' && x1 > -OPEN_END_WIDTH) {
     drawOpenArrow(ctx, x1 - 3, centerY - (hovered ? 1 : 0), item.color, 'left');
@@ -332,7 +325,7 @@ function drawBar(
   }
 
   if (selected) {
-    roundRectPath(ctx, x1 - 1.5, y - 1.5, w + 3, BAR_HEIGHT + 3, radius + 1.5);
+    barPath(ctx, x1 - 1.5, y - 1.5, w + 3, BAR_HEIGHT + 3, leftR ? leftR + 1.5 : 0, rightR ? rightR + 1.5 : 0);
     ctx.strokeStyle = theme.selection;
     ctx.lineWidth = 2;
     ctx.stroke();
@@ -341,23 +334,49 @@ function drawBar(
   drawBarLabel(input, item, centerY - (hovered ? 1 : 0));
 }
 
+/** Obdélník s nezávislým zaoblením vlevo a vpravo (0 = otevřený kraj). */
+function barPath(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  leftR: number,
+  rightR: number,
+): void {
+  ctx.beginPath();
+  ctx.moveTo(x + leftR, y);
+  ctx.lineTo(x + w - rightR, y);
+  if (rightR > 0) ctx.arcTo(x + w, y, x + w, y + rightR, rightR);
+  ctx.lineTo(x + w, y + h - rightR);
+  if (rightR > 0) ctx.arcTo(x + w, y + h, x + w - rightR, y + h, rightR);
+  ctx.lineTo(x + leftR, y + h);
+  if (leftR > 0) ctx.arcTo(x, y + h, x, y + h - leftR, leftR);
+  ctx.lineTo(x, y + leftR);
+  if (leftR > 0) ctx.arcTo(x, y, x + leftR, y, leftR);
+  ctx.closePath();
+}
+
 const MAX_OVERFLOW = 120;
 
 function drawBarLabel(input: RenderInput, item: EventGeometry, centerY: number): void {
   const { ctx, theme } = input;
   if (item.labelMode === 'none') return;
 
-  const inside = item.labelMode === 'inside-full' || item.labelMode === 'inside-name';
+  // Jméno nese barvu kategorie, jen ztmavenou do čitelnosti; roky tutéž barvu
+  // zesvětlenou, ať zůstanou druhotné a nesplývají s neutrální šedí.
+  const nameColor = darken(item.color, 0.42);
   ctx.textBaseline = 'middle';
   ctx.font = input.nameFont;
-  ctx.fillStyle = inside ? theme.barText : theme.text;
+  ctx.fillStyle = nameColor;
   ctx.fillText(item.name, item.labelX, centerY);
 
   if (item.labelMode === 'inside-full' || item.labelMode === 'outside-full') {
     ctx.font = input.yearFont;
-    ctx.fillStyle = theme.tertiary;
+    ctx.fillStyle = rgba(item.color, 0.75);
     ctx.fillText(item.years, item.labelX + item.nameWidth + BAR_LABEL_GAP, centerY + 0.5);
   }
+  void theme;
 }
 
 function drawOpenArrow(
