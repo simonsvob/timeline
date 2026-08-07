@@ -73,18 +73,24 @@ function parseTimePoint(raw: RawTimeFields) {
   if (day !== null && month === null) return undefined;
   if (day !== null && month !== null && day > daysInMonth(month)) return undefined;
   const qualifier: Qualifier | null =
-    raw.qualifier === 'min' || raw.qualifier === 'after' ? raw.qualifier : null;
+    raw.qualifier === 'min' || raw.qualifier === 'after' || raw.qualifier === 'before'
+      ? raw.qualifier
+      : null;
   return { year: raw.year, month, day, approx: raw.approx === true, qualifier };
 }
 
 function parseCategory(raw: unknown): Category | null {
   if (!isRecord(raw)) return null;
   if (typeof raw.name !== 'string' || typeof raw.color !== 'string') return null;
+  const optionalYear = (value: unknown) =>
+    typeof value === 'number' && Number.isInteger(value) ? value : null;
   return {
     id: typeof raw.id === 'string' && raw.id !== '' ? raw.id : newId(),
     name: raw.name,
     color: raw.color,
     sortOrder: typeof raw.sortOrder === 'number' ? raw.sortOrder : 0,
+    fromYear: optionalYear(raw.fromYear),
+    toYear: optionalYear(raw.toYear),
   };
 }
 

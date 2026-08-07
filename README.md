@@ -145,11 +145,12 @@ Každý časový údaj má dvě nezávislé vlastnosti:
    měkkým halem (bod).
 
 3. **Otevřenost** — `qualifier`, opět nezávislý na obojím. Rok není znám, ví se
-   jen, že leží za zadanou hodnotou: `min` („žil nejméně do", `min. 64 n. l.`)
-   a `after` („po roce", `po roce 874 př. n. l.`). Na ose končí pruh ostrou
-   hranou se šipkou — vědomě jinak než přibližnost, protože jde o jiné tvrzení:
-   „min. 64" znamená, že rok neznáme; „~64" že ho odhadujeme. Údaj může nést
-   obojí najednou (`min. ~65 n. l.`).
+   jen, na které straně zadaného roku leží: `min` („žil nejméně do"),
+   `after` („po roce") a `before` („před rokem", např. `před rokem 3896
+   př. n. l.`). Na ose to značí šipka mířící tam, kam je údaj otevřený —
+   vědomě jinak než přibližnost, protože jde o jiné tvrzení: „min. 64" znamená,
+   že rok neznáme; „~64" že ho odhadujeme. Údaj může nést obojí najednou
+   (`min. ~65 n. l.`).
 
 Kalendáře se nepřevádějí (žádný juliánský/gregoriánský přepočet) — data se
 ukládají a zobrazují tak, jak byla zadána.
@@ -175,11 +176,14 @@ když nějaké kategorie existují, a klikem se kategorie skrývá.
 Bodové události leží v pásmu nahoře jako svislé značky, životy a období pod
 nimi jako vodorovné pruhy. Přibližnost se pozná z grafiky, ne z textu:
 
-| | pruh | bodová událost |
+| | pruh (život, období) | bodová událost |
 | --- | --- | --- |
-| jistý údaj | ostrá hrana | ostrá čára s patkami |
-| přibližný údaj | přechod do ztracena | rozostření do stran |
-| otevřená hranice | ostrá hrana se šipkou | značka se šipkou |
+| jistý údaj | ostrá hrana s obrysem, tečka u začátku | plný uzel na čáře |
+| přibližný údaj | výplň se rozplyne, obrys mizí až na špičce | — |
+| otevřená hranice | šipka na stranu, kam je údaj otevřený | šipka u uzlu |
+
+Kategorie s vyplněným rozsahem let se chovají jako **období**: barví centrální
+čáru i dráhu minimapy a jejich barvu dědí záznamy, které do nich spadají.
 
 ## Export a import
 

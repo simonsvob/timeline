@@ -5,6 +5,9 @@ aplikace je, jak je zapojená, co už se rozhodlo a proč, a co zbývá.
 
 Poslední aktualizace: 7. srpna 2026.
 
+**Vzhled** prošel přestavbou na návrh „Řeka" (centrální čára, události nad ní,
+životy pod ní). Předchozí vzhled je zazálohovaný na větvi `zaloha/design-v1`.
+
 ## O co jde
 
 Webová aplikace pro zadávání a prohlížení biblické časové osy. Obsah si vyplňuje
@@ -38,8 +41,10 @@ i `authenticated`, ne jen existencí politik.
 
 ### Co je rozdělané
 
-- **Žádné kategorie.** Všech 68 záznamů má `category_id` null, na ose jsou tedy
-  šedé. Legenda se proto vůbec nezobrazuje.
+- **Období jsou předběžná.** Šest kategorií (do potopy, patriarchové, soudci,
+  králové, od návratu z Babylonu, od Ježíše dál) je zatím na zkoušku. Hranice
+  jsou odvozené z událostí v datech a dají se změnit ve správě kategorií.
+  Zadavatel ještě zvažuje, jestli mají všechny postavy nosit barvu období.
 - **Žádné štítky.** Zadavatel je nechal smazat a teprve se rozhodne, jestli
   a jak je bude používat. Skript je proto negeneruje.
 

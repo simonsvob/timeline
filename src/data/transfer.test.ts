@@ -3,7 +3,16 @@ import { buildExport, parseImport, serializeExport, exportFileName } from './tra
 import { EXPORT_SCHEMA_VERSION, type Dataset } from './types';
 
 const dataset: Dataset = {
-  categories: [{ id: 'c1', name: 'Patriarchové', color: '#a2563c', sortOrder: 0 }],
+  categories: [
+    {
+      id: 'c1',
+      name: 'Období patriarchů',
+      color: '#898335',
+      sortOrder: 0,
+      fromYear: -2369,
+      toYear: -1472,
+    },
+  ],
   events: [
     {
       id: 'e1',
@@ -160,6 +169,29 @@ describe('import', () => {
       events: [{ ...dataset.events[0], start: { year: -2369, month: null, day: 7, approx: false, qualifier: null } }],
     };
     expect(parseImport(JSON.stringify(broken)).ok).toBe(false);
+  });
+
+  it('kategorie bez rozsahu období se načte s prázdnými roky', () => {
+    const result = parseImport(
+      JSON.stringify({
+        schemaVersion: 2,
+        exportedAt: '',
+        categories: [{ id: 'x', name: 'Štítek', color: '#000000', sortOrder: 0 }],
+        events: [],
+      }),
+    );
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.dataset.categories[0].fromYear).toBeNull();
+    expect(result.dataset.categories[0].toYear).toBeNull();
+  });
+
+  it('zachová rozsah období', () => {
+    const result = parseImport(serializeExport(dataset));
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.dataset.categories[0].fromYear).toBe(-2369);
+    expect(result.dataset.categories[0].toYear).toBe(-1472);
   });
 
   it('doplní chybějící id', () => {

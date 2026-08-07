@@ -194,6 +194,7 @@ export function EventForm({ event, categories, onSubmit, onClose, onManageCatego
             <option value="">{cs.qualifier.none}</option>
             <option value="min">{cs.qualifier.minLabel}</option>
             <option value="after">{cs.qualifier.afterLabel}</option>
+            <option value="before">{cs.qualifier.beforeLabel}</option>
           </select>
         </Field>
       </fieldset>

@@ -13,6 +13,13 @@ export interface Category {
   name: string;
   color: string;
   sortOrder: number;
+  /**
+   * Nepovinný rozsah období (astronomické roky). Kategorie s rozsahem se
+   * chová jako časové období: barví centrální čáru osy a minimapu.
+   * Bez rozsahu je to jen barevný štítek s filtrem, jako dřív.
+   */
+  fromYear: number | null;
+  toYear: number | null;
 }
 
 export type CategoryDraft = Omit<Category, 'id'>;
@@ -46,11 +53,12 @@ export interface Dataset {
 }
 
 /**
- * Verze 2 přidala otevřenou hranici (`qualifier`) u časových údajů.
- * Import umí načíst i verzi 1 – chybějící kvalifikátor je prostě null.
+ * Verze 2 přidala otevřenou hranici (`qualifier`) u časových údajů,
+ * verze 3 rozsah období u kategorií. Import umí načíst i starší verze –
+ * chybějící pole jsou prostě null.
  */
-export const EXPORT_SCHEMA_VERSION = 2;
-export const SUPPORTED_IMPORT_VERSIONS = [1, 2];
+export const EXPORT_SCHEMA_VERSION = 3;
+export const SUPPORTED_IMPORT_VERSIONS = [1, 2, 3];
 
 export interface ExportFile {
   schemaVersion: number;

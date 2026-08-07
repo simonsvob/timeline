@@ -5,6 +5,7 @@
 
 import { useState } from 'react';
 import { cs } from '../i18n/cs';
+import { formatYear } from '../lib/format';
 import { isValidHexColor, validateCategoryForm } from '../lib/validation';
 import type { Category, CategoryDraft, TimelineEvent } from '../data/types';
 import { ConfirmDialog, Modal } from './ui';
@@ -57,7 +58,13 @@ export function CategoryManager({
     }
     setError(null);
     try {
-      await onSave(null, { name: newName.trim(), color: newColor, sortOrder: categories.length });
+      await onSave(null, {
+        name: newName.trim(),
+        color: newColor,
+        sortOrder: categories.length,
+        fromYear: null,
+        toYear: null,
+      });
       setNewName('');
       setNewColor(COLOR_PALETTE[(categories.length + 1) % COLOR_PALETTE.length]);
     } catch (err) {
@@ -70,6 +77,8 @@ export function CategoryManager({
       name: changes.name ?? category.name,
       color: changes.color ?? category.color,
       sortOrder: changes.sortOrder ?? category.sortOrder,
+      fromYear: changes.fromYear !== undefined ? changes.fromYear : category.fromYear,
+      toYear: changes.toYear !== undefined ? changes.toYear : category.toYear,
     };
     if (draft.name.trim() === '' || !isValidHexColor(draft.color)) return;
     try {
@@ -121,7 +130,12 @@ export function CategoryManager({
                     }
                   }}
                 />
-                <span className="category-count">{cs.categories.eventCount(countFor(category.id))}</span>
+                <span className="category-count">
+                  {category.fromYear !== null && category.toYear !== null
+                    ? `${formatYear(category.fromYear)} – ${formatYear(category.toYear)} · `
+                    : ''}
+                  {cs.categories.eventCount(countFor(category.id))}
+                </span>
                 <div className="category-actions">
                   <button
                     type="button"

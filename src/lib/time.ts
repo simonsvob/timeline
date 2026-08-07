@@ -18,15 +18,24 @@ export type Era = 'bc' | 'ad';
 export type Precision = 'year' | 'month' | 'day';
 
 /**
- * Otevřený údaj – hranice není známá, jen se ví, že leží za daným rokem:
- *   'min'   … „žil nejméně do" (rok úmrtí není znám)
- *   'after' … „po roce" (událost nastala někdy potom)
+ * Otevřený údaj – hranice není známá, ví se jen, na které straně zadaného roku
+ * leží:
+ *   'min'    … „žil nejméně do" – rok úmrtí není znám (otevřeno doprava)
+ *   'after'  … „po roce" – nastalo někdy potom (otevřeno doprava)
+ *   'before' … „před rokem" – nastalo někdy předtím (otevřeno doleva)
  *
  * Je to TŘETÍ vlastnost, nezávislá na přesnosti i na jistotě. „min. 64 n. l."
  * není totéž co „~64 n. l.": první říká, že rok neznáme a je aspoň 64, druhé
  * že rok odhadujeme na 64. Proto se nesmí slévat do `approx`.
  */
-export type Qualifier = 'min' | 'after';
+export type Qualifier = 'min' | 'after' | 'before';
+
+/** Na kterou stranu je údaj otevřený. */
+export function openDirection(qualifier: Qualifier | null): 'left' | 'right' | null {
+  if (qualifier === 'before') return 'left';
+  if (qualifier === 'min' || qualifier === 'after') return 'right';
+  return null;
+}
 
 /**
  * Jeden časový údaj: přesnost (co je vyplněno), jistota (`approx`)

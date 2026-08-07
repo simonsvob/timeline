@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   formatRange,
+  formatRangeCompact,
   formatTimePoint,
   formatTimePointBare,
   formatYear,
@@ -118,6 +119,50 @@ describe('formátování otevřené hranice', () => {
     expect(formatRange(tp(5, 'bc', null, null, true), tp(64, 'ad', null, null, false, 'min'))).toBe(
       '~5 př. n. l. – min. 64 n. l.',
     );
+  });
+});
+
+describe('otevřenost doleva', () => {
+  it('„před rokem" se použije u údaje, který nastal dřív', () => {
+    expect(formatTimePoint(tp(3896, 'bc', null, null, false, 'before'))).toBe(
+      'před rokem 3896 př. n. l.',
+    );
+  });
+
+  it('doleva a doprava jsou různá tvrzení', () => {
+    const pred = formatTimePoint(tp(3896, 'bc', null, null, false, 'before'));
+    const po = formatTimePoint(tp(3896, 'bc', null, null, false, 'after'));
+    expect(pred).not.toBe(po);
+  });
+});
+
+describe('kompaktní rozsah pro popisky', () => {
+  it('éru uvede jen jednou, když je na obou stranách stejná', () => {
+    expect(formatRangeCompact(tp(4026, 'bc'), tp(3096, 'bc'))).toBe('4026 – 3096 př. n. l.');
+    expect(formatRangeCompact(tp(3, 'ad'), tp(65, 'ad'))).toBe('3 – 65 n. l.');
+  });
+
+  it('přes přelom letopočtu zůstane plný tvar', () => {
+    expect(formatRangeCompact(tp(2, 'bc'), tp(33, 'ad'))).toBe('2 př. n. l. – 33 n. l.');
+  });
+
+  it('zachová vlnovku i kvalifikátor', () => {
+    expect(formatRangeCompact(tp(1900, 'bc', null, null, true), tp(1775, 'bc', null, null, true))).toBe(
+      '~1900 – ~1775 př. n. l.',
+    );
+    expect(formatRangeCompact(tp(5, 'bc'), tp(64, 'ad', null, null, false, 'min'))).toBe(
+      '5 př. n. l. – min. 64 n. l.',
+    );
+  });
+
+  it('s měsícem nebo dnem se nezkracuje', () => {
+    expect(formatRangeCompact(tp(607, 'bc', 10), tp(537, 'bc'))).toBe(
+      'říjen 607 př. n. l. – 537 př. n. l.',
+    );
+  });
+
+  it('bez konce vrátí jen začátek', () => {
+    expect(formatRangeCompact(tp(2370, 'bc'), null)).toBe('2370 př. n. l.');
   });
 });
 

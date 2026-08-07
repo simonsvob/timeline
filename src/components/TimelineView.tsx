@@ -1,8 +1,6 @@
 /**
- * Hlavní pohled: nenápadná legenda kategorií, plátno osy a minimapa.
- *
- * Nástrojová lišta (skok na rok, tlačítka zoomu, celý rozsah) tu záměrně není:
- * pinch a tažení zvládnou totéž rychleji a lišta jen zabírala místo.
+ * Hlavní pohled: čipy kategorií, plátno osy a plovoucí minimapa.
+ * Nástrojová lišta tu není — gesta ji nahradila.
  */
 
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -10,6 +8,8 @@ import { cs } from '../i18n/cs';
 import {
   clampViewport,
   DEFAULT_DOMAIN,
+  tOf,
+  viewEnd,
   viewportForRange,
   type Domain,
   type Viewport,
@@ -17,6 +17,7 @@ import {
 import type { Category, TimelineEvent } from '../data/types';
 import { eventExtent, NO_CATEGORY_COLOR } from './timeline/layout';
 import { Minimap } from './timeline/Minimap';
+import type { PeriodSpan } from './timeline/renderer';
 import { TimelineCanvas, type FocusRequest } from './timeline/TimelineCanvas';
 
 export interface ExternalFocus {
@@ -24,14 +25,20 @@ export interface ExternalFocus {
   nonce: number;
 }
 
+export interface SelectionAnchor {
+  x: number;
+  y: number;
+}
+
 interface Props {
   events: TimelineEvent[];
   categories: Category[];
   categoryMap: Map<string, Category>;
   selectedId: string | null;
-  onSelect: (event: TimelineEvent | null) => void;
-  /** požadavek z jiného pohledu (tabulka, hledání) – ukázat konkrétní záznam */
+  onSelect: (event: TimelineEvent | null, anchor: SelectionAnchor | null) => void;
   externalFocus: ExternalFocus | null;
+  /** hlásí viditelný rozsah, aby ho hlavička mohla pojmenovat */
+  onRangeChange: (from: number, to: number) => void;
 }
 
 /** Rozsah osy podle dat, s rezervou; bez dat výchozí ~4200 př. n. l. – 200 n. l. */
@@ -48,6 +55,15 @@ export function domainOf(events: TimelineEvent[]): Domain {
   return { min: Math.floor(min - padding), max: Math.ceil(max + padding) };
 }
 
+/** Kategorie s vyplněným rozsahem se chovají jako období a barví osu. */
+export function periodsOf(categories: Category[]): PeriodSpan[] {
+  return categories
+    .filter((c): c is Category & { fromYear: number; toYear: number } =>
+      c.fromYear !== null && c.toYear !== null)
+    .map((c) => ({ from: c.fromYear, to: c.toYear, color: c.color }))
+    .sort((a, b) => a.from - b.from);
+}
+
 export function TimelineView({
   events,
   categories,
@@ -55,6 +71,7 @@ export function TimelineView({
   selectedId,
   onSelect,
   externalFocus,
+  onRangeChange,
 }: Props) {
   const [hiddenCategories, setHiddenCategories] = useState<Set<string>>(new Set());
   const [view, setView] = useState<Viewport>({ t0: DEFAULT_DOMAIN.min, pxPerYear: 0.2, width: 0 });
@@ -64,13 +81,25 @@ export function TimelineView({
   const initialized = useRef(false);
 
   const domain = useMemo(() => domainOf(events), [events]);
+  const periods = useMemo(() => periodsOf(categories), [categories]);
 
   const visibleEvents = useMemo(
     () => events.filter((event) => !hiddenCategories.has(event.categoryId ?? '')),
     [events, hiddenCategories],
   );
 
-  // Šířku plátna hlídá canvas; sem ji propíšeme přes ResizeObserver kontejneru.
+  /** Které kategorie mají záznam ve výřezu – ostatní se v čipech ztlumí. */
+  const inViewport = useMemo(() => {
+    const from = tOf(view, 0);
+    const to = viewEnd(view);
+    const set = new Set<string>();
+    for (const event of events) {
+      const extent = eventExtent(event);
+      if (extent.to >= from && extent.from <= to) set.add(event.categoryId ?? '');
+    }
+    return set;
+  }, [events, view]);
+
   useEffect(() => {
     const element = containerRef.current;
     if (!element) return;
@@ -89,7 +118,6 @@ export function TimelineView({
     return () => observer.disconnect();
   }, [domain]);
 
-  // Po prvním načtení dat ukázat celý rozsah.
   useEffect(() => {
     if (initialized.current || events.length === 0 || view.width === 0) return;
     initialized.current = true;
@@ -98,7 +126,10 @@ export function TimelineView({
     );
   }, [events.length, domain, view.width]);
 
-  // Požadavek z hledání nebo z tabulky
+  useEffect(() => {
+    if (view.width > 0) onRangeChange(tOf(view, 0), viewEnd(view));
+  }, [view, onRangeChange]);
+
   const lastNonce = useRef(-1);
   useEffect(() => {
     if (!externalFocus || externalFocus.nonce === lastNonce.current) return;
@@ -106,9 +137,14 @@ export function TimelineView({
     const extent = eventExtent(externalFocus.event);
     if (view.width > 0) {
       const isPoint = extent.from === extent.to;
-      const from = isPoint ? extent.from - 25 : extent.from;
-      const to = isPoint ? extent.to + 25 : extent.to;
-      setView(viewportForRange(from, to, view.width, domain));
+      setView(
+        viewportForRange(
+          isPoint ? extent.from - 25 : extent.from,
+          isPoint ? extent.to + 25 : extent.to,
+          view.width,
+          domain,
+        ),
+      );
     }
     nonce.current += 1;
     setFocusRequest({ id: externalFocus.event.id, nonce: nonce.current });
@@ -124,34 +160,31 @@ export function TimelineView({
     });
   };
 
+  const chip = (id: string, name: string, color: string) => {
+    const hidden = hiddenCategories.has(id);
+    const dimmed = !inViewport.has(id);
+    return (
+      <button
+        key={id || 'bez'}
+        type="button"
+        className={`chip${hidden ? ' chip-off' : ''}${dimmed ? ' chip-dim' : ''}`}
+        onClick={() => toggleCategory(id)}
+        aria-pressed={!hidden}
+      >
+        <span className="chip-dot" style={hidden ? undefined : { background: color }} />
+        {name}
+      </button>
+    );
+  };
+
+  const hasUncategorized = useMemo(() => events.some((e) => e.categoryId === null), [events]);
+
   return (
     <div className="timeline-view">
       {categories.length > 0 ? (
-        <div className="legend" role="group" aria-label={cs.timeline.legend}>
-          {categories.map((category) => {
-            const skryta = hiddenCategories.has(category.id);
-            return (
-              <button
-                key={category.id}
-                type="button"
-                className={`legend-chip${skryta ? ' legend-chip-off' : ''}`}
-                onClick={() => toggleCategory(category.id)}
-                aria-pressed={!skryta}
-              >
-                <span className="legend-swatch" style={{ background: category.color }} />
-                {category.name}
-              </button>
-            );
-          })}
-          <button
-            type="button"
-            className={`legend-chip${hiddenCategories.has('') ? ' legend-chip-off' : ''}`}
-            onClick={() => toggleCategory('')}
-            aria-pressed={!hiddenCategories.has('')}
-          >
-            <span className="legend-swatch" style={{ background: NO_CATEGORY_COLOR }} />
-            {cs.timeline.withoutCategory}
-          </button>
+        <div className="chips" role="group" aria-label={cs.timeline.legend}>
+          {categories.map((category) => chip(category.id, category.name, category.color))}
+          {hasUncategorized ? chip('', cs.timeline.withoutCategory, NO_CATEGORY_COLOR) : null}
         </div>
       ) : null}
 
@@ -167,16 +200,15 @@ export function TimelineView({
           view={view}
           onViewChange={setView}
           domain={domain}
+          periods={periods}
           selectedId={selectedId}
           onSelect={onSelect}
           focusRequest={focusRequest}
         />
-      </div>
-
-      <div className="timeline-footer">
         <Minimap
           events={visibleEvents}
           categoryMap={categoryMap}
+          periods={periods}
           view={view}
           domain={domain}
           onViewChange={setView}

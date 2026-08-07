@@ -24,6 +24,8 @@ interface CategoryRow {
   name: string;
   color: string;
   sort_order: number;
+  from_year: number | null;
+  to_year: number | null;
 }
 
 interface EventRow {
@@ -35,12 +37,12 @@ interface EventRow {
   start_month: number | null;
   start_day: number | null;
   start_approx: boolean;
-  start_qualifier: 'min' | 'after' | null;
+  start_qualifier: 'min' | 'after' | 'before' | null;
   end_year: number | null;
   end_month: number | null;
   end_day: number | null;
   end_approx: boolean;
-  end_qualifier: 'min' | 'after' | null;
+  end_qualifier: 'min' | 'after' | 'before' | null;
   source: string | null;
   note: string | null;
   place_name: string | null;
@@ -56,18 +58,31 @@ const EVENT_COLUMNS =
   'end_year,end_month,end_day,end_approx,end_qualifier,source,note,place_name,lat,lng,tags,' +
   'created_at,updated_at';
 
-const CATEGORY_COLUMNS = 'id,name,color,sort_order';
+const CATEGORY_COLUMNS = 'id,name,color,sort_order,from_year,to_year';
 
 // ---------------------------------------------------------------------------
 // Mapování řádek <-> doména
 // ---------------------------------------------------------------------------
 
 export function categoryFromRow(row: CategoryRow): Category {
-  return { id: row.id, name: row.name, color: row.color, sortOrder: row.sort_order };
+  return {
+    id: row.id,
+    name: row.name,
+    color: row.color,
+    sortOrder: row.sort_order,
+    fromYear: row.from_year,
+    toYear: row.to_year,
+  };
 }
 
 export function categoryToRow(draft: CategoryDraft): Omit<CategoryRow, 'id'> {
-  return { name: draft.name, color: draft.color, sort_order: draft.sortOrder };
+  return {
+    name: draft.name,
+    color: draft.color,
+    sort_order: draft.sortOrder,
+    from_year: draft.fromYear,
+    to_year: draft.toYear,
+  };
 }
 
 export function eventFromRow(row: EventRow): TimelineEvent {
@@ -248,12 +263,7 @@ export async function upsertDataset(dataset: Dataset): Promise<void> {
   const client = requireSupabase();
   if (dataset.categories.length > 0) {
     const { error } = await client.from('categories').upsert(
-      dataset.categories.map((c) => ({
-        id: c.id,
-        name: c.name,
-        color: c.color,
-        sort_order: c.sortOrder,
-      })),
+      dataset.categories.map((c) => ({ id: c.id, ...categoryToRow(c) })),
       { onConflict: 'id' },
     );
     if (error) throw error;

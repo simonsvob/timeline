@@ -1,75 +1,86 @@
 /**
- * Vykreslení osy na Canvas 2D.
+ * Vykreslení osy „Řeka" na Canvas 2D.
  *
  * Canvas (ne SVG) proto, že při stovkách až tisících záznamů a plynulém zoomu
- * je potřeba překreslit celý výřez v každém snímku; DOM by u tisíců uzlů
- * nestíhal. Kreslí se jen viditelný výřez – položky mimo plátno se přeskočí.
+ * je potřeba překreslit celý výřez v každém snímku. Kreslí se jen viditelný
+ * výřez – položky mimo plátno se přeskočí.
  *
- * Jistota se vykresluje takto:
- *   - přibližný konec/začátek pruhu = plynulý přechod do průhledna,
- *   - jistý konec = ostrá hrana,
- *   - přibližný bod = měkké gradientní halo, jistý bod = plná ostrá značka.
+ * Jazyk nejistoty:
+ *   - jistá hranice = ostrá hrana s výraznějším obrysem,
+ *   - přibližná hranice = výplň se rozplyne do průhledna, obrys ji sleduje,
+ *   - otevřená hranice = šipka na tu stranu, na kterou je údaj otevřený.
  */
 
 import type { Tick, Viewport } from '../../lib/viewport';
 import { xOf } from '../../lib/viewport';
 import {
+  AXIS_LINE_HEIGHT,
   BAR_HEIGHT,
+  BAR_LABEL_GAP,
   fadeWidth,
-  LANE_HEIGHT,
-  MAX_FADE_PX,
+  NODE_RADIUS,
   OPEN_END_WIDTH,
+  PILL_HEIGHT,
+  PILL_GAP,
+  PILL_PADDING_X,
+  pointLaneY,
+  rangeLaneY,
   type EventGeometry,
   type LayoutResult,
 } from './layout';
 
-export const AXIS_HEIGHT = 44;
-
 export interface Theme {
   background: string;
-  axisBackground: string;
-  axisText: string;
-  axisTextMajor: string;
-  gridLine: string;
-  gridLineMajor: string;
-  epochLine: string;
-  label: string;
-  labelOnBar: string;
+  card: string;
+  border: string;
+  text: string;
+  barText: string;
+  muted: string;
+  tertiary: string;
+  gridDot: string;
+  tick: string;
   selection: string;
-  tooltipBackground: string;
-  tooltipText: string;
-  laneStripe: string;
+  shadow: string;
 }
 
-export const LIGHT_THEME: Theme = {
-  background: '#fbfaf9',
-  axisBackground: '#f7f7fa',
-  axisText: '#7a7a88',
-  axisTextMajor: '#1c1c22',
-  gridLine: 'rgba(60, 60, 90, 0.065)',
-  gridLineMajor: 'rgba(60, 60, 90, 0.14)',
-  epochLine: 'rgba(225, 29, 72, 0.4)',
-  label: '#26262e',
-  labelOnBar: '#ffffff',
-  selection: '#1c1c22',
-  tooltipBackground: 'rgba(24, 24, 32, 0.93)',
-  tooltipText: '#ffffff',
-  laneStripe: 'rgba(60, 60, 90, 0.026)',
+/** Teplá slonovina podle návrhu; stíny nikdy čistě černé, vždy do hněda. */
+export const THEME: Theme = {
+  background: '#fbfaf6',
+  card: '#ffffff',
+  border: 'rgba(70, 58, 30, 0.06)',
+  text: '#262218',
+  barText: '#33301f',
+  muted: '#8a8274',
+  tertiary: '#a29a88',
+  gridDot: 'rgba(70, 58, 30, 0.09)',
+  tick: 'rgba(70, 58, 30, 0.28)',
+  selection: '#262218',
+  shadow: 'rgba(70, 58, 30, 0.18)',
 };
+
+/** Úsek osy s vlastní barvou (období). */
+export interface PeriodSpan {
+  from: number;
+  to: number;
+  color: string;
+}
 
 export interface RenderInput {
   ctx: CanvasRenderingContext2D;
   view: Viewport;
   layout: LayoutResult;
   ticks: Tick[];
-  /** výška oblasti se záznamy (bez měřítka), v CSS pixelech */
-  contentHeight: number;
-  scrollTop: number;
+  /** výška plátna v CSS pixelech */
+  height: number;
+  /** svislá poloha centrální čáry */
+  axisY: number;
+  periods: PeriodSpan[];
   selectedId: string | null;
   hoveredId: string | null;
   theme: Theme;
-  labelFont: string;
-  axisFont: string;
+  nameFont: string;
+  yearFont: string;
+  tickFont: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -80,13 +91,10 @@ function hexToRgb(hex: string): [number, number, number] {
   const normalized = hex.trim().replace('#', '');
   const full =
     normalized.length === 3
-      ? normalized
-          .split('')
-          .map((c) => c + c)
-          .join('')
+      ? normalized.split('').map((c) => c + c).join('')
       : normalized;
   const int = Number.parseInt(full.slice(0, 6), 16);
-  if (Number.isNaN(int)) return [154, 160, 166];
+  if (Number.isNaN(int)) return [154, 147, 132];
   return [(int >> 16) & 255, (int >> 8) & 255, int & 255];
 }
 
@@ -95,17 +103,11 @@ export function rgba(hex: string, alpha: number): string {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
-/** Relativní jas – rozhoduje, jestli je popisek na pruhu bílý, nebo tmavý. */
-export function relativeLuminance(hex: string): number {
-  const [r, g, b] = hexToRgb(hex).map((c) => {
-    const s = c / 255;
-    return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
-  }) as [number, number, number];
-  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
-}
-
-export function textColorOn(hex: string, theme: Theme): string {
-  return relativeLuminance(hex) > 0.55 ? theme.label : theme.labelOnBar;
+/** Barva smíchaná s bílou – výplň pruhu je kategorie na 15 %. */
+export function mixWithWhite(hex: string, ratio: number): string {
+  const [r, g, b] = hexToRgb(hex);
+  const m = (c: number) => Math.round(c * ratio + 255 * (1 - ratio));
+  return `rgb(${m(r)}, ${m(g)}, ${m(b)})`;
 }
 
 function roundRectPath(
@@ -130,314 +132,337 @@ function roundRectPath(
   ctx.closePath();
 }
 
+function withShadow(
+  ctx: CanvasRenderingContext2D,
+  color: string,
+  blur: number,
+  offsetY: number,
+  draw: () => void,
+): void {
+  ctx.save();
+  ctx.shadowColor = color;
+  ctx.shadowBlur = blur;
+  ctx.shadowOffsetY = offsetY;
+  draw();
+  ctx.restore();
+}
+
 // ---------------------------------------------------------------------------
 // Hlavní vykreslení
 // ---------------------------------------------------------------------------
 
-
-/** Šířka svislé čáry bodové události. */
-const POINT_LINE_WIDTH = 2;
-/** Jak daleko do stran sahá rozostření u přibližné události. */
-const POINT_BLUR_PX = 11;
-/** Průhlednost svislé čáry pod pásmem událostí (vodítko přes celou osu). */
-const POINT_GUIDE_ALPHA = 0.16;
-
 export function renderTimeline(input: RenderInput): void {
-  const { ctx, view, layout, ticks, contentHeight, scrollTop, theme } = input;
-  const width = view.width;
-  const totalHeight = AXIS_HEIGHT + contentHeight;
+  const { ctx, view, theme, height } = input;
 
-  ctx.clearRect(0, 0, width, totalHeight);
+  ctx.clearRect(0, 0, view.width, height);
   ctx.fillStyle = theme.background;
-  ctx.fillRect(0, 0, width, totalHeight);
+  ctx.fillRect(0, 0, view.width, height);
 
-  drawLaneStripes(ctx, layout, contentHeight, scrollTop, theme, width);
-  drawGrid(ctx, view, ticks, contentHeight, theme);
-  drawEvents(ctx, input);
-  drawAxis(ctx, view, ticks, theme, input.axisFont);
+  drawGrid(input);
+  drawAxis(input);
+  drawRanges(input);
+  drawPoints(input);
 }
 
-function drawLaneStripes(
-  ctx: CanvasRenderingContext2D,
-  layout: LayoutResult,
-  contentHeight: number,
-  scrollTop: number,
-  theme: Theme,
-  width: number,
-): void {
-  const firstLane = Math.max(0, Math.floor(scrollTop / LANE_HEIGHT));
-  const lastLane = Math.min(layout.laneCount - 1, Math.ceil((scrollTop + contentHeight) / LANE_HEIGHT));
-  ctx.fillStyle = theme.laneStripe;
-  for (let lane = firstLane; lane <= lastLane; lane++) {
-    if (lane % 2 === 1) continue;
-    const y = AXIS_HEIGHT + lane * LANE_HEIGHT - scrollTop;
-    ctx.fillRect(0, y, width, LANE_HEIGHT);
-  }
-}
+/** Tečkované svislé linky v místech dělení. */
+function drawGrid(input: RenderInput): void {
+  const { ctx, view, ticks, theme, height } = input;
+  const top = 96;
+  const bottom = height - 96;
+  if (bottom <= top) return;
 
-function drawGrid(
-  ctx: CanvasRenderingContext2D,
-  view: Viewport,
-  ticks: Tick[],
-  contentHeight: number,
-  theme: Theme,
-): void {
-  const top = AXIS_HEIGHT;
-  const bottom = AXIS_HEIGHT + contentHeight;
+  ctx.strokeStyle = theme.gridDot;
+  ctx.lineWidth = 1;
+  ctx.setLineDash([2, 5]);
+  ctx.beginPath();
   for (const tick of ticks) {
     const x = Math.round(xOf(view, tick.t)) + 0.5;
-    if (x < -1 || x > view.width + 1) continue;
-    ctx.strokeStyle = tick.major ? theme.gridLineMajor : theme.gridLine;
-    ctx.lineWidth = 1;
-    ctx.beginPath();
+    if (x < 0 || x > view.width) continue;
     ctx.moveTo(x, top);
     ctx.lineTo(x, bottom);
-    ctx.stroke();
   }
-
-  // Přelom letopočtu: 1 př. n. l. (astronomicky 0) bezprostředně předchází 1 n. l.
-  const epochX = Math.round(xOf(view, 1)) + 0.5;
-  if (epochX >= 0 && epochX <= view.width) {
-    ctx.strokeStyle = theme.epochLine;
-    ctx.lineWidth = 1.5;
-    ctx.setLineDash([4, 4]);
-    ctx.beginPath();
-    ctx.moveTo(epochX, top);
-    ctx.lineTo(epochX, bottom);
-    ctx.stroke();
-    ctx.setLineDash([]);
-  }
+  ctx.stroke();
+  ctx.setLineDash([]);
 }
 
-function drawAxis(
-  ctx: CanvasRenderingContext2D,
-  view: Viewport,
-  ticks: Tick[],
-  theme: Theme,
-  axisFont: string,
-): void {
-  ctx.fillStyle = theme.axisBackground;
-  ctx.fillRect(0, 0, view.width, AXIS_HEIGHT);
-  ctx.strokeStyle = theme.gridLineMajor;
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.moveTo(0, AXIS_HEIGHT - 0.5);
-  ctx.lineTo(view.width, AXIS_HEIGHT - 0.5);
-  ctx.stroke();
+/**
+ * Centrální čára obarvená podle období pod výřezem, s plynulými přechody.
+ * Gradient se skládá jen z období, která do výřezu zasahují.
+ */
+function drawAxis(input: RenderInput): void {
+  const { ctx, view, ticks, theme, axisY, periods } = input;
+  const y = Math.round(axisY);
 
-  ctx.font = axisFont;
+  let fill: string | CanvasGradient = theme.tick;
+  const visible = periods
+    .filter((p) => xOf(view, p.to) > 0 && xOf(view, p.from) < view.width)
+    .sort((a, b) => a.from - b.from);
+
+  if (visible.length === 1) {
+    fill = visible[0].color;
+  } else if (visible.length > 1) {
+    const gradient = ctx.createLinearGradient(0, 0, view.width, 0);
+    const clamp01 = (v: number) => Math.min(Math.max(v, 0), 1);
+    for (const period of visible) {
+      const from = clamp01(xOf(view, period.from) / view.width);
+      const to = clamp01(xOf(view, period.to) / view.width);
+      // Přechod mezi sousedy: barva drží uvnitř období a v poslední pětině
+      // úseku se přelévá do další – proto dvě zarážky na každé straně.
+      const prelevani = Math.min((to - from) * 0.22, 0.06);
+      gradient.addColorStop(clamp01(from + prelevani), period.color);
+      gradient.addColorStop(clamp01(Math.max(to - prelevani, from + prelevani)), period.color);
+    }
+    fill = gradient;
+  }
+
+  roundRectPath(ctx, 0, y - AXIS_LINE_HEIGHT / 2, view.width, AXIS_LINE_HEIGHT, 2);
+  ctx.fillStyle = fill;
+  ctx.fill();
+
+  // ticky a popisky let těsně pod čárou
+  ctx.font = input.tickFont;
+  ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.textAlign = 'left';
-
   for (const tick of ticks) {
     const x = Math.round(xOf(view, tick.t)) + 0.5;
-    if (x < -60 || x > view.width + 60) continue;
-
-    ctx.strokeStyle = tick.major ? theme.gridLineMajor : theme.gridLine;
+    if (x < -40 || x > view.width + 40) continue;
+    ctx.strokeStyle = theme.tick;
+    ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.moveTo(x, tick.major ? AXIS_HEIGHT - 14 : AXIS_HEIGHT - 8);
-    ctx.lineTo(x, AXIS_HEIGHT);
+    ctx.moveTo(x, y + AXIS_LINE_HEIGHT / 2);
+    ctx.lineTo(x, y + AXIS_LINE_HEIGHT / 2 + 9);
     ctx.stroke();
-
-    ctx.fillStyle = tick.major ? theme.axisTextMajor : theme.axisText;
-    ctx.fillText(tick.label, x + 5, AXIS_HEIGHT / 2 - 2);
+    ctx.fillStyle = theme.tertiary;
+    ctx.fillText(tick.label, x, y + 19);
   }
+  ctx.textAlign = 'left';
 }
 
-function drawEvents(ctx: CanvasRenderingContext2D, input: RenderInput): void {
-  const { layout, contentHeight, scrollTop, theme, view, selectedId, hoveredId } = input;
-  const firstLane = Math.max(0, Math.floor(scrollTop / LANE_HEIGHT) - 1);
-  const lastLane = Math.ceil((scrollTop + contentHeight) / LANE_HEIGHT) + 1;
+// ---------------------------------------------------------------------------
+// Životy a období pod čárou
+// ---------------------------------------------------------------------------
 
-  ctx.font = input.labelFont;
-  ctx.textBaseline = 'middle';
-  ctx.textAlign = 'left';
-
-  let hovered: EventGeometry | null = null;
+function drawRanges(input: RenderInput): void {
+  const { layout, view, axisY, selectedId, hoveredId } = input;
 
   for (const item of layout.items) {
-    // vertikální ořez
-    if (item.lane < firstLane || item.lane > lastLane) continue;
-    // horizontální ořez (s rezervou na popisek)
-    const rightmost = item.showLabel && !item.labelInside ? item.labelX + item.labelWidth : item.x2;
+    if (item.isPoint) continue;
+    const rightmost =
+      item.labelMode === 'outside-full'
+        ? item.labelX + item.nameWidth + BAR_LABEL_GAP + item.yearsWidth
+        : item.labelMode === 'outside-name'
+          ? item.labelX + item.nameWidth
+          : item.x2;
     if (rightmost < -8 || item.x1 > view.width + 8) continue;
 
-    const y = AXIS_HEIGHT + item.lane * LANE_HEIGHT - scrollTop;
-    const centerY = y + LANE_HEIGHT / 2;
-    const selected = item.event.id === selectedId;
-    const isHovered = item.event.id === hoveredId;
-    if (isHovered) hovered = item;
+    const centerY = axisY + rangeLaneY(item.lane);
+    if (centerY < -BAR_HEIGHT || centerY > input.height + BAR_HEIGHT) continue;
 
-    if (item.isPoint) {
-      drawPointLine(ctx, item, centerY, selected || isHovered, theme, input);
-      // „po roce X" – rok není znám, jen že leží dál doprava
-      if (item.startOpen) drawOpenEndArrow(ctx, item.centerX + POINT_LINE_WIDTH + 3, centerY, item.color);
-    } else {
-      drawBar(ctx, item, centerY, selected || isHovered, theme, view.width);
-      // „min. X" – konec života/období není znám, čára pokračuje šipkou
-      if (item.endOpen && item.x2 < view.width + OPEN_END_WIDTH) {
-        drawOpenEndArrow(ctx, item.x2 + 2, centerY, item.color);
-      }
-    }
-
-    if (item.showLabel) {
-      ctx.fillStyle = item.labelInside ? textColorOn(item.color, theme) : theme.label;
-      ctx.fillText(item.label, item.labelX, centerY);
-    }
+    drawBar(input, item, centerY, item.event.id === selectedId, item.event.id === hoveredId);
   }
-
-  if (hovered && !hovered.showLabel) drawTooltip(ctx, hovered, scrollTop, theme, view.width);
 }
 
 function drawBar(
-  ctx: CanvasRenderingContext2D,
+  input: RenderInput,
   item: EventGeometry,
   centerY: number,
-  emphasized: boolean,
-  theme: Theme,
-  viewWidth: number,
+  selected: boolean,
+  hovered: boolean,
 ): void {
-  // Ořez na okolí plátna, ať gradient nepočítá s extrémními souřadnicemi
-  const x1 = Math.max(item.x1, -MAX_FADE_PX * 2);
-  const x2 = Math.min(item.x2, viewWidth + MAX_FADE_PX * 2);
-  const w = Math.max(x2 - x1, 2);
-  const y = centerY - BAR_HEIGHT / 2;
+  const { ctx, view, theme } = input;
+  const x1 = Math.max(item.x1, -MAX_OVERFLOW);
+  const x2 = Math.min(item.x2, view.width + MAX_OVERFLOW);
+  const w = Math.max(x2 - x1, 3);
+  const y = centerY - BAR_HEIGHT / 2 - (hovered ? 1 : 0);
+  const radius = BAR_HEIGHT / 2;
 
-  roundRectPath(ctx, x1, y, w, BAR_HEIGHT, BAR_HEIGHT / 2);
+  const fade = fadeWidth(w);
+  const fadeStop = w > 0 ? Math.min(fade / w, 0.5) : 0.35;
 
+  // výplň: kategorie 15 % do bílé, na nejisté straně do průhledna
+  const fillBase = mixWithWhite(item.color, 0.15);
+  let fill: string | CanvasGradient = fillBase;
   if (item.startApprox || item.endApprox) {
-    // Plynulý přechod do ztracena na nejisté straně; jistá strana zůstává ostrá.
-    const fade = fadeWidth(w);
     const gradient = ctx.createLinearGradient(x1, 0, x2, 0);
-    const fadeStop = w > 0 ? fade / w : 0.4;
-    if (item.startApprox) {
-      gradient.addColorStop(0, rgba(item.color, 0));
-      gradient.addColorStop(Math.min(fadeStop, 0.5), rgba(item.color, 1));
-    } else {
-      gradient.addColorStop(0, rgba(item.color, 1));
-    }
-    if (item.endApprox) {
-      gradient.addColorStop(Math.max(1 - fadeStop, 0.5), rgba(item.color, 1));
-      gradient.addColorStop(1, rgba(item.color, 0));
-    } else {
-      gradient.addColorStop(1, rgba(item.color, 1));
-    }
-    ctx.fillStyle = gradient;
-  } else {
-    ctx.fillStyle = item.color;
+    gradient.addColorStop(0, item.startApprox ? rgba(item.color, 0) : fillBase);
+    gradient.addColorStop(item.startApprox ? fadeStop : 0, fillBase);
+    gradient.addColorStop(item.endApprox ? Math.max(1 - fadeStop, fadeStop) : 1, fillBase);
+    gradient.addColorStop(1, item.endApprox ? rgba(item.color, 0) : fillBase);
+    fill = gradient;
   }
+
+  roundRectPath(ctx, x1, y, w, BAR_HEIGHT, radius);
+  if (hovered || selected) {
+    withShadow(ctx, theme.shadow, hovered ? 20 : 10, hovered ? 7 : 3, () => {
+      ctx.fillStyle = fillBase;
+      ctx.fill();
+    });
+  }
+  ctx.fillStyle = fill;
   ctx.fill();
 
-  if (emphasized) {
+  // Obrys mají i přibližné pruhy – bez něj by vypadaly jako jiný druh objektu.
+  // Drží se ale déle než výplň (mizí až na poslední třetině náběhu), jinak by
+  // se ztratil dřív, než ho oko stihne přečíst jako ohraničení.
+  const outline = ctx.createLinearGradient(x1, 0, x2, 0);
+  const outlineColor = rgba(item.color, 0.55);
+  const outlineStop = fadeStop * 0.35;
+  outline.addColorStop(0, item.startApprox ? rgba(item.color, 0) : outlineColor);
+  outline.addColorStop(item.startApprox ? outlineStop : 0, outlineColor);
+  outline.addColorStop(item.endApprox ? Math.max(1 - outlineStop, outlineStop) : 1, outlineColor);
+  outline.addColorStop(1, item.endApprox ? rgba(item.color, 0) : outlineColor);
+  roundRectPath(ctx, x1 + 0.5, y + 0.5, w - 1, BAR_HEIGHT - 1, radius - 0.5);
+  ctx.strokeStyle = outline;
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  // tečka u jistého začátku
+  if (!item.startApprox && item.startOpen === null && x1 > -20) {
+    ctx.fillStyle = item.color;
+    ctx.beginPath();
+    ctx.arc(x1 + 14, centerY - (hovered ? 1 : 0), 4, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  if (item.startOpen === 'left' && x1 > -OPEN_END_WIDTH) {
+    drawOpenArrow(ctx, x1 - 3, centerY - (hovered ? 1 : 0), item.color, 'left');
+  }
+  if (item.endOpen === 'right' && x2 < view.width + OPEN_END_WIDTH) {
+    drawOpenArrow(ctx, x2 + 3, centerY - (hovered ? 1 : 0), item.color, 'right');
+  }
+
+  if (selected) {
+    roundRectPath(ctx, x1 - 1.5, y - 1.5, w + 3, BAR_HEIGHT + 3, radius + 1.5);
     ctx.strokeStyle = theme.selection;
     ctx.lineWidth = 2;
-    roundRectPath(ctx, x1 - 1, y - 1, w + 2, BAR_HEIGHT + 2, (BAR_HEIGHT + 2) / 2);
     ctx.stroke();
   }
+
+  drawBarLabel(input, item, centerY - (hovered ? 1 : 0));
 }
 
-/**
- * Bodová událost se kreslí jako svislá čára, ne jako kolečko – jinak se plete
- * s pruhy životů. Slabé vodítko pokračuje přes celou osu dolů, aby šlo očima
- * spojit událost s životy, které v tu dobu běžely.
- *
- * Nejistota je vodorovná: přibližná událost se do stran rozostří, protože
- * nejisté je umístění v čase. Tím drží stejný jazyk jako mizející konce pruhů.
- */
-function drawPointLine(
-  ctx: CanvasRenderingContext2D,
-  item: EventGeometry,
-  centerY: number,
-  emphasized: boolean,
-  theme: Theme,
-  input: RenderInput,
-): void {
-  const x = Math.round(item.centerX);
-  const bandBottom = AXIS_HEIGHT + input.layout.pointLaneCount * LANE_HEIGHT - input.scrollTop;
-  const contentBottom = AXIS_HEIGHT + input.contentHeight;
-  const top = centerY - LANE_HEIGHT / 2 + 3;
-  const bottom = centerY + LANE_HEIGHT / 2 - 3;
+const MAX_OVERFLOW = 120;
 
-  // Vodítko pokračuje hned pod značkou, ne až pod celým pásmem – jinak by mezi
-  // událostí a její čarou zůstala mezera a spojitost by se ztratila.
-  if (bottom < contentBottom) {
-    ctx.fillStyle = rgba(item.color, POINT_GUIDE_ALPHA);
-    ctx.fillRect(x - 0.5, bottom, 1, contentBottom - bottom);
-  }
-  void bandBottom;
+function drawBarLabel(input: RenderInput, item: EventGeometry, centerY: number): void {
+  const { ctx, theme } = input;
+  if (item.labelMode === 'none') return;
 
-  if (item.startApprox) {
-    // rozostření do stran – událost leží „někde tady"
-    const glow = ctx.createLinearGradient(x - POINT_BLUR_PX, 0, x + POINT_BLUR_PX, 0);
-    glow.addColorStop(0, rgba(item.color, 0));
-    glow.addColorStop(0.5, rgba(item.color, 0.55));
-    glow.addColorStop(1, rgba(item.color, 0));
-    ctx.fillStyle = glow;
-    ctx.fillRect(x - POINT_BLUR_PX, top, POINT_BLUR_PX * 2, bottom - top);
-  } else {
-    ctx.fillStyle = item.color;
-    ctx.fillRect(x - POINT_LINE_WIDTH / 2, top, POINT_LINE_WIDTH, bottom - top);
-    // patky, ať čára působí jako značka, ne jako useknutý pruh
-    ctx.fillRect(x - 3, top, 6, 1.5);
-    ctx.fillRect(x - 3, bottom - 1.5, 6, 1.5);
-  }
+  const inside = item.labelMode === 'inside-full' || item.labelMode === 'inside-name';
+  ctx.textBaseline = 'middle';
+  ctx.font = input.nameFont;
+  ctx.fillStyle = inside ? theme.barText : theme.text;
+  ctx.fillText(item.name, item.labelX, centerY);
 
-  if (emphasized) {
-    ctx.strokeStyle = theme.selection;
-    ctx.lineWidth = 1.5;
-    ctx.strokeRect(x - 5.5, top - 2.5, 11, bottom - top + 5);
+  if (item.labelMode === 'inside-full' || item.labelMode === 'outside-full') {
+    ctx.font = input.yearFont;
+    ctx.fillStyle = theme.tertiary;
+    ctx.fillText(item.years, item.labelX + item.nameWidth + BAR_LABEL_GAP, centerY + 0.5);
   }
 }
 
-/**
- * Šipka za otevřenou hranicí. Záměrně se liší od přechodu do ztracena, kterým
- * se kreslí přibližnost: „min. 64 n. l." není odhad roku, ale neznámý rok.
- */
-function drawOpenEndArrow(
+function drawOpenArrow(
   ctx: CanvasRenderingContext2D,
   x: number,
   centerY: number,
   color: string,
+  direction: 'left' | 'right',
 ): void {
-  const height = BAR_HEIGHT * 0.86;
-  const width = OPEN_END_WIDTH - 3;
-
-  // krátký dřík navazující na pruh
-  ctx.fillStyle = rgba(color, 0.75);
-  ctx.fillRect(x, centerY - height * 0.18, width * 0.45, height * 0.36);
-
-  // hrot
+  const h = 14;
+  const w = 9;
+  const sign = direction === 'right' ? 1 : -1;
   ctx.beginPath();
-  ctx.moveTo(x + width * 0.4, centerY - height / 2);
-  ctx.lineTo(x + width, centerY);
-  ctx.lineTo(x + width * 0.4, centerY + height / 2);
+  ctx.moveTo(x, centerY - h / 2);
+  ctx.lineTo(x + sign * w, centerY);
+  ctx.lineTo(x, centerY + h / 2);
   ctx.closePath();
-  ctx.fillStyle = rgba(color, 0.75);
+  ctx.fillStyle = rgba(color, 0.7);
   ctx.fill();
 }
 
-function drawTooltip(
-  ctx: CanvasRenderingContext2D,
-  item: EventGeometry,
-  scrollTop: number,
-  theme: Theme,
-  viewWidth: number,
-): void {
-  const text = item.label;
-  const paddingX = 8;
-  const paddingY = 5;
-  const width = ctx.measureText(text).width + paddingX * 2;
-  const height = 24;
-  const centerY = AXIS_HEIGHT + item.lane * LANE_HEIGHT + LANE_HEIGHT / 2 - scrollTop;
-  const x = Math.min(Math.max(item.centerX - width / 2, 4), viewWidth - width - 4);
-  const y = centerY - LANE_HEIGHT / 2 - height - 2;
+// ---------------------------------------------------------------------------
+// Bodové události nad čárou
+// ---------------------------------------------------------------------------
 
-  ctx.fillStyle = theme.tooltipBackground;
-  roundRectPath(ctx, x, y, width, height, 6);
-  ctx.fill();
-  ctx.fillStyle = theme.tooltipText;
-  ctx.fillText(text, x + paddingX, y + height / 2 + 0.5);
-  void paddingY;
+function drawPoints(input: RenderInput): void {
+  const { ctx, layout, view, axisY, theme, selectedId, hoveredId } = input;
+
+  for (const item of layout.items) {
+    if (!item.isPoint) continue;
+    if (item.x2 < -8 || item.x1 > view.width + 8) continue;
+
+    const centerY = axisY + pointLaneY(item.lane);
+    if (centerY < -PILL_HEIGHT || centerY > input.height + PILL_HEIGHT) continue;
+
+    const selected = item.event.id === selectedId;
+    const hovered = item.event.id === hoveredId;
+    const lift = hovered ? 1 : 0;
+    const bezPilulky = item.labelMode === 'none';
+
+    if (bezPilulky) {
+      drawNode(input, item, selected || hovered);
+      continue;
+    }
+
+    // stopka od uzlu k pilulce
+    ctx.strokeStyle = rgba(item.color, 0.35);
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(Math.round(item.centerX) + 0.5, axisY);
+    ctx.lineTo(Math.round(item.centerX) + 0.5, centerY + PILL_HEIGHT / 2 - lift);
+    ctx.stroke();
+
+    // pilulka
+    const x = item.x1;
+    const y = centerY - PILL_HEIGHT / 2 - lift;
+    withShadow(ctx, theme.shadow, hovered ? 22 : 14, hovered ? 8 : 5, () => {
+      roundRectPath(ctx, x, y, item.x2 - item.x1, PILL_HEIGHT, PILL_HEIGHT / 2);
+      ctx.fillStyle = theme.card;
+      ctx.fill();
+    });
+    roundRectPath(ctx, x + 0.5, y + 0.5, item.x2 - item.x1 - 1, PILL_HEIGHT - 1, PILL_HEIGHT / 2);
+    ctx.strokeStyle = selected ? theme.selection : theme.border;
+    ctx.lineWidth = selected ? 2 : 1;
+    ctx.stroke();
+
+    ctx.textBaseline = 'middle';
+    ctx.font = input.nameFont;
+    ctx.fillStyle = theme.text;
+    ctx.fillText(item.name, x + PILL_PADDING_X, centerY - lift);
+    if (item.years) {
+      ctx.font = input.yearFont;
+      ctx.fillStyle = theme.tertiary;
+      ctx.fillText(item.years, x + PILL_PADDING_X + item.nameWidth + PILL_GAP, centerY - lift + 0.5);
+    }
+
+    if (item.startOpen) {
+      drawOpenArrow(
+        ctx,
+        item.startOpen === 'right' ? item.centerX + NODE_RADIUS + 3 : item.centerX - NODE_RADIUS - 3,
+        axisY,
+        item.color,
+        item.startOpen,
+      );
+    }
+
+    drawNode(input, item, selected);
+  }
+}
+
+/** Uzel na čáře: bílý střed s barevným prstencem kategorie. */
+function drawNode(input: RenderInput, item: EventGeometry, emphasized: boolean): void {
+  const { ctx, axisY, theme } = input;
+  const r = emphasized ? NODE_RADIUS + 1 : NODE_RADIUS;
+  withShadow(ctx, 'rgba(70, 58, 30, 0.18)', 6, 2, () => {
+    ctx.beginPath();
+    ctx.arc(item.centerX, axisY, r, 0, Math.PI * 2);
+    ctx.fillStyle = theme.card;
+    ctx.fill();
+  });
+  ctx.beginPath();
+  ctx.arc(item.centerX, axisY, r - 1.75, 0, Math.PI * 2);
+  ctx.strokeStyle = emphasized ? theme.selection : item.color;
+  ctx.lineWidth = 3.5;
+  ctx.stroke();
 }
 
 // ---------------------------------------------------------------------------
@@ -450,39 +475,48 @@ export interface MinimapInput {
   height: number;
   domainMin: number;
   domainMax: number;
-  /** začátek a konec aktuálního výřezu na spojité ose */
   viewFrom: number;
   viewTo: number;
+  periods: PeriodSpan[];
   marks: { from: number; to: number; color: string }[];
   theme: Theme;
 }
 
 export function renderMinimap(input: MinimapInput): void {
-  const { ctx, width, height, domainMin, domainMax, viewFrom, viewTo, marks, theme } = input;
+  const { ctx, width, height, domainMin, domainMax, viewFrom, viewTo, marks, periods, theme } = input;
   const span = Math.max(domainMax - domainMin, 1);
   const toX = (t: number) => ((t - domainMin) / span) * width;
 
   ctx.clearRect(0, 0, width, height);
-  ctx.fillStyle = theme.axisBackground;
-  ctx.fillRect(0, 0, width, height);
 
-  const trackTop = 4;
-  const trackHeight = height - 8;
+  // dráha rozdělená podle období
+  const trackY = (height - 8) / 2;
+  roundRectPath(ctx, 0, trackY, width, 8, 4);
+  ctx.save();
+  ctx.clip();
+  ctx.fillStyle = '#f1ebdf';
+  ctx.fillRect(0, trackY, width, 8);
+  for (const period of periods) {
+    const x1 = toX(period.from);
+    const x2 = toX(period.to);
+    ctx.fillStyle = rgba(period.color, 0.28);
+    ctx.fillRect(x1, trackY, Math.max(x2 - x1, 1), 8);
+  }
   for (const mark of marks) {
     const x1 = toX(mark.from);
-    const x2 = Math.max(toX(mark.to), x1 + 1.5);
-    ctx.fillStyle = rgba(mark.color, 0.65);
-    ctx.fillRect(x1, trackTop, x2 - x1, trackHeight);
+    const x2 = Math.max(toX(mark.to), x1 + 2);
+    ctx.fillStyle = rgba(mark.color, 0.75);
+    ctx.fillRect(x1, trackY, x2 - x1, 8);
   }
+  ctx.restore();
 
-  // aktuální výřez
-  const wx1 = Math.max(toX(viewFrom), 0);
-  const wx2 = Math.min(toX(viewTo), width);
-  ctx.fillStyle = 'rgba(20, 18, 15, 0.10)';
-  ctx.fillRect(0, 0, wx1, height);
-  ctx.fillRect(wx2, 0, width - wx2, height);
-
+  // okno výřezu
+  const wx1 = Math.max(toX(viewFrom), 1);
+  const wx2 = Math.min(toX(viewTo), width - 1);
+  roundRectPath(ctx, wx1, (height - 18) / 2, Math.max(wx2 - wx1, 6), 18, 9);
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
+  ctx.fill();
   ctx.strokeStyle = theme.selection;
-  ctx.lineWidth = 1.5;
-  ctx.strokeRect(Math.round(wx1) + 0.5, 0.75, Math.max(Math.round(wx2 - wx1) - 1, 2), height - 1.5);
+  ctx.lineWidth = 2;
+  ctx.stroke();
 }

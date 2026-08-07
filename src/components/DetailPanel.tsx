@@ -1,68 +1,99 @@
 /**
- * Detail záznamu. Data se formátují přesně podle zadané přesnosti a jistoty –
+ * Detail záznamu jako plovoucí karta u vybraného záznamu.
+ *
+ * Data se formátují přesně podle zadané přesnosti, jistoty a otevřenosti –
  * nikdy se nedoplní den ani měsíc, který uživatel nezadal.
  */
 
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { cs, formatNumber, plural } from '../i18n/cs';
-import { formatTimePoint, rangeLengthYears } from '../lib/format';
+import { formatRange, rangeLengthYears } from '../lib/format';
 import type { Category, TimelineEvent } from '../data/types';
 import { NO_CATEGORY_COLOR } from './timeline/layout';
+
+const CARD_WIDTH = 300;
+const MARGIN = 12;
 
 interface Props {
   event: TimelineEvent;
   category: Category | null;
   canEdit: boolean;
+  anchor: { x: number; y: number } | null;
   onEdit: () => void;
   onDelete: () => void;
   onClose: () => void;
 }
 
-export function DetailPanel({ event, category, canEdit, onEdit, onDelete, onClose }: Props) {
+export function DetailPanel({ event, category, canEdit, anchor, onEdit, onDelete, onClose }: Props) {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [position, setPosition] = useState<{ left: number; top: number } | null>(null);
+
   const length = rangeLengthYears(event.start, event.end);
+  const openEnd = event.end?.qualifier != null;
   const approxLength = event.start.approx || (event.end?.approx ?? false);
-  // U otevřeného konce je délka jen dolní odhad – rok konce není znám.
-  const openLength = event.end?.qualifier != null;
+
+  // Karta se drží u záznamu, ale nesmí vylézt z okna.
+  useLayoutEffect(() => {
+    if (!anchor) {
+      setPosition(null);
+      return;
+    }
+    const height = cardRef.current?.offsetHeight ?? 240;
+    const left = Math.min(
+      Math.max(anchor.x - CARD_WIDTH / 2, MARGIN),
+      window.innerWidth - CARD_WIDTH - MARGIN,
+    );
+    const below = anchor.y + MARGIN;
+    const top = below + height > window.innerHeight - MARGIN
+      ? Math.max(anchor.y - height - MARGIN, MARGIN)
+      : below;
+    setPosition({ left, top });
+  }, [anchor, event.id]);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
+  const style = position
+    ? { left: `${position.left}px`, top: `${position.top}px` }
+    : { right: `${MARGIN}px`, bottom: '84px' };
 
   return (
-    <aside className="detail-panel" aria-label={cs.detail.title}>
-      <header className="detail-header">
-        <span
-          className="detail-color"
-          style={{ background: category?.color ?? NO_CATEGORY_COLOR }}
-          aria-hidden="true"
-        />
+    <div
+      className="popover"
+      ref={cardRef}
+      style={style}
+      role="dialog"
+      aria-label={cs.detail.title}
+    >
+      <header className="popover-header">
+        <span className="popover-dot" style={{ background: category?.color ?? NO_CATEGORY_COLOR }} />
         <h2>{event.name}</h2>
-        <button type="button" className="icon-button" onClick={onClose} aria-label={cs.a11y.closePanel}>
+        <button type="button" className="popover-close" onClick={onClose} aria-label={cs.a11y.closePanel}>
           ×
         </button>
       </header>
 
-      <dl className="detail-list">
-        <dt>{cs.detail.category}</dt>
-        <dd>{category?.name ?? cs.timeline.withoutCategory}</dd>
-
-        <dt>{cs.detail.type}</dt>
-        <dd>{event.type === 'range' ? cs.form.typeRange : cs.form.typePoint}</dd>
-
-        <dt>{event.type === 'range' ? cs.detail.start : cs.detail.when}</dt>
-        <dd>{formatTimePoint(event.start)}</dd>
-
-        {event.type === 'range' && event.end ? (
-          <>
-            <dt>{cs.detail.end}</dt>
-            <dd>{formatTimePoint(event.end)}</dd>
-          </>
-        ) : null}
+      <dl className="popover-list">
+        <dt>{cs.detail.when}</dt>
+        <dd>{formatRange(event.start, event.end)}</dd>
 
         {length !== null && length >= 1 ? (
           <>
             <dt>{cs.detail.duration}</dt>
             <dd>
-              {openLength ? `${cs.qualifier.atLeast} ` : approxLength ? `${cs.detail.durationApprox} ` : ''}
+              {openEnd ? `${cs.qualifier.atLeast} ` : approxLength ? `${cs.detail.durationApprox} ` : ''}
               {formatNumber(Math.floor(length))} {plural(Math.floor(length), 'rok', 'roky', 'let')}
             </dd>
           </>
         ) : null}
+
+        <dt>{cs.detail.category}</dt>
+        <dd>{category?.name ?? cs.timeline.withoutCategory}</dd>
 
         {event.source ? (
           <>
@@ -77,9 +108,9 @@ export function DetailPanel({ event, category, canEdit, onEdit, onDelete, onClos
             <dd>
               {event.placeName ?? ''}
               {event.lat !== null && event.lng !== null ? (
-                <span className="detail-coords">
+                <span className="popover-muted">
                   {event.placeName ? ' · ' : ''}
-                  {event.lat.toFixed(4)}, {event.lng.toFixed(4)}
+                  {event.lat.toFixed(3)}, {event.lng.toFixed(3)}
                 </span>
               ) : null}
             </dd>
@@ -89,7 +120,7 @@ export function DetailPanel({ event, category, canEdit, onEdit, onDelete, onClos
         {event.note ? (
           <>
             <dt>{cs.detail.note}</dt>
-            <dd className="detail-note">{event.note}</dd>
+            <dd className="popover-note">{event.note}</dd>
           </>
         ) : null}
 
@@ -108,15 +139,15 @@ export function DetailPanel({ event, category, canEdit, onEdit, onDelete, onClos
       </dl>
 
       {canEdit ? (
-        <div className="detail-actions">
-          <button type="button" className="button button-primary" onClick={onEdit}>
+        <div className="popover-actions">
+          <button type="button" className="pill pill-dark" onClick={onEdit}>
             {cs.app.edit}
           </button>
-          <button type="button" className="button button-danger" onClick={onDelete}>
+          <button type="button" className="pill pill-danger" onClick={onDelete}>
             {cs.app.delete}
           </button>
         </div>
       ) : null}
-    </aside>
+    </div>
   );
 }

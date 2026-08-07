@@ -1,6 +1,6 @@
 /**
- * Minimapa: úzká lišta s přehledem celého rozsahu a vyznačeným výřezem.
- * Tažením výřezu se osa posouvá, kliknutím mimo něj skočí.
+ * Plovoucí minimapa: dráha rozdělená barvami období, v ní proužky záznamů
+ * a rám aktuálního výřezu. Tažením se osa posouvá, kliknutím skočí.
  */
 
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -8,19 +8,20 @@ import { cs } from '../../i18n/cs';
 import { clampViewport, tOf, viewEnd, type Domain, type Viewport } from '../../lib/viewport';
 import type { Category, TimelineEvent } from '../../data/types';
 import { categoryColor, eventExtent } from './layout';
-import { LIGHT_THEME, renderMinimap } from './renderer';
+import { renderMinimap, THEME, type PeriodSpan } from './renderer';
 
-const MINIMAP_HEIGHT = 46;
+const MINIMAP_HEIGHT = 36;
 
 interface Props {
   events: TimelineEvent[];
   categoryMap: Map<string, Category>;
+  periods: PeriodSpan[];
   view: Viewport;
   domain: Domain;
   onViewChange: (view: Viewport) => void;
 }
 
-export function Minimap({ events, categoryMap, view, domain, onViewChange }: Props) {
+export function Minimap({ events, categoryMap, periods, view, domain, onViewChange }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(0);
@@ -38,11 +39,7 @@ export function Minimap({ events, categoryMap, view, domain, onViewChange }: Pro
     () =>
       events.map((event) => {
         const extent = eventExtent(event);
-        return {
-          from: extent.from,
-          to: extent.to,
-          color: categoryColor(event.categoryId, categoryMap),
-        };
+        return { from: extent.from, to: extent.to, color: categoryColor(event.categoryId, categoryMap) };
       }),
     [events, categoryMap],
   );
@@ -67,10 +64,11 @@ export function Minimap({ events, categoryMap, view, domain, onViewChange }: Pro
       domainMax: domain.max,
       viewFrom,
       viewTo,
+      periods,
       marks,
-      theme: LIGHT_THEME,
+      theme: THEME,
     });
-  }, [width, domain, viewFrom, viewTo, marks]);
+  }, [width, domain, viewFrom, viewTo, marks, periods]);
 
   const span = Math.max(domain.max - domain.min, 1);
   const tAt = (x: number) => domain.min + (x / Math.max(width, 1)) * span;
@@ -82,19 +80,17 @@ export function Minimap({ events, categoryMap, view, domain, onViewChange }: Pro
 
   const onPointerDown = (event: React.PointerEvent<HTMLCanvasElement>) => {
     const rect = event.currentTarget.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const t = tAt(x);
+    const t = tAt(event.clientX - rect.left);
     event.currentTarget.setPointerCapture(event.pointerId);
-    const insideWindow = t >= viewFrom && t <= viewTo;
-    dragging.current = { grabOffset: insideWindow ? t - (viewFrom + viewTo) / 2 : 0 };
-    if (!insideWindow) moveWindowTo(t);
+    const inside = t >= viewFrom && t <= viewTo;
+    dragging.current = { grabOffset: inside ? t - (viewFrom + viewTo) / 2 : 0 };
+    if (!inside) moveWindowTo(t);
   };
 
   const onPointerMove = (event: React.PointerEvent<HTMLCanvasElement>) => {
     if (!dragging.current) return;
     const rect = event.currentTarget.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    moveWindowTo(tAt(x) - dragging.current.grabOffset);
+    moveWindowTo(tAt(event.clientX - rect.left) - dragging.current.grabOffset);
   };
 
   const endDrag = () => {
@@ -102,7 +98,7 @@ export function Minimap({ events, categoryMap, view, domain, onViewChange }: Pro
   };
 
   return (
-    <div className="minimap" ref={wrapperRef} title={cs.timeline.minimapHint}>
+    <div className="minimap" ref={wrapperRef}>
       <canvas
         ref={canvasRef}
         className="minimap-canvas"

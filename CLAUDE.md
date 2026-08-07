@@ -44,10 +44,14 @@ vlastní, nad celočíselnými roky.
 |---|---|---|---|
 | přesnost | co je vyplněno (`month`, `day`) | `607` / `říjen 607` / `7. října 607` | — |
 | jistota (`approx`) | zaškrtnuto ve formuláři | `~1450 př. n. l.` | přechod do ztracena / halo |
-| otevřenost (`qualifier`) | `'min'` \| `'after'` | `min. 64 n. l.` / `po roce 874 př. n. l.` | ostrá hrana se šipkou |
+| otevřenost (`qualifier`) | `'min'` \| `'after'` \| `'before'` | `min. 64 n. l.` / `po roce 874` / `před rokem 3896` | šipka na tu stranu, kam je údaj otevřený |
 
-Přibližnost se v popisku na ose **neznačí vlnovkou** — je vidět z vykreslení.
-Vlnovka patří jen do textového formátování dat (detail, tabulka).
+`openDirection` v `time.ts` říká, na kterou stranu je hranice otevřená:
+`before` doleva, `min` i `after` doprava.
+
+Přibližná hranice se pozná z vykreslení: výplň pruhu se rozplyne do průhledna.
+**Obrys ale zůstává** a mizí až na poslední třetině náběhu (`outlineStop`
+v `renderer.ts`) — bez toho vypadaly přibližné pruhy jako jiný druh objektu.
 
 Můžou se potkat: `min. ~65 n. l.` = rok úmrtí neznáme a odhadujeme ho na 65.
 **Nikde se nesmí zobrazit přesnost, která nebyla zadána** — záznam s vyplněným
@@ -70,10 +74,20 @@ src/state/         React kontext: data + přihlášení
 src/components/    UI; components/timeline/ je vykreslovací řetězec
 ```
 
-**Dvě pásma.** Bodové události se řádkují zvlášť a leží nahoře, rozsahy pod
-nimi (`layoutEvents` pakuje každou skupinu zvlášť a řádky rozsahů posune o
-`pointLaneCount + BAND_GAP_LANES`). Body se kreslí jako svislé značky, ne
-kolečka — jinak se pletly s pruhy.
+**Model „Řeka".** Osa je jedna vodorovná čára uprostřed plochy. Bodové
+události leží **nad** ní jako pilulky na stopce s uzlem na čáře, rozsahy **pod**
+ní jako zaoblené pruhy. Každé pásmo se řádkuje samostatně (`layoutEvents`),
+`lane` 0 je řádek nejblíž čáře; svislé souřadnice dávají `pointLaneY` (záporné)
+a `rangeLaneY` (kladné), obojí relativně k čáře.
+
+Pilulek se nad čáru vejde jen `MAX_POINT_LANES` řádků. Co se nevejde, ztratí
+pilulku (`labelMode: 'none'`) a zůstane jen uzlem na čáře — jinak by při
+oddálení pilulky vytlačily osu mimo obrazovku.
+
+**Kategorie jsou období.** Kategorie s vyplněným `fromYear`/`toYear` se chová
+jako časové období: barví centrální čáru (plynulý gradient přes období ve
+výřezu) a dráhu minimapy. Bez rozsahu je to jen barevný štítek s filtrem.
+Záznamy dědí barvu své kategorie.
 
 **Vykreslovací řetězec osy** (`src/components/timeline/`) — tři kroky, každý
 v jiném souboru:
@@ -98,11 +112,11 @@ přes 6000 let a vlastního vykreslení nejistoty.
   nevejdou, se skryjí (ukážou se po najetí a v detailu).
 - Měření textu je cachované podle řetězce (`measureText` v `TimelineCanvas.tsx`);
   při změně fontu je potřeba cache zneplatnit.
-- Popisek u pravého okraje se překlopí doleva od značky, a když ani tam není
-  místo, skryje se.
 - Popisek uvnitř pruhu začíná až za náběhem do ztracena (`fadeWidth`), jinak by
   první písmena ležela v poloprůhledné části. Stejný výpočet používá rozvržení
   i vykreslení — musí zůstat sdílený.
+- Popisek degraduje podle místa (`LabelMode`): jméno + roky uvnitř → jen jméno
+  uvnitř → vedle pruhu → nic. Řádkování počítá s reálnou šířkou popisku.
 
 **Gesta.** Přibližuje jen pinch, samotné kolečko posouvá. Pinch chodí do
 aplikace **dvěma různými cestami** a obě je potřeba obsluhovat: Chrome a Firefox

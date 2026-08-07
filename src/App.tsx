@@ -13,7 +13,8 @@ import { DetailPanel } from './components/DetailPanel';
 import { EventForm } from './components/EventForm';
 import { SearchBox, LockButton } from './components/SearchBox';
 import { TableView } from './components/TableView';
-import { TimelineView, type ExternalFocus } from './components/TimelineView';
+import { periodsOf, TimelineView, type ExternalFocus, type SelectionAnchor } from './components/TimelineView';
+import { formatYear } from './lib/format';
 import { ConfirmDialog, Spinner } from './components/ui';
 import type { EventDraft, TimelineEvent } from './data/types';
 
@@ -27,6 +28,8 @@ export function App() {
   const [editing, setEditing] = useState<TimelineEvent | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [timelineFocus, setTimelineFocus] = useState<ExternalFocus | null>(null);
+  const [anchor, setAnchor] = useState<SelectionAnchor | null>(null);
+  const [range, setRange] = useState<{ from: number; to: number } | null>(null);
   const focusNonce = useRef(0);
   const [pendingDelete, setPendingDelete] = useState<TimelineEvent | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
@@ -41,8 +44,35 @@ export function App() {
     focusNonce.current += 1;
     setTimelineFocus({ event, nonce: focusNonce.current });
     setSelectedId(event.id);
+    setAnchor(null);
     setMode('timeline');
   }, []);
+
+  const onRangeChange = useCallback((from: number, to: number) => {
+    setRange((prev) => (prev && prev.from === from && prev.to === to ? prev : { from, to }));
+  }, []);
+
+  /**
+   * Podtitul hlavičky: která období jsou vidět a v jakém rozsahu let.
+   * Bez definovaných období zůstane jen rozsah.
+   */
+  const context = useMemo(() => {
+    if (!range) return '';
+    const periods = periodsOf(state.categories).filter(
+      (p) => p.to >= range.from && p.from <= range.to,
+    );
+    const names = state.categories.filter((c) =>
+      periods.some((p) => p.color === c.color && p.from === c.fromYear),
+    );
+    const label =
+      names.length === 0
+        ? ''
+        : names.length === 1
+          ? names[0].name
+          : `${names[0].name} – ${names[names.length - 1].name}`;
+    const roky = `${formatYear(Math.round(range.from))} – ${formatYear(Math.round(range.to))}`;
+    return label ? `${label} · ${roky}` : roky;
+  }, [range, state.categories]);
 
   const openNew = useCallback(() => {
     setEditing(null);
@@ -86,12 +116,15 @@ export function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <h1 className="app-title">{cs.app.title}</h1>
+        <div className="app-brand">
+          <h1 className="app-title">{cs.app.title}</h1>
+          {mode === 'timeline' && context ? <p className="app-context">{context}</p> : null}
+        </div>
 
-        <nav className="view-switch" aria-label={cs.nav.timeline}>
+        <nav className="switch" aria-label={cs.nav.timeline}>
           <button
             type="button"
-            className={`segment${mode === 'timeline' ? ' segment-active' : ''}`}
+            className={`switch-segment${mode === 'timeline' ? ' switch-segment-active' : ''}`}
             onClick={() => setMode('timeline')}
             aria-pressed={mode === 'timeline'}
           >
@@ -99,7 +132,7 @@ export function App() {
           </button>
           <button
             type="button"
-            className={`segment${mode === 'table' ? ' segment-active' : ''}`}
+            className={`switch-segment${mode === 'table' ? ' switch-segment-active' : ''}`}
             onClick={() => setMode('table')}
             aria-pressed={mode === 'table'}
           >
@@ -111,15 +144,15 @@ export function App() {
           <SearchBox events={state.events} categoryMap={state.categoryMap} onPick={showOnTimeline} />
           {state.canEdit ? (
             <>
-              <button type="button" className="button button-primary" onClick={openNew}>
+              <button type="button" className="pill pill-dark" onClick={openNew}>
                 {cs.table.newEvent}
               </button>
-              <button type="button" className="button" onClick={() => setModal('categories')}>
+              <button type="button" className="pill" onClick={() => setModal('categories')}>
                 {cs.nav.categories}
               </button>
             </>
           ) : null}
-          <button type="button" className="button" onClick={() => setModal('data')}>
+          <button type="button" className="pill" onClick={() => setModal('data')}>
             {cs.nav.data}
           </button>
           <LockButton
@@ -161,8 +194,12 @@ export function App() {
                   categories={state.categories}
                   categoryMap={state.categoryMap}
                   selectedId={selectedId}
-                  onSelect={(event) => setSelectedId(event?.id ?? null)}
+                  onSelect={(event, at) => {
+                    setSelectedId(event?.id ?? null);
+                    setAnchor(at);
+                  }}
                   externalFocus={timelineFocus}
+                  onRangeChange={onRangeChange}
                 />
               ) : (
                 <TableView
@@ -182,6 +219,7 @@ export function App() {
                 event={selected}
                 category={selected.categoryId ? (state.categoryMap.get(selected.categoryId) ?? null) : null}
                 canEdit={state.canEdit}
+                anchor={anchor}
                 onEdit={() => openEdit(selected)}
                 onDelete={() => setPendingDelete(selected)}
                 onClose={() => setSelectedId(null)}

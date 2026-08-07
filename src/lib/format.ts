@@ -46,6 +46,7 @@ export function formatTimePoint(tp: TimePoint): string {
   const parts: string[] = [];
   if (tp.qualifier === 'min') parts.push(cs.qualifier.min);
   else if (tp.qualifier === 'after') parts.push(cs.qualifier.after);
+  else if (tp.qualifier === 'before') parts.push(cs.qualifier.before);
   parts.push((tp.approx ? APPROX_PREFIX : '') + formatTimePointBare(tp));
   return parts.join(' ');
 }
@@ -66,6 +67,28 @@ export function formatTimePointBare(tp: Pick<TimePoint, 'year' | 'month' | 'day'
     case 'day':
       return `${tp.day}. ${monthNameGenitive(tp.month as number)} ${year}`;
   }
+}
+
+/**
+ * Kompaktní rozsah pro popisky na ose: když jsou obě strany ve stejné éře,
+ * uvede se éra jen jednou („4026 – 3096 př. n. l.").
+ */
+export function formatRangeCompact(start: TimePoint, end: TimePoint | null): string {
+  if (!end) return formatTimePoint(start);
+  const stejnaEra = start.year <= 0 === end.year <= 0;
+  const plnaPresnost = start.month !== null || end.month !== null;
+  if (!stejnaEra || plnaPresnost) return formatRange(start, end);
+
+  const prefix = (tp: TimePoint) => {
+    const parts: string[] = [];
+    if (tp.qualifier === 'min') parts.push(cs.qualifier.min);
+    else if (tp.qualifier === 'after') parts.push(cs.qualifier.after);
+    else if (tp.qualifier === 'before') parts.push(cs.qualifier.before);
+    return parts.length > 0 ? `${parts.join(' ')} ` : '';
+  };
+  const cislo = (tp: TimePoint) =>
+    `${prefix(tp)}${tp.approx ? APPROX_PREFIX : ''}${fromAstronomicalYear(tp.year).year}`;
+  return `${cislo(start)}${RANGE_SEPARATOR}${cislo(end)} ${start.year <= 0 ? cs.era.bc : cs.era.ad}`;
 }
 
 /** Rozsah: „1512 př. n. l. – 1406 př. n. l.", každá strana s vlastní jistotou. */
