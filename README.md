@@ -11,6 +11,10 @@ nepředvyplňuje. Rozhraní je kompletně česky.
   včetně plnohodnotného zadávání dat na iPadu. Telefon je použitelný pro
   prohlížení.
 
+Navazujete na rozdělanou práci? Stav projektu a dosavadní rozhodnutí jsou
+v [`docs/kontext-projektu.md`](docs/kontext-projektu.md), pokyny pro Claude Code
+v [`CLAUDE.md`](CLAUDE.md).
+
 ## Stack
 
 | Vrstva | Technologie |
