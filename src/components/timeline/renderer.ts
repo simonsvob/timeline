@@ -17,6 +17,7 @@ import {
   AXIS_LINE_HEIGHT,
   BAR_HEIGHT,
   BAR_LABEL_GAP,
+  BAR_RADIUS,
   NODE_RADIUS,
   OPEN_END_WIDTH,
   PILL_HEIGHT,
@@ -280,17 +281,26 @@ function drawBar(
   const x2 = Math.min(item.x2, view.width + MAX_OVERFLOW);
   const w = Math.max(x2 - x1, 3);
   const y = centerY - BAR_HEIGHT / 2 - (hovered ? 1 : 0);
-  const r = BAR_HEIGHT / 2;
 
   // Přibližná hranice = OTEVŘENÝ kraj: políčko vypadá stejně jako u jistých
   // roků, jen se na té straně neuzavře — obrys tam vede jen nahoře a dole.
   // Ořez na okraj plátna nesmí kraj „uzavřít", proto se hlídá i přesah.
   const openLeft = item.startApprox || item.x1 < -MAX_OVERFLOW;
   const openRight = item.endApprox || item.x2 > view.width + MAX_OVERFLOW;
-  const leftR = openLeft ? 0 : Math.min(r, w / 2);
-  const rightR = openRight ? 0 : Math.min(r, w / 2);
 
-  barPath(ctx, x1, y, w, BAR_HEIGHT, leftR, rightR);
+  // Otevřený kraj se kreslí tak, že tvar přesahuje za ořez a zaoblený roh
+  // zůstane mimo viditelnou oblast. Výplň i obrys tak sdílejí jednu cestu –
+  // ručně skládané oblouky se u krátkých pruhů rozpadaly na kroužky.
+  const presah = BAR_RADIUS + 4;
+  const pathX1 = openLeft ? x1 - presah : x1;
+  const pathX2 = openRight ? x2 + presah : x2;
+
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(x1, y - 4, w, BAR_HEIGHT + 8);
+  ctx.clip();
+
+  barPath(ctx, pathX1, y, pathX2 - pathX1, BAR_HEIGHT, BAR_RADIUS);
   if (hovered || selected) {
     withShadow(ctx, theme.shadow, hovered ? 20 : 10, hovered ? 7 : 3, () => {
       ctx.fillStyle = mixWithWhite(item.color, 0.15);
@@ -300,22 +310,18 @@ function drawBar(
   ctx.fillStyle = mixWithWhite(item.color, 0.15);
   ctx.fill();
 
-  // obrys: vodorovné hrany vždy, svislé jen na uzavřené straně
+  barPath(ctx, pathX1 + 0.5, y + 0.5, pathX2 - pathX1 - 1, BAR_HEIGHT - 1, BAR_RADIUS - 0.5);
   ctx.strokeStyle = rgba(item.color, 0.55);
   ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.moveTo(x1 + leftR, y + 0.5);
-  ctx.lineTo(x2 - rightR, y + 0.5);
-  if (!openRight) {
-    ctx.arc(x2 - rightR, centerY - (hovered ? 1 : 0), rightR - 0.5, -Math.PI / 2, Math.PI / 2);
-  } else {
-    ctx.moveTo(x2, y + BAR_HEIGHT - 0.5);
-  }
-  ctx.lineTo(x1 + leftR, y + BAR_HEIGHT - 0.5);
-  if (!openLeft) {
-    ctx.arc(x1 + leftR, centerY - (hovered ? 1 : 0), leftR - 0.5, Math.PI / 2, -Math.PI / 2);
-  }
   ctx.stroke();
+
+  if (selected) {
+    barPath(ctx, pathX1 - 1.5, y - 1.5, pathX2 - pathX1 + 3, BAR_HEIGHT + 3, BAR_RADIUS + 1.5);
+    ctx.strokeStyle = theme.selection;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  }
+  ctx.restore();
 
   if (item.startOpen === 'left' && x1 > -OPEN_END_WIDTH) {
     drawOpenArrow(ctx, x1 - 3, centerY - (hovered ? 1 : 0), item.color, 'left');
@@ -324,36 +330,29 @@ function drawBar(
     drawOpenArrow(ctx, x2 + 3, centerY - (hovered ? 1 : 0), item.color, 'right');
   }
 
-  if (selected) {
-    barPath(ctx, x1 - 1.5, y - 1.5, w + 3, BAR_HEIGHT + 3, leftR ? leftR + 1.5 : 0, rightR ? rightR + 1.5 : 0);
-    ctx.strokeStyle = theme.selection;
-    ctx.lineWidth = 2;
-    ctx.stroke();
-  }
-
   drawBarLabel(input, item, centerY - (hovered ? 1 : 0));
 }
 
-/** Obdélník s nezávislým zaoblením vlevo a vpravo (0 = otevřený kraj). */
+/** Obdélník s kulatými rohy; poloměr se u úzkých tvarů srazí na polovinu šířky. */
 function barPath(
   ctx: CanvasRenderingContext2D,
   x: number,
   y: number,
   w: number,
   h: number,
-  leftR: number,
-  rightR: number,
+  radius: number,
 ): void {
+  const r = Math.max(0, Math.min(radius, w / 2, h / 2));
   ctx.beginPath();
-  ctx.moveTo(x + leftR, y);
-  ctx.lineTo(x + w - rightR, y);
-  if (rightR > 0) ctx.arcTo(x + w, y, x + w, y + rightR, rightR);
-  ctx.lineTo(x + w, y + h - rightR);
-  if (rightR > 0) ctx.arcTo(x + w, y + h, x + w - rightR, y + h, rightR);
-  ctx.lineTo(x + leftR, y + h);
-  if (leftR > 0) ctx.arcTo(x, y + h, x, y + h - leftR, leftR);
-  ctx.lineTo(x, y + leftR);
-  if (leftR > 0) ctx.arcTo(x, y, x + leftR, y, leftR);
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.arcTo(x + w, y, x + w, y + r, r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
+  ctx.lineTo(x + r, y + h);
+  ctx.arcTo(x, y + h, x, y + h - r, r);
+  ctx.lineTo(x, y + r);
+  ctx.arcTo(x, y, x + r, y, r);
   ctx.closePath();
 }
 

@@ -50,9 +50,15 @@ vlastní, nad celočíselnými roky.
 `before` doleva, `min` i `after` doprava.
 
 Přibližná hranice se pozná z vykreslení: pruh vypadá **stejně jako jistý**, jen
-se na té straně neuzavře — obrys tam vede jen nahoře a dole a roh není zaoblený
-(`barPath` v `renderer.ts` bere zaoblení vlevo a vpravo zvlášť). Výplň se
-nikam nerozplývá, takže se jméno vejde i do úzkého pruhu.
+se na té straně neuzavře — obrys tam vede jen nahoře a dole. Výplň se nikam
+nerozplývá, takže se jméno vejde i do úzkého pruhu.
+
+Otevřený kraj se kreslí přesahem za ořez: tvar se protáhne o `BAR_RADIUS + 4`
+ven, ořízne se na skutečnou šířku a zaoblený roh zůstane mimo. Výplň i obrys
+tak sdílejí jednu cestu — ručně skládané oblouky se u krátkých pruhů rozpadaly
+na kroužky. Ze stejného důvodu má pruh pevný `BAR_RADIUS` (menší než polovina
+výšky) a `MIN_BAR_WIDTH`: bez nich se při velkém oddálení srazil poloměr na
+polovinu šířky a z pruhů zbyly nitky nebo kolečka.
 
 Můžou se potkat: `min. ~65 n. l.` = rok úmrtí neznáme a odhadujeme ho na 65.
 **Nikde se nesmí zobrazit přesnost, která nebyla zadána** — záznam s vyplněným

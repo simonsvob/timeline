@@ -32,6 +32,18 @@ export const RANGE_LANE_HEIGHT = 44;
 /** Horní hrana prvního řádku pruhů pod čárou. */
 export const RANGE_FIRST_OFFSET = 36;
 export const BAR_HEIGHT = 28;
+/**
+ * Zaoblení rohů pruhu. Menší než polovina výšky, takže pruh je spíš obdélník
+ * s kulatými rohy — díky tomu se u krátkých pruhů nemusí poloměr srážet
+ * a nevzniknou z nich kroužky.
+ */
+export const BAR_RADIUS = 10;
+/**
+ * Nejmenší šířka pruhu. Při velkém oddálení by z krátkých životů zbyly
+ * nitky; místo toho zůstanou čitelným tvarem přes celou výšku řádku.
+ * Rozšiřuje se symetricky, aby pruh zůstal na svém místě.
+ */
+export const MIN_BAR_WIDTH = 20;
 /** Odsazení popisku uvnitř pruhu. */
 export const BAR_LABEL_INSET = 13;
 export const BAR_LABEL_GAP = 9;
@@ -191,6 +203,7 @@ export function layoutEvents(
     const rawX1 = xOf(view, extent.from);
     const rawX2 = xOf(view, extent.to);
     const centerX = isPoint ? rawX1 : (rawX1 + rawX2) / 2;
+    const barHalf = Math.max((rawX2 - rawX1) / 2, MIN_BAR_WIDTH / 2);
     const name = event.name;
     const years = formatYears(event);
     const nameWidth = measureText(name, 'bold');
@@ -200,8 +213,8 @@ export function layoutEvents(
     return {
       event,
       isPoint,
-      x1: isPoint ? centerX - pillWidth / 2 : rawX1,
-      x2: isPoint ? centerX + pillWidth / 2 : Math.max(rawX2, rawX1 + 3),
+      x1: isPoint ? centerX - pillWidth / 2 : centerX - barHalf,
+      x2: isPoint ? centerX + pillWidth / 2 : centerX + barHalf,
       centerX,
       color: categoryColor(event.categoryId, categories),
       name,
