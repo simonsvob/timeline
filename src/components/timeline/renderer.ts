@@ -6,25 +6,26 @@
  * výřez – položky mimo plátno se přeskočí.
  *
  * Jazyk nejistoty:
- *   - jistá hranice = ostrá hrana s výraznějším obrysem,
- *   - přibližná hranice = výplň se rozplyne do průhledna, obrys ji sleduje,
+ *   - jistá hranice = uzavřený tvar s obrysem dokola,
+ *   - přibližná hranice = OTEVŘENÝ kraj: obrys vede jen nahoře a dole,
  *   - otevřená hranice = šipka na tu stranu, na kterou je údaj otevřený.
+ *
+ * O pásmech tady nic není: svislou polohu i výšku každého tvaru přináší
+ * rozvržení (`item.centerY`, `item.height`).
  */
 
 import type { Tick, Viewport } from '../../lib/viewport';
 import { xOf } from '../../lib/viewport';
 import {
   AXIS_LINE_HEIGHT,
-  BAR_HEIGHT,
   BAR_LABEL_GAP,
   BAR_RADIUS,
+  SEGMENT_BAR_RADIUS,
   NODE_RADIUS,
   OPEN_END_WIDTH,
   PILL_HEIGHT,
   PILL_GAP,
   PILL_PADDING_X,
-  pointLaneY,
-  rangeLaneY,
   type EventGeometry,
   type LayoutResult,
 } from './layout';
@@ -78,9 +79,12 @@ export interface RenderInput {
   selectedId: string | null;
   hoveredId: string | null;
   theme: Theme;
+  /** názvy pásem pro popisky v levém sloupci (id -> název) */
+  bandLabels: Map<string, string>;
   nameFont: string;
   yearFont: string;
   tickFont: string;
+  bandFont: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -169,6 +173,7 @@ export function renderTimeline(input: RenderInput): void {
   drawAxis(input);
   drawRanges(input);
   drawPoints(input);
+  drawBandLabels(input);
 }
 
 /** Tečkované svislé linky v místech dělení. */
@@ -253,7 +258,7 @@ function drawRanges(input: RenderInput): void {
   const { layout, view, axisY, selectedId, hoveredId } = input;
 
   for (const item of layout.items) {
-    if (item.isPoint) continue;
+    if (item.asPill) continue;
     const rightmost =
       item.labelMode === 'outside-full'
         ? item.labelX + item.nameWidth + BAR_LABEL_GAP + item.yearsWidth
@@ -262,11 +267,20 @@ function drawRanges(input: RenderInput): void {
           : item.x2;
     if (rightmost < -8 || item.x1 > view.width + 8) continue;
 
-    const centerY = axisY + rangeLaneY(item.lane);
-    if (centerY < -BAR_HEIGHT || centerY > input.height + BAR_HEIGHT) continue;
+    const centerY = axisY + item.centerY;
+    if (centerY < -item.height || centerY > input.height + item.height) continue;
 
     drawBar(input, item, centerY, item.event.id === selectedId, item.event.id === hoveredId);
   }
+}
+
+/**
+ * Výplň pruhu. Pásma na jedné řadě (vlády, velmoci) se dotýkají bez mezer,
+ * proto se u sousedů střídá sytost — mezera by tam nedávala smysl, konec
+ * jedné vlády je začátek další.
+ */
+function barFill(item: EventGeometry): string {
+  return mixWithWhite(item.color, item.shade === 1 ? 0.3 : 0.15);
 }
 
 function drawBar(
@@ -277,10 +291,12 @@ function drawBar(
   hovered: boolean,
 ): void {
   const { ctx, view, theme } = input;
+  const height = item.height;
+  const radius = item.segment ? SEGMENT_BAR_RADIUS : BAR_RADIUS;
   const x1 = Math.max(item.x1, -MAX_OVERFLOW);
   const x2 = Math.min(item.x2, view.width + MAX_OVERFLOW);
   const w = Math.max(x2 - x1, 3);
-  const y = centerY - BAR_HEIGHT / 2 - (hovered ? 1 : 0);
+  const y = centerY - height / 2 - (hovered ? 1 : 0);
 
   // Přibližná hranice = OTEVŘENÝ kraj: políčko vypadá stejně jako u jistých
   // roků, jen se na té straně neuzavře — obrys tam vede jen nahoře a dole.
@@ -291,32 +307,33 @@ function drawBar(
   // Otevřený kraj se kreslí tak, že tvar přesahuje za ořez a zaoblený roh
   // zůstane mimo viditelnou oblast. Výplň i obrys tak sdílejí jednu cestu –
   // ručně skládané oblouky se u krátkých pruhů rozpadaly na kroužky.
-  const presah = BAR_RADIUS + 4;
+  const presah = radius + 4;
   const pathX1 = openLeft ? x1 - presah : x1;
   const pathX2 = openRight ? x2 + presah : x2;
 
   ctx.save();
   ctx.beginPath();
-  ctx.rect(x1, y - 4, w, BAR_HEIGHT + 8);
+  ctx.rect(x1, y - 4, w, height + 8);
   ctx.clip();
 
-  barPath(ctx, pathX1, y, pathX2 - pathX1, BAR_HEIGHT, BAR_RADIUS);
+  const fill = barFill(item);
+  barPath(ctx, pathX1, y, pathX2 - pathX1, height, radius);
   if (hovered || selected) {
     withShadow(ctx, theme.shadow, hovered ? 20 : 10, hovered ? 7 : 3, () => {
-      ctx.fillStyle = mixWithWhite(item.color, 0.15);
+      ctx.fillStyle = fill;
       ctx.fill();
     });
   }
-  ctx.fillStyle = mixWithWhite(item.color, 0.15);
+  ctx.fillStyle = fill;
   ctx.fill();
 
-  barPath(ctx, pathX1 + 0.5, y + 0.5, pathX2 - pathX1 - 1, BAR_HEIGHT - 1, BAR_RADIUS - 0.5);
+  barPath(ctx, pathX1 + 0.5, y + 0.5, pathX2 - pathX1 - 1, height - 1, radius - 0.5);
   ctx.strokeStyle = rgba(item.color, 0.55);
   ctx.lineWidth = 1;
   ctx.stroke();
 
   if (selected) {
-    barPath(ctx, pathX1 - 1.5, y - 1.5, pathX2 - pathX1 + 3, BAR_HEIGHT + 3, BAR_RADIUS + 1.5);
+    barPath(ctx, pathX1 - 1.5, y - 1.5, pathX2 - pathX1 + 3, height + 3, radius + 1.5);
     ctx.strokeStyle = theme.selection;
     ctx.lineWidth = 2;
     ctx.stroke();
@@ -405,10 +422,10 @@ function drawPoints(input: RenderInput): void {
   const { ctx, layout, view, axisY, theme, selectedId, hoveredId } = input;
 
   for (const item of layout.items) {
-    if (!item.isPoint) continue;
+    if (!item.asPill) continue;
     if (item.x2 < -8 || item.x1 > view.width + 8) continue;
 
-    const centerY = axisY + pointLaneY(item.lane);
+    const centerY = axisY + item.centerY;
     if (centerY < -PILL_HEIGHT || centerY > input.height + PILL_HEIGHT) continue;
 
     const selected = item.event.id === selectedId;
@@ -421,13 +438,15 @@ function drawPoints(input: RenderInput): void {
       continue;
     }
 
-    // stopka od uzlu k pilulce
-    ctx.strokeStyle = rgba(item.color, 0.35);
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    ctx.moveTo(Math.round(item.centerX) + 0.5, axisY);
-    ctx.lineTo(Math.round(item.centerX) + 0.5, centerY + PILL_HEIGHT / 2 - lift);
-    ctx.stroke();
+    // stopka od uzlu k pilulce (jen u pásma, které na čáře stojí)
+    if (item.stem) {
+      ctx.strokeStyle = rgba(item.color, 0.35);
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(Math.round(item.centerX) + 0.5, axisY);
+      ctx.lineTo(Math.round(item.centerX) + 0.5, centerY + PILL_HEIGHT / 2 - lift);
+      ctx.stroke();
+    }
 
     // pilulka
     const x = item.x1;
@@ -452,7 +471,7 @@ function drawPoints(input: RenderInput): void {
       ctx.fillText(item.years, x + PILL_PADDING_X + item.nameWidth + PILL_GAP, centerY - lift + 0.5);
     }
 
-    if (item.startOpen) {
+    if (item.stem && item.startOpen) {
       drawOpenArrow(
         ctx,
         item.startOpen === 'right' ? item.centerX + NODE_RADIUS + 3 : item.centerX - NODE_RADIUS - 3,
@@ -462,7 +481,35 @@ function drawPoints(input: RenderInput): void {
       );
     }
 
-    drawNode(input, item, selected);
+    if (item.stem) drawNode(input, item, selected);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Popisky pásem
+// ---------------------------------------------------------------------------
+
+/**
+ * Název pásma v levém sloupci. Kreslí se jen u pásem na jedné řadě (velmoci,
+ * vlády) – u nich se řada nedá odvodit z obsahu a bez popisku by nešlo poznat,
+ * jestli je řádek judský, nebo izraelský.
+ */
+function drawBandLabels(input: RenderInput): void {
+  const { ctx, layout, axisY, theme, bandLabels, height } = input;
+
+  ctx.font = input.bandFont;
+  ctx.textBaseline = 'middle';
+  ctx.textAlign = 'left';
+  ctx.fillStyle = theme.tertiary;
+
+  for (const band of layout.bands) {
+    if (!band.singleLane) continue;
+    const label = bandLabels.get(band.id);
+    if (!label) continue;
+
+    const y = axisY + band.labelY;
+    if (y < 8 || y > height - 4) continue;
+    ctx.fillText(label, 12, y);
   }
 }
 

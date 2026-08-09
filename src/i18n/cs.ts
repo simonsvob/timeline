@@ -106,10 +106,19 @@ export const cs = {
   timeline: {
     searchPlaceholder: 'Hledat…',
     noSearchResults: 'Nic nenalezeno',
-    legend: 'Kategorie',
+    legend: 'Pásma',
     withoutCategory: 'Bez kategorie',
     emptyTitle: 'Zatím tu nic není',
     minimapHint: 'Přehled celého rozsahu – tažením posunete výřez',
+    /** Názvy pásem osy; klíče odpovídají `BANDS` v components/timeline/layout.ts. */
+    bands: {
+      velmoci: 'Světové velmoci',
+      udalosti: 'Události',
+      zivoty: 'Životy',
+      juda: 'Vláda – Juda',
+      izrael: 'Vláda – Izrael',
+      ostatni: 'Ostatní',
+    },
   },
 
   detail: {

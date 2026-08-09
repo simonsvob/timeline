@@ -4,9 +4,12 @@
  * Ovládání:
  *   - pinch dvěma prsty (trackpad Macu i iPad) = plynulý zoom kolem středu gesta,
  *   - dvouprstové posouvání / kolečko = posun vodorovně i svisle,
- *   - tažení = posun,
+ *   - tažení = posun, po švihnutí prstem posun setrvačností plynule dojede,
  *   - dvojklik = přiblížení, s Alt/Shift oddálení,
  *   - klik/tap na záznam = výběr.
+ *
+ * Kreslí se v jedné trvalé rAF smyčce se značkou „je co překreslit". Zakládat
+ * a rušit snímek při každé změně stavu bylo na dotykových zařízeních znát.
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -14,23 +17,30 @@ import { cs } from '../../i18n/cs';
 import { formatRangeCompact } from '../../lib/format';
 import { generateTicks, panBy, zoomAt, type Domain, type Viewport } from '../../lib/viewport';
 import type { Category, TimelineEvent } from '../../data/types';
-import {
-  hitTest,
-  layoutEvents,
-  PILL_HEIGHT,
-  pointLaneY,
-  rangeLaneY,
-  type LayoutResult,
-} from './layout';
+import { BANDS, hitTest, layoutEvents, type LayoutResult } from './layout';
 import { renderTimeline, THEME, type PeriodSpan } from './renderer';
 
 const NAME_FONT = '600 13px -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif';
 const YEAR_FONT = '11.5px -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif';
 const TICK_FONT = '11px -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif';
+const BAND_FONT = '600 10.5px -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif';
 /** Práh v pixelech, do kterého se tažení ještě považuje za klik. */
 const CLICK_SLOP = 6;
 /** Volné místo nad nejvyšší pilulkou a pod nejnižším pruhem. */
 const VERTICAL_PADDING = 28;
+/** Minimapa plave nad plátnem; poslední pásmo se pod ni nesmí schovat. */
+const MINIMAP_CLEARANCE = 64;
+
+// --- setrvačnost -------------------------------------------------------------
+
+/** Časová konstanta doběhu v ms: dráha po puštění ≈ rychlost × tahle hodnota. */
+const INERTIA_TAU = 280;
+/** Pod touhle rychlostí (px/ms) se už doběh nespouští ani nepokračuje. */
+const INERTIA_MIN_SPEED = 0.04;
+/** Váha nového vzorku při vyhlazování rychlosti. */
+const VELOCITY_SMOOTHING = 0.4;
+/** Delší pauza mezi pohyby znamená, že prst stál – rychlost se zapomene. */
+const VELOCITY_RESET_MS = 90;
 
 /**
  * Safari posílá za pinch vlastní GestureEvent, který standardní typy DOM
@@ -65,6 +75,11 @@ function formatYearsOf(event: TimelineEvent): string {
   return formatRangeCompact(event.start, event.end);
 }
 
+/** Názvy pásem pro popisky na plátně; texty žijí jen v `cs`. */
+const BAND_LABELS = new Map(
+  BANDS.map((band) => [band.id, cs.timeline.bands[band.id as keyof typeof cs.timeline.bands] ?? band.id]),
+);
+
 export interface FocusRequest {
   id: string;
   nonce: number;
@@ -80,6 +95,7 @@ interface Props {
   selectedId: string | null;
   onSelect: (event: TimelineEvent | null, anchor: { x: number; y: number } | null) => void;
   focusRequest: FocusRequest | null;
+  hiddenBands: ReadonlySet<string>;
 }
 
 export function TimelineCanvas({
@@ -92,6 +108,7 @@ export function TimelineCanvas({
   selectedId,
   onSelect,
   focusRequest,
+  hiddenBands,
 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -112,8 +129,8 @@ export function TimelineCanvas({
   }, []);
 
   const layout: LayoutResult = useMemo(
-    () => layoutEvents(events, view, categoryMap, measureText, formatYearsOf),
-    [events, view, categoryMap],
+    () => layoutEvents(events, view, categoryMap, measureText, formatYearsOf, hiddenBands),
+    [events, view, categoryMap, hiddenBands],
   );
 
   /**
@@ -122,7 +139,7 @@ export function TimelineCanvas({
    */
   const { axisY, shiftRange } = useMemo(() => {
     const above = layout.heightAbove + VERTICAL_PADDING;
-    const below = layout.heightBelow + VERTICAL_PADDING;
+    const below = layout.heightBelow + VERTICAL_PADDING + MINIMAP_CLEARANCE;
     const total = above + below;
     const ideal = size.height >= total ? above + (size.height - total) / 2 : above;
     const min = Math.min(size.height - below, ideal);
@@ -143,37 +160,57 @@ export function TimelineCanvas({
 
   const ticks = useMemo(() => (view.width > 0 ? generateTicks(view, 110) : []), [view]);
 
-  useEffect(() => {
+  // --- kreslení v trvalé rAF smyčce ----------------------------------------
+
+  const drawRef = useRef<(() => void) | null>(null);
+  const dirtyRef = useRef(true);
+
+  drawRef.current = () => {
     const canvas = canvasRef.current;
     if (!canvas || size.width === 0) return;
     const dpr = Math.min(window.devicePixelRatio || 1, 2.5);
-    if (canvas.width !== Math.round(size.width * dpr) || canvas.height !== Math.round(size.height * dpr)) {
-      canvas.width = Math.round(size.width * dpr);
-      canvas.height = Math.round(size.height * dpr);
+    const w = Math.round(size.width * dpr);
+    const h = Math.round(size.height * dpr);
+    if (canvas.width !== w || canvas.height !== h) {
+      canvas.width = w;
+      canvas.height = h;
     }
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    renderTimeline({
+      ctx,
+      view,
+      layout,
+      ticks,
+      height: size.height,
+      axisY: effectiveAxisY,
+      periods,
+      selectedId,
+      hoveredId,
+      theme: THEME,
+      bandLabels: BAND_LABELS,
+      nameFont: NAME_FONT,
+      yearFont: YEAR_FONT,
+      tickFont: TICK_FONT,
+      bandFont: BAND_FONT,
+    });
+  };
 
-    const frame = requestAnimationFrame(() => {
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      renderTimeline({
-        ctx,
-        view,
-        layout,
-        ticks,
-        height: size.height,
-        axisY: effectiveAxisY,
-        periods,
-        selectedId,
-        hoveredId,
-        theme: THEME,
-        nameFont: NAME_FONT,
-        yearFont: YEAR_FONT,
-        tickFont: TICK_FONT,
-      });
+  useEffect(() => {
+    dirtyRef.current = true;
+  }, [size, view, layout, ticks, effectiveAxisY, periods, selectedId, hoveredId]);
+
+  useEffect(() => {
+    let frame = requestAnimationFrame(function loop() {
+      if (dirtyRef.current) {
+        dirtyRef.current = false;
+        drawRef.current?.();
+      }
+      frame = requestAnimationFrame(loop);
     });
     return () => cancelAnimationFrame(frame);
-  }, [size, view, layout, ticks, effectiveAxisY, periods, selectedId, hoveredId]);
+  }, []);
 
   // posun na vybraný záznam
   useEffect(() => {
@@ -195,8 +232,67 @@ export function TimelineCanvas({
   axisRef.current = effectiveAxisY;
   const layoutRef = useRef(layout);
   layoutRef.current = layout;
+  const clampShiftRef = useRef(clampShift);
+  clampShiftRef.current = clampShift;
+  const onViewChangeRef = useRef(onViewChange);
+  onViewChangeRef.current = onViewChange;
 
   const pointers = useRef(new Map<number, { x: number; y: number }>());
+
+  // --- doběh po švihnutí ----------------------------------------------------
+
+  const inertia = useRef<{ frame: number; vx: number; vy: number; last: number } | null>(null);
+
+  const stopInertia = useCallback(() => {
+    if (inertia.current) {
+      cancelAnimationFrame(inertia.current.frame);
+      inertia.current = null;
+    }
+  }, []);
+
+  const startInertia = useCallback(
+    (vx: number, vy: number) => {
+      stopInertia();
+      if (Math.hypot(vx, vy) < INERTIA_MIN_SPEED) return;
+
+      const step = (now: number) => {
+        const state = inertia.current;
+        if (!state) return;
+        const dt = Math.min(now - state.last, 48);
+        state.last = now;
+
+        const decay = Math.exp(-dt / INERTIA_TAU);
+        state.vx *= decay;
+        state.vy *= decay;
+
+        if (state.vx !== 0) {
+          const before = viewRef.current;
+          const next = panBy(before, state.vx * dt, domainRef.current);
+          // Na kraji rozsahu se posun zastaví – jinak by doběh běžel naprázdno.
+          if (next.t0 === before.t0) state.vx = 0;
+          else onViewChangeRef.current(next);
+        }
+        if (state.vy !== 0) {
+          setAxisShift((prev) => {
+            const next = clampShiftRef.current(prev + state.vy * dt);
+            if (next === prev) state.vy = 0;
+            return next;
+          });
+        }
+
+        if (Math.hypot(state.vx, state.vy) < INERTIA_MIN_SPEED) {
+          inertia.current = null;
+          return;
+        }
+        state.frame = requestAnimationFrame(step);
+      };
+
+      inertia.current = { frame: requestAnimationFrame(step), vx, vy, last: performance.now() };
+    },
+    [stopInertia],
+  );
+
+  useEffect(() => stopInertia, [stopInertia]);
 
   // Kolečko / trackpad – nesmí být passive, jinak nejde zabránit zoomu stránky.
   useEffect(() => {
@@ -205,6 +301,7 @@ export function TimelineCanvas({
 
     const onWheel = (event: WheelEvent) => {
       event.preventDefault();
+      stopInertia();
       const rect = canvas.getBoundingClientRect();
       const x = event.clientX - rect.left;
 
@@ -229,6 +326,7 @@ export function TimelineCanvas({
 
     const onGestureStart = (event: GestureLikeEvent) => {
       event.preventDefault();
+      stopInertia();
       lastScale = event.scale || 1;
     };
     const onGestureChange = (event: GestureLikeEvent) => {
@@ -257,9 +355,16 @@ export function TimelineCanvas({
       canvas.removeEventListener('gesturechange', onGestureChange as EventListener);
       canvas.removeEventListener('gestureend', onGestureEnd as EventListener);
     };
-  }, [onViewChange, clampShift]);
+  }, [onViewChange, clampShift, stopInertia]);
 
-  const dragState = useRef<{ moved: number; lastX: number; lastY: number } | null>(null);
+  const dragState = useRef<{
+    moved: number;
+    lastX: number;
+    lastY: number;
+    lastTime: number;
+    vx: number;
+    vy: number;
+  } | null>(null);
   const pinchState = useRef<{ distance: number; centerX: number } | null>(null);
 
   const localPoint = (event: React.PointerEvent<HTMLCanvasElement>) => {
@@ -272,6 +377,7 @@ export function TimelineCanvas({
 
   const onPointerDown = (event: React.PointerEvent<HTMLCanvasElement>) => {
     const point = localPoint(event);
+    stopInertia();
     pointers.current.set(event.pointerId, point);
     event.currentTarget.setPointerCapture(event.pointerId);
 
@@ -280,7 +386,14 @@ export function TimelineCanvas({
       pinchState.current = { distance: Math.hypot(a.x - b.x, a.y - b.y), centerX: (a.x + b.x) / 2 };
       dragState.current = null;
     } else if (pointers.current.size === 1) {
-      dragState.current = { moved: 0, lastX: point.x, lastY: point.y };
+      dragState.current = {
+        moved: 0,
+        lastX: point.x,
+        lastY: point.y,
+        lastTime: event.timeStamp,
+        vx: 0,
+        vy: 0,
+      };
     }
   };
 
@@ -311,31 +424,47 @@ export function TimelineCanvas({
     if (!drag) return;
     const dx = point.x - drag.lastX;
     const dy = point.y - drag.lastY;
+    const dt = event.timeStamp - drag.lastTime;
     drag.moved += Math.abs(dx) + Math.abs(dy);
     drag.lastX = point.x;
     drag.lastY = point.y;
+    drag.lastTime = event.timeStamp;
+
+    // Rychlost pro doběh: vyhlazený průměr, po delší pauze se začíná znovu.
+    if (dt > VELOCITY_RESET_MS || dt <= 0) {
+      drag.vx = 0;
+      drag.vy = 0;
+    } else {
+      drag.vx += (dx / dt - drag.vx) * VELOCITY_SMOOTHING;
+      drag.vy += (dy / dt - drag.vy) * VELOCITY_SMOOTHING;
+    }
+
     if (dx !== 0) onViewChange(panBy(viewRef.current, dx, domainRef.current));
     if (dy !== 0) setAxisShift((prev) => clampShift(prev + dy));
   };
 
   const endPointer = (event: React.PointerEvent<HTMLCanvasElement>) => {
-    const wasDragging = pointers.current.size === 1 && dragState.current;
+    const drag = pointers.current.size === 1 ? dragState.current : null;
     const point = localPoint(event);
     pointers.current.delete(event.pointerId);
     if (pointers.current.size < 2) pinchState.current = null;
 
-    if (wasDragging && dragState.current && dragState.current.moved < CLICK_SLOP) {
-      const hit = zasah(point);
-      if (hit) {
-        const rect = event.currentTarget.getBoundingClientRect();
-        const centerY = hit.isPoint ? pointLaneY(hit.lane) : rangeLaneY(hit.lane);
-        const half = (hit.isPoint ? PILL_HEIGHT : 28) / 2;
-        onSelect(hit.event, {
-          x: rect.left + Math.min(Math.max(hit.centerX, 0), rect.width),
-          y: rect.top + axisRef.current + centerY + (hit.isPoint ? -half : half),
-        });
-      } else {
-        onSelect(null, null);
+    if (drag) {
+      if (drag.moved < CLICK_SLOP) {
+        const hit = zasah(point);
+        if (hit) {
+          const rect = event.currentTarget.getBoundingClientRect();
+          const half = hit.height / 2;
+          onSelect(hit.event, {
+            x: rect.left + Math.min(Math.max(hit.centerX, 0), rect.width),
+            y: rect.top + axisRef.current + hit.centerY + (hit.centerY < 0 ? -half : half),
+          });
+        } else {
+          onSelect(null, null);
+        }
+      } else if (event.type !== 'pointercancel' && event.timeStamp - drag.lastTime < 120) {
+        // Prst se pustil v pohybu – posun plynule dojede.
+        startInertia(drag.vx, drag.vy);
       }
     }
     if (pointers.current.size === 0) dragState.current = null;
@@ -344,6 +473,7 @@ export function TimelineCanvas({
   const onDoubleClick = (event: React.MouseEvent<HTMLCanvasElement>) => {
     const rect = event.currentTarget.getBoundingClientRect();
     const factor = event.altKey || event.shiftKey ? 0.5 : 2;
+    stopInertia();
     onViewChange(zoomAt(viewRef.current, event.clientX - rect.left, factor, domainRef.current));
   };
 

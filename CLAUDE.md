@@ -81,20 +81,47 @@ src/state/         React kontext: data + přihlášení
 src/components/    UI; components/timeline/ je vykreslovací řetězec
 ```
 
-**Model „Řeka".** Osa je jedna vodorovná čára uprostřed plochy. Bodové
-události leží **nad** ní jako pilulky na stopce s uzlem na čáře, rozsahy **pod**
-ní jako zaoblené pruhy. Každé pásmo se řádkuje samostatně (`layoutEvents`),
-`lane` 0 je řádek nejblíž čáře; svislé souřadnice dávají `pointLaneY` (záporné)
-a `rangeLaneY` (kladné), obojí relativně k čáře.
+**Model „Řeka".** Osa je jedna vodorovná čára uprostřed plochy. Kolem ní leží
+**pásma** — vodorovné pruhy plochy s vlastním řádkováním, definovaná štítky
+záznamů. `lane` 0 je řádek nejblíž čáře; hotovou svislou polohu i výšku tvaru
+nese každá položka sama (`centerY`, `height`, záporné = nad čárou), vykreslení
+si ji nepočítá.
 
 Pilulek se nad čáru vejde jen `MAX_POINT_LANES` řádků. Co se nevejde, ztratí
 pilulku (`labelMode: 'none'`) a zůstane jen uzlem na čáře — jinak by při
 oddálení pilulky vytlačily osu mimo obrazovku.
 
+**Pásma jsou v `BANDS` v `layout.ts`** — jediné místo, kde se mění pořadí
+i štítky. Shora dolů:
+
+| Pásmo | Štítky | Tvar | Řada |
+|---|---|---|---|
+| Světové velmoci | `velmoc` | pruhy | jedna |
+| Události | `udalost`, `kniha` | pilulky | řádkuje se |
+| — *centrální čára* — | | | |
+| Životy | `zivot` | pruhy | řádkuje se |
+| Vláda – Juda | `vlada-juda`, `vlada-12kmenu` | pruhy | jedna |
+| Vláda – Izrael | `vlada-izrael` | pruhy | jedna |
+| Ostatní | zbytek | podle typu | řádkuje se |
+
+Pásmo bez záznamů (nebo skryté v legendě) **nezabírá žádné svislé místo**.
+`MAX_LANES_WITH_LABELS` a zhuštěný režim se vyhodnocují za každé pásmo zvlášť.
+
+**Pásmo na jedné řadě (`singleLane`) se neřádkuje.** Vlády i velmoci navazují
+bez mezer — konec jedné je začátek další — takže by je packing rozházel do
+desítek řádků. Popisek se tam vejde jen dovnitř pruhu, nikdy vedle, a sousedé
+se odliší **střídavým odstínem** (`shade`), ne mezerou. Pruhy mají menší
+zaoblení (`SEGMENT_BAR_RADIUS`) a menší minimální šířku (`MIN_SEGMENT_WIDTH`),
+aby četly jako díly jednoho pásu, ne jako řetěz pilulek.
+
+Názvy pásem jsou v `cs.timeline.bands`; na plátně se kreslí do mezery nad
+pásmem, jen u pásem na jedné řadě — u ostatních se řada pozná z obsahu.
+
 **Kategorie jsou období.** Kategorie s vyplněným `fromYear`/`toYear` se chová
 jako časové období: barví centrální čáru (plynulý gradient přes období ve
-výřezu) a dráhu minimapy. Bez rozsahu je to jen barevný štítek s filtrem.
-Záznamy dědí barvu své kategorie.
+výřezu) a dráhu minimapy. Záznamy dědí barvu své kategorie. Filtrování
+v legendě už na kategoriích nestojí — čipy nad osou zapínají a vypínají
+**pásma**.
 
 **Vykreslovací řetězec osy** (`src/components/timeline/`) — tři kroky, každý
 v jiném souboru:
@@ -133,6 +160,16 @@ pinch přes pointery — proto se obsluha gest při dvou aktivních ukazatelích
 přeskakuje, jinak by se zoom sečetl. Osa nemá nástrojovou lištu ani skok na
 rok, gesta je nahradila.
 
+**Setrvačnost.** Po švihnutí prstem posun plynule dojede (`INERTIA_TAU`,
+exponenciální útlum, zastaví se pod `INERTIA_MIN_SPEED`). Rychlost se počítá
+z posledních pohybů vyhlazeným průměrem; po delší pauze prstu se zapomene, aby
+zastavený prst nespustil doběh. Doběh ruší cokoli dalšího — dotyk, kolečko,
+gesto — a zastaví se i na kraji rozsahu, kde by běžel naprázdno.
+
+**Kreslí se v jedné trvalé rAF smyčce** se značkou „je co překreslit"
+(`dirtyRef`). Zakládat a rušit snímek v efektu při každé změně stavu bylo na
+dotykových zařízeních znát.
+
 **Zoom a měřítko** (`src/lib/viewport.ts`): výřez je `{ t0, pxPerYear, width }`.
 Dělení osy se vybírá jako **nejjemnější, které se ještě vejde** (`chooseTickLevel`),
 a zarovnává se na kulaté roky letopočtu, ne na kulaté astronomické hodnoty —
@@ -152,6 +189,11 @@ i jako CHECK constraints v migraci. Když měníš jedno, změň druhé.
 Export/import má verzi schématu (`EXPORT_SCHEMA_VERSION` v `src/data/types.ts`).
 Import umí načíst i starší verze; při přidání pole verzi zvyš a rozšiř
 `SUPPORTED_IMPORT_VERSIONS`.
+
+**Štítky určují pásmo na ose.** Rozvržení zná `velmoc`, `udalost`, `kniha`,
+`zivot`, `vlada-juda`, `vlada-izrael` a `vlada-12kmenu`; ostatní štítky
+(`kral`, `narozeni`, …) jsou jen popisné. Záznam bez známého štítku spadne do
+pásma „Ostatní" — nový záznam proto vždycky otaguj.
 
 ## Nasazení
 

@@ -3,7 +3,7 @@
 Shrnutí pro konverzaci, která na projektu pokračuje bez historie. Popisuje, co
 aplikace je, jak je zapojená, co už se rozhodlo a proč, a co zbývá.
 
-Poslední aktualizace: 7. srpna 2026.
+Poslední aktualizace: 9. srpna 2026.
 
 **Vzhled** prošel přestavbou na návrh „Řeka" (centrální čára, události nad ní,
 životy pod ní). Předchozí vzhled je zazálohovaný na větvi `zaloha/design-v1`.
@@ -32,8 +32,9 @@ Postup nastavení od nuly (migrace, RLS, účty, proměnné, deploy) je v `READM
 
 Aplikace je hotová a nasazená. Funguje osa s plynulým zoomem, formulářová
 editace, správa kategorií, tabulkový přehled, export/import a přihlášení.
-V databázi je **68 záznamů** — tři časové osy z knihy *Odvážně choď s Bohem*
-(str. 14–15, 104–105, 186–187). Testů 133, všechny procházejí.
+V databázi je **188 záznamů**: tři časové osy z knihy *Odvážně choď s Bohem*
+(str. 14–15, 104–105, 186–187) a chronologie králů, knih a událostí z hesla
+„Chronologie" a z dodatku nwt A6. Testů 152, všechny procházejí.
 
 Ověřeno měřením, ne odhadem: 60 fps (medián 16,6 ms na snímek) při zoomu
 a posunu s 3000 záznamy; RLS testována chováním pod rolemi `anon`
@@ -44,9 +45,10 @@ i `authenticated`, ne jen existencí politik.
 - **Období jsou předběžná.** Šest kategorií (do potopy, patriarchové, soudci,
   králové, od návratu z Babylonu, od Ježíše dál) je zatím na zkoušku. Hranice
   jsou odvozené z událostí v datech a dají se změnit ve správě kategorií.
-  Zadavatel ještě zvažuje, jestli mají všechny postavy nosit barvu období.
-- **Žádné štítky.** Zadavatel je nechal smazat a teprve se rozhodne, jestli
-  a jak je bude používat. Skript je proto negeneruje.
+  Zadavatel ještě zvažuje, jestli mají všechny postavy nosit barvu období;
+  zatím ji nosí všechny — každý záznam má kategorii podle roku začátku.
+- **Priorita postav.** Do budoucna má jít postavy seřadit podle důležitosti,
+  aby výš byly výraznější. Zatím řádkuje jen greedy packing podle místa.
 
 ## Rozhodnutí a proč
 
@@ -84,6 +86,29 @@ Hledání se přesunulo do hlavičky, přihlášení je jen ikona zámku.
 a kreslí se jako svislé značky. Rozházené mezi pruhy se ztrácely a kolečka se
 s pruhy pletla.
 
+**Pásma podle štítků, ne dvě pevná pásma.** Osa je rozdělená na pásma
+definovaná štítky (`BANDS` v `layout.ts`), shora dolů: světové velmoci,
+události, čára, životy, vláda nad Judou, vláda nad Izraelem, ostatní. Judské
+a izraelské království vládly současně — v jednom pásmu by je řádkování
+promíchalo a nešlo by odečíst, kdo vládl souběžně s kým. Pásmo bez záznamů
+nebo skryté nezabírá žádné svislé místo.
+
+**Vlády a velmoci leží na jedné řadě.** Navazují bez mezer (konec jedné =
+začátek další), takže by je řádkování rozházelo do desítek řádků. Pásmo se
+proto neřádkuje vůbec, popisek se vejde jen dovnitř pruhu a sousedé se odliší
+střídavým odstínem — mezera by tam byla lež. Pruhy mají menší zaoblení než
+plovoucí životy, aby četly jako díly jednoho pásu.
+
+**Světové velmoci jsou rozsahy, ne body.** V knize jsou jako body („nástup
+velmoci"), na ose ale dávají smysl jako navazující období. Řetězí se: Egypt
+1600–874, Asýrie 874–625, Babylon 625–539, Médo-Persie 539–332, Řecko 332–63.
+Řím zůstal 63–30 podle knihy, nedotažený k Ježíšovi.
+
+**Setrvačnost posunu.** Po švihnutí prstem posun plynule dojede a zastaví
+(exponenciální doběh s časovou konstantou 280 ms). Bez ní působil pohyb na
+iPhonu a iPadu trhaně. Kreslí se v jedné trvalé rAF smyčce se značkou „je co
+překreslit"; zakládat a rušit snímek při každé změně stavu bylo znát.
+
 **Duplicity z knihy jednou.** Samuel a „SVĚTOVÁ VELMOC: Egypt" jsou v knize na
 dvou osách se stejnými roky. V databázi jsou jednou, s poznámkou — aplikace nemá
 deduplikační vrstvu a dva shodné pruhy pod sebou by byly chyba, ne informace.
@@ -99,14 +124,16 @@ kopie. Soubor jde nahrát přes **Data → Importovat**.
 
 Konvence v datech:
 
-- **zdroj** — `Odvážně choď s Bohem, 2. část (str. 104–105)`
-- **štítky** — jména jednotlivých osob (u sloučených čar všechna), oddíl v knize
-  („Období soudců"), část („1. část") a příznaky („světová velmoc",
-  „sloučené životy"). Celkem 73 unikátních štítků.
-- **poznámka** — text z knihy, u sloučených životů vysvětlení, u duplicit
+- **zdroj** — jen zkratka: `wcg` (Odvážně choď s Bohem), `it "Chronologie"`,
+  `nwt A6`, `ia`. Bez názvu a stran.
+- **poznámka** — text ze zdroje, u sloučených životů vysvětlení, u duplicit
   informace o dvojím výskytu.
+- **štítky** — určují pásmo na ose, nic jiného. Rozvržení je zná:
+  `velmoc`, `udalost`, `kniha`, `zivot`, `vlada-juda`, `vlada-izrael`,
+  `vlada-12kmenu`. Ostatní (`kral`, `narozeni`, `predpotopni`, `popotopni`)
+  jsou zatím jen popisné.
 
-Zdroj je záměrně jen zkratka `wcg`, bez názvu a stran.
+Každý záznam musí mít aspoň jeden štítek — bez něj spadne do pásma „Ostatní".
 
 ## Co se záměrně nestaví
 

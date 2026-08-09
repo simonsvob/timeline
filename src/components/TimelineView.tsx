@@ -1,6 +1,9 @@
 /**
- * Hlavní pohled: čipy kategorií, plátno osy a plovoucí minimapa.
+ * Hlavní pohled: čipy pásem, plátno osy a plovoucí minimapa.
  * Nástrojová lišta tu není — gesta ji nahradila.
+ *
+ * Čipy filtrují po pásmech (velmoci, události, životy, vlády), ne po
+ * kategoriích — kategorie zůstávají obdobími, která barví osu a záznamy.
  */
 
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -15,7 +18,7 @@ import {
   type Viewport,
 } from '../lib/viewport';
 import type { Category, TimelineEvent } from '../data/types';
-import { eventExtent, NO_CATEGORY_COLOR } from './timeline/layout';
+import { BANDS, bandOf, eventExtent } from './timeline/layout';
 import { Minimap } from './timeline/Minimap';
 import type { PeriodSpan } from './timeline/renderer';
 import { TimelineCanvas, type FocusRequest } from './timeline/TimelineCanvas';
@@ -73,7 +76,7 @@ export function TimelineView({
   externalFocus,
   onRangeChange,
 }: Props) {
-  const [hiddenCategories, setHiddenCategories] = useState<Set<string>>(new Set());
+  const [hiddenBands, setHiddenBands] = useState<Set<string>>(new Set());
   const [view, setView] = useState<Viewport>({ t0: DEFAULT_DOMAIN.min, pxPerYear: 0.2, width: 0 });
   const [focusRequest, setFocusRequest] = useState<FocusRequest | null>(null);
   const nonce = useRef(0);
@@ -84,18 +87,25 @@ export function TimelineView({
   const periods = useMemo(() => periodsOf(categories), [categories]);
 
   const visibleEvents = useMemo(
-    () => events.filter((event) => !hiddenCategories.has(event.categoryId ?? '')),
-    [events, hiddenCategories],
+    () => events.filter((event) => !hiddenBands.has(bandOf(event).id)),
+    [events, hiddenBands],
   );
 
-  /** Které kategorie mají záznam ve výřezu – ostatní se v čipech ztlumí. */
+  /** Pásma, která vůbec mají záznam – prázdná se v legendě neukazují. */
+  const populatedBands = useMemo(() => {
+    const set = new Set<string>();
+    for (const event of events) set.add(bandOf(event).id);
+    return set;
+  }, [events]);
+
+  /** Která pásma mají záznam ve výřezu – ostatní se v čipech ztlumí. */
   const inViewport = useMemo(() => {
     const from = tOf(view, 0);
     const to = viewEnd(view);
     const set = new Set<string>();
     for (const event of events) {
       const extent = eventExtent(event);
-      if (extent.to >= from && extent.from <= to) set.add(event.categoryId ?? '');
+      if (extent.to >= from && extent.from <= to) set.add(bandOf(event).id);
     }
     return set;
   }, [events, view]);
@@ -151,8 +161,8 @@ export function TimelineView({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [externalFocus]);
 
-  const toggleCategory = (id: string) => {
-    setHiddenCategories((prev) => {
+  const toggleBand = (id: string) => {
+    setHiddenBands((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
       else next.add(id);
@@ -160,31 +170,27 @@ export function TimelineView({
     });
   };
 
-  const chip = (id: string, name: string, color: string) => {
-    const hidden = hiddenCategories.has(id);
-    const dimmed = !inViewport.has(id);
-    return (
-      <button
-        key={id || 'bez'}
-        type="button"
-        className={`chip${hidden ? ' chip-off' : ''}${dimmed ? ' chip-dim' : ''}`}
-        onClick={() => toggleCategory(id)}
-        aria-pressed={!hidden}
-      >
-        <span className="chip-dot" style={hidden ? undefined : { background: color }} />
-        {name}
-      </button>
-    );
-  };
-
-  const hasUncategorized = useMemo(() => events.some((e) => e.categoryId === null), [events]);
+  const visibleBands = BANDS.filter((band) => populatedBands.has(band.id));
 
   return (
     <div className="timeline-view">
-      {categories.length > 0 ? (
+      {visibleBands.length > 1 ? (
         <div className="chips" role="group" aria-label={cs.timeline.legend}>
-          {categories.map((category) => chip(category.id, category.name, category.color))}
-          {hasUncategorized ? chip('', cs.timeline.withoutCategory, NO_CATEGORY_COLOR) : null}
+          {visibleBands.map((band) => {
+            const hidden = hiddenBands.has(band.id);
+            const dimmed = !inViewport.has(band.id);
+            return (
+              <button
+                key={band.id}
+                type="button"
+                className={`chip${hidden ? ' chip-off' : ''}${dimmed ? ' chip-dim' : ''}`}
+                onClick={() => toggleBand(band.id)}
+                aria-pressed={!hidden}
+              >
+                {cs.timeline.bands[band.id as keyof typeof cs.timeline.bands] ?? band.id}
+              </button>
+            );
+          })}
         </div>
       ) : null}
 
@@ -204,6 +210,7 @@ export function TimelineView({
           selectedId={selectedId}
           onSelect={onSelect}
           focusRequest={focusRequest}
+          hiddenBands={hiddenBands}
         />
         <Minimap
           events={visibleEvents}
