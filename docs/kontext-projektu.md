@@ -88,10 +88,15 @@ s pruhy pletla.
 
 **Pásma podle štítků, ne dvě pevná pásma.** Osa je rozdělená na pásma
 definovaná štítky (`BANDS` v `layout.ts`), shora dolů: světové velmoci,
-události, čára, životy, vláda nad Judou, vláda nad Izraelem, ostatní. Judské
+události, čára, životy, ostatní, vláda nad Izraelem, vláda nad Judou. Judské
 a izraelské království vládly současně — v jednom pásmu by je řádkování
 promíchalo a nešlo by odečíst, kdo vládl souběžně s kým. Pásmo bez záznamů
 nebo skryté nezabírá žádné svislé místo.
+
+**Velmoci a vlády jsou připnuté k hranám plochy.** Nehýbou se se svislým
+posunem osy: velmoci sedí nahoře, Izrael a pod ním Juda dole. Jsou to souvislé
+pásy přes celé dějiny a plovoucí by se hledaly hůř než cokoli jiného. Ostatní
+pásma mezi nimi plavou a projíždějí jim pod neprůhledným podkladem.
 
 **Vlády a velmoci leží na jedné řadě.** Navazují bez mezer (konec jedné =
 začátek další), takže by je řádkování rozházelo do desítek řádků. Pásmo se
@@ -107,7 +112,9 @@ velmoci"), na ose ale dávají smysl jako navazující období. Řetězí se: Eg
 **Setrvačnost posunu.** Po švihnutí prstem posun plynule dojede a zastaví
 (exponenciální doběh s časovou konstantou 280 ms). Bez ní působil pohyb na
 iPhonu a iPadu trhaně. Kreslí se v jedné trvalé rAF smyčce se značkou „je co
-překreslit"; zakládat a rušit snímek při každé změně stavu bylo znát.
+překreslit"; zakládat a rušit snímek při každé změně stavu bylo znát. Čas se
+bere z `performance.now()` — se `event.timeStamp` doběh na iPadu nefungoval,
+protože Safari u dotykových pointer událostí neručí za společnou epochu.
 
 **Duplicity z knihy jednou.** Samuel a „SVĚTOVÁ VELMOC: Egypt" jsou v knize na
 dvou osách se stejnými roky. V databázi jsou jednou, s poznámkou — aplikace nemá
@@ -154,3 +161,11 @@ přidat bez zásahu do osy.
   do aplikace nepatří.
 - **Validace je na dvou místech** — v `src/lib/validation.ts` i jako CHECK
   constraints v migraci. Měň obojí.
+- **Supabase na free tieru usíná.** Po sedmi dnech bez provozu se projekt uspí;
+  probudit ho jde z dashboardu do 90 dnů, data se neztratí. Proto běží
+  `netlify/functions/udrzet-vzhuru.mjs` jednou denně a přečte jeden řádek.
+  Stojí to na tom, že web na Netlify běží — po přechodu na placený tarif se dá
+  funkce smazat.
+- **Řádkování je při posunu stabilní, při zoomu ne.** Pakuje se v pixelech,
+  které se posunou všechny stejně; změřeno, posun po 1 px nezmění ani jeden
+  řádek. Když se zdá, že řádky přeskakují, hýbe se svisle osa, ne řádkování.

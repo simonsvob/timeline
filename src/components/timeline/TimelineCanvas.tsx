@@ -17,7 +17,7 @@ import { cs } from '../../i18n/cs';
 import { formatRangeCompact } from '../../lib/format';
 import { generateTicks, panBy, zoomAt, type Domain, type Viewport } from '../../lib/viewport';
 import type { Category, TimelineEvent } from '../../data/types';
-import { BANDS, hitTest, layoutEvents, type LayoutResult } from './layout';
+import { BANDS, hitTest, itemY, layoutEvents, type Frame, type LayoutResult } from './layout';
 import { renderTimeline, THEME, type PeriodSpan } from './renderer';
 
 const NAME_FONT = '600 13px -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif';
@@ -28,8 +28,8 @@ const BAND_FONT = '600 10.5px -apple-system, BlinkMacSystemFont, "Segoe UI", sys
 const CLICK_SLOP = 6;
 /** Volné místo nad nejvyšší pilulkou a pod nejnižším pruhem. */
 const VERTICAL_PADDING = 28;
-/** Minimapa plave nad plátnem; poslední pásmo se pod ni nesmí schovat. */
-const MINIMAP_CLEARANCE = 64;
+/** Minimapa plave nad plátnem; obsah se pod ni nesmí schovat. */
+const MINIMAP_CLEARANCE = 68;
 
 // --- setrvačnost -------------------------------------------------------------
 
@@ -41,6 +41,8 @@ const INERTIA_MIN_SPEED = 0.04;
 const VELOCITY_SMOOTHING = 0.4;
 /** Delší pauza mezi pohyby znamená, že prst stál – rychlost se zapomene. */
 const VELOCITY_RESET_MS = 90;
+/** Po delší prodlevě mezi posledním pohybem a puštěním se doběh nespouští. */
+const RELEASE_WINDOW_MS = 180;
 
 /**
  * Safari posílá za pinch vlastní GestureEvent, který standardní typy DOM
@@ -134,18 +136,26 @@ export function TimelineCanvas({
   );
 
   /**
-   * Čára sedí uprostřed volného místa mezi obsahem nad a pod ní. Když se obsah
-   * nevejde, dá se s ní svisle posouvat.
+   * Volná plocha leží mezi připnutými pásy; minimapa si ukusuje ještě kousek
+   * dole. Čára sedí uprostřed volného místa mezi plovoucím obsahem nad ní
+   * a pod ní. Když se obsah nevejde, dá se s ní svisle posouvat.
    */
-  const { axisY, shiftRange } = useMemo(() => {
-    const above = layout.heightAbove + VERTICAL_PADDING;
-    const below = layout.heightBelow + VERTICAL_PADDING + MINIMAP_CLEARANCE;
-    const total = above + below;
-    const ideal = size.height >= total ? above + (size.height - total) / 2 : above;
-    const min = Math.min(size.height - below, ideal);
-    const max = Math.max(above, ideal);
-    return { axisY: ideal, shiftRange: { min: min - ideal, max: max - ideal } };
-  }, [layout.heightAbove, layout.heightBelow, size.height]);
+  const { axisY, top, bottom, shiftRange } = useMemo(() => {
+    // Hrany, ke kterým se pásma připínají: horní okraj plátna a spodek nad
+    // minimapou. Plovoucí obsah se vejde do toho, co po připnutých pásech zbude.
+    const top = 0;
+    const bottom = size.height - MINIMAP_CLEARANCE;
+    const volnyOd = top + layout.pinnedTop + VERTICAL_PADDING;
+    const volnyDo = bottom - layout.pinnedBottom - VERTICAL_PADDING;
+    const above = layout.heightAbove;
+    const below = layout.heightBelow;
+    const usable = volnyDo - volnyOd;
+    const ideal =
+      usable >= above + below ? volnyOd + above + (usable - above - below) / 2 : volnyOd + above;
+    const min = Math.min(volnyDo - below, ideal);
+    const max = Math.max(volnyOd + above, ideal);
+    return { axisY: ideal, top, bottom, shiftRange: { min: min - ideal, max: max - ideal } };
+  }, [layout.heightAbove, layout.heightBelow, layout.pinnedTop, layout.pinnedBottom, size.height]);
 
   const clampShift = useCallback(
     (value: number) => Math.min(Math.max(value, shiftRange.min), shiftRange.max),
@@ -156,7 +166,10 @@ export function TimelineCanvas({
     setAxisShift((prev) => clampShift(prev));
   }, [clampShift]);
 
-  const effectiveAxisY = axisY + axisShift;
+  const frame: Frame = useMemo(
+    () => ({ axisY: axisY + axisShift, top, bottom }),
+    [axisY, axisShift, top, bottom],
+  );
 
   const ticks = useMemo(() => (view.width > 0 ? generateTicks(view, 110) : []), [view]);
 
@@ -184,7 +197,7 @@ export function TimelineCanvas({
       layout,
       ticks,
       height: size.height,
-      axisY: effectiveAxisY,
+      frame,
       periods,
       selectedId,
       hoveredId,
@@ -199,7 +212,7 @@ export function TimelineCanvas({
 
   useEffect(() => {
     dirtyRef.current = true;
-  }, [size, view, layout, ticks, effectiveAxisY, periods, selectedId, hoveredId]);
+  }, [size, view, layout, ticks, frame, periods, selectedId, hoveredId]);
 
   useEffect(() => {
     let frame = requestAnimationFrame(function loop() {
@@ -228,8 +241,8 @@ export function TimelineCanvas({
   viewRef.current = view;
   const domainRef = useRef(domain);
   domainRef.current = domain;
-  const axisRef = useRef(effectiveAxisY);
-  axisRef.current = effectiveAxisY;
+  const frameRef = useRef(frame);
+  frameRef.current = frame;
   const layoutRef = useRef(layout);
   layoutRef.current = layout;
   const clampShiftRef = useRef(clampShift);
@@ -310,10 +323,13 @@ export function TimelineCanvas({
         onViewChange(zoomAt(viewRef.current, x, Math.exp(-event.deltaY * 0.01), domainRef.current));
         return;
       }
-      if (event.deltaX !== 0) {
+      // Vodorovné švihnutí na trackpadu nese i drobné `deltaY`. Bez zámku na
+      // převládající směr by osa při posunu poskakovala svisle a řádky by se
+      // zdály přeskakovat. Proto se použije jen ta složka, která vede.
+      const vodorovne = Math.abs(event.deltaX) >= Math.abs(event.deltaY);
+      if (vodorovne && event.deltaX !== 0) {
         onViewChange(panBy(viewRef.current, -event.deltaX, domainRef.current));
-      }
-      if (event.deltaY !== 0) {
+      } else if (!vodorovne && event.deltaY !== 0) {
         if (event.shiftKey) onViewChange(panBy(viewRef.current, -event.deltaY, domainRef.current));
         else setAxisShift((prev) => clampShift(prev - event.deltaY));
       }
@@ -373,7 +389,7 @@ export function TimelineCanvas({
   };
 
   const zasah = (point: { x: number; y: number }) =>
-    hitTest(layoutRef.current, point.x, point.y - axisRef.current);
+    hitTest(layoutRef.current, point.x, point.y, frameRef.current);
 
   const onPointerDown = (event: React.PointerEvent<HTMLCanvasElement>) => {
     const point = localPoint(event);
@@ -390,7 +406,9 @@ export function TimelineCanvas({
         moved: 0,
         lastX: point.x,
         lastY: point.y,
-        lastTime: event.timeStamp,
+        // Vlastní hodiny, ne `event.timeStamp`: Safari u dotykových pointer
+        // událostí neručí za společnou epochu a doběh se pak nikdy nespustil.
+        lastTime: performance.now(),
         vx: 0,
         vy: 0,
       };
@@ -424,11 +442,12 @@ export function TimelineCanvas({
     if (!drag) return;
     const dx = point.x - drag.lastX;
     const dy = point.y - drag.lastY;
-    const dt = event.timeStamp - drag.lastTime;
+    const now = performance.now();
+    const dt = now - drag.lastTime;
     drag.moved += Math.abs(dx) + Math.abs(dy);
     drag.lastX = point.x;
     drag.lastY = point.y;
-    drag.lastTime = event.timeStamp;
+    drag.lastTime = now;
 
     // Rychlost pro doběh: vyhlazený průměr, po delší pauze se začíná znovu.
     if (dt > VELOCITY_RESET_MS || dt <= 0) {
@@ -441,6 +460,7 @@ export function TimelineCanvas({
 
     if (dx !== 0) onViewChange(panBy(viewRef.current, dx, domainRef.current));
     if (dy !== 0) setAxisShift((prev) => clampShift(prev + dy));
+    return;
   };
 
   const endPointer = (event: React.PointerEvent<HTMLCanvasElement>) => {
@@ -454,15 +474,16 @@ export function TimelineCanvas({
         const hit = zasah(point);
         if (hit) {
           const rect = event.currentTarget.getBoundingClientRect();
+          const y = itemY(hit, frameRef.current);
           const half = hit.height / 2;
           onSelect(hit.event, {
             x: rect.left + Math.min(Math.max(hit.centerX, 0), rect.width),
-            y: rect.top + axisRef.current + hit.centerY + (hit.centerY < 0 ? -half : half),
+            y: rect.top + y + (y < frameRef.current.axisY ? -half : half),
           });
         } else {
           onSelect(null, null);
         }
-      } else if (event.type !== 'pointercancel' && event.timeStamp - drag.lastTime < 120) {
+      } else if (event.type !== 'pointercancel' && performance.now() - drag.lastTime < RELEASE_WINDOW_MS) {
         // Prst se pustil v pohybu – posun plynule dojede.
         startInertia(drag.vx, drag.vy);
       }

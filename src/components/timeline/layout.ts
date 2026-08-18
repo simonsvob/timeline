@@ -2,8 +2,10 @@
  * Rozvržení osy „Řeka": jedna centrální vodorovná čára a kolem ní pásma.
  *
  * Pásmo je vodorovný pruh plochy s vlastním řádkováním, definovaný štítky
- * záznamů (`BANDS`). Nad čárou leží velmoci a bodové události, pod ní životy
- * a vlády. Pásmo bez záznamů (nebo skryté) nezabírá žádné svislé místo.
+ * záznamů (`BANDS`). Většina pásem **plave s čárou** — posunou se, když se
+ * osa posune svisle. Světové velmoci a vlády králů jsou naopak **připnuté**
+ * k horní a dolní hraně plochy a nikam se nehnou; plovoucí obsah jim
+ * projíždí pod pruhem. Pásmo bez záznamů (nebo skryté) nezabírá žádné místo.
  *
  * Čistá funkce bez plátna (měření textu se předává), aby šla testovat.
  */
@@ -73,6 +75,13 @@ export const BAR_BAND_AXIS_GAP_ABOVE = 26;
 /** Odstup pruhového pásma od čáry pod ní — musí se vejít popisky let. */
 export const BAR_BAND_AXIS_GAP_BELOW = 36;
 
+/** Výška řádku s názvem připnutého pásma. */
+export const BAND_CAPTION_HEIGHT = 17;
+/** Odsazení připnutého pásu od hrany plochy. */
+export const PINNED_EDGE_PADDING = 6;
+/** Mezera mezi dvěma připnutými pásmy. */
+export const PINNED_BAND_GAP = 8;
+
 /**
  * Nad tento počet řádků v pásmu se přestane rezervovat místo pro popisky –
  * jinak by osa při maximálním oddálení narostla do nesmyslné výšky.
@@ -89,7 +98,11 @@ export const MAX_POINT_LANES = 5;
 
 // --- pásma ------------------------------------------------------------------
 
-export type BandSide = 'above' | 'below';
+/**
+ * Kam pásmo patří. `above` a `below` plavou s centrální čárou, `top` a
+ * `bottom` jsou připnuté k hraně plochy a svisle se nehýbou.
+ */
+export type BandPlace = 'top' | 'above' | 'below' | 'bottom';
 /** `pill` = svislá značka s pilulkou, `bar` = vodorovný pruh, `auto` = podle typu. */
 export type BandShape = 'pill' | 'bar' | 'auto';
 
@@ -98,7 +111,7 @@ export interface BandDefinition {
   id: string;
   /** stačí jeden ze štítků; prázdné pole = zbytek bez známého štítku */
   tags: string[];
-  side: BandSide;
+  place: BandPlace;
   shape: BandShape;
   /**
    * Pásmo se neřádkuje — všechno leží na jedné řadě a popisek se vejde jen
@@ -111,16 +124,21 @@ export interface BandDefinition {
 /**
  * Pásma shora dolů, jak leží na obrazovce. Pořadí a štítky se mění jen tady —
  * vykreslení o konkrétních pásmech nic neví.
+ *
+ * Velmoci i vlády jsou připnuté k hranám: jsou to souvislé pásy přes celé
+ * dějiny a při svislém posunu se hledají hůř než cokoli jiného, tak ať mají
+ * pevné místo. Mezi nimi plave to, čeho je hodně a co se řádkuje.
  */
 export const BANDS: readonly BandDefinition[] = [
-  { id: 'velmoci', tags: ['velmoc'], side: 'above', shape: 'bar', singleLane: true },
-  { id: 'udalosti', tags: ['udalost', 'kniha'], side: 'above', shape: 'pill', singleLane: false },
+  { id: 'velmoci', tags: ['velmoc'], place: 'top', shape: 'bar', singleLane: true },
+  { id: 'udalosti', tags: ['udalost', 'kniha'], place: 'above', shape: 'pill', singleLane: false },
   // --- centrální čára ---
-  { id: 'zivoty', tags: ['zivot'], side: 'below', shape: 'bar', singleLane: false },
-  // 12 kmenů se s Judou nepřekrývá (předchází rozdělení), proto sdílí řadu.
-  { id: 'juda', tags: ['vlada-juda', 'vlada-12kmenu'], side: 'below', shape: 'bar', singleLane: true },
-  { id: 'izrael', tags: ['vlada-izrael'], side: 'below', shape: 'bar', singleLane: true },
-  { id: 'ostatni', tags: [], side: 'below', shape: 'auto', singleLane: false },
+  { id: 'zivoty', tags: ['zivot'], place: 'below', shape: 'bar', singleLane: false },
+  { id: 'ostatni', tags: [], place: 'below', shape: 'auto', singleLane: false },
+  { id: 'izrael', tags: ['vlada-izrael'], place: 'bottom', shape: 'bar', singleLane: true },
+  // Juda je úplně dole. 12 kmenů se s ní nepřekrývá (předchází rozdělení),
+  // proto sdílí řadu a nepotřebuje vlastní pásmo.
+  { id: 'juda', tags: ['vlada-juda', 'vlada-12kmenu'], place: 'bottom', shape: 'bar', singleLane: true },
 ];
 
 const FALLBACK_BAND = BANDS.find((band) => band.tags.length === 0) ?? BANDS[BANDS.length - 1];
@@ -140,9 +158,14 @@ export type LabelMode = 'inside-full' | 'inside-name' | 'outside-full' | 'outsid
 export interface EventGeometry {
   event: TimelineEvent;
   bandId: string;
-  /** 0 = řádek nejblíž centrální čáře */
+  place: BandPlace;
+  /** 0 = řádek nejblíž centrální čáře (u připnutých pásem nejblíž hraně) */
   lane: number;
-  /** svislá poloha středu vůči čáře; záporná = nad čárou */
+  /**
+   * Svislá poloha středu. U plovoucích pásem vůči centrální čáře (záporná =
+   * nad ní), u připnutých vůči hraně plochy (vždy kladná, směrem dovnitř).
+   * Na pixely plátna to přepočítá `itemY`.
+   */
   centerY: number;
   /** výška tvaru (pilulka nebo pruh) */
   height: number;
@@ -181,15 +204,15 @@ export interface EventGeometry {
 
 export interface BandGeometry {
   id: string;
-  side: BandSide;
+  place: BandPlace;
   laneCount: number;
   /** vzdálenost od čáry k bližší hraně prvního řádku */
   near: number;
   /** kolik pixelů pásmo zabírá od `near` dál */
   extent: number;
   /**
-   * Kam patří popisek pásma: do mezery na straně přivrácené k čáře, aby
-   * nepřekrýval žádný pruh. Záporné hodnoty jsou nad čárou.
+   * Kam patří název pásma: do mezery na vnitřní straně, aby nepřekrýval
+   * žádný pruh. Souřadnice je ve stejné soustavě jako `centerY` položek.
    */
   labelY: number;
   singleLane: boolean;
@@ -198,12 +221,40 @@ export interface BandGeometry {
 
 export interface LayoutResult {
   items: EventGeometry[];
-  /** pásma, která mají aspoň jeden záznam, v pořadí od čáry ven */
+  /** pásma, která mají aspoň jeden záznam */
   bands: BandGeometry[];
-  /** kolik pixelů zabírá obsah nad čárou */
+  /** kolik pixelů zabírá plovoucí obsah nad čárou */
   heightAbove: number;
-  /** kolik pixelů zabírá obsah pod čárou */
+  /** kolik pixelů zabírá plovoucí obsah pod čárou */
   heightBelow: number;
+  /** kolik pixelů ukusuje připnutý pás u horní hrany */
+  pinnedTop: number;
+  /** kolik pixelů ukusuje připnutý pás u dolní hrany */
+  pinnedBottom: number;
+}
+
+/**
+ * Volná plocha, do které se osa kreslí. `top` a `bottom` jsou hrany, ke kterým
+ * se připínají pevná pásma; `axisY` je poloha centrální čáry mezi nimi.
+ */
+export interface Frame {
+  axisY: number;
+  top: number;
+  bottom: number;
+}
+
+/** Svislá poloha středu položky v pixelech plátna. */
+export function itemY(item: EventGeometry, frame: Frame): number {
+  if (item.place === 'top') return frame.top + item.centerY;
+  if (item.place === 'bottom') return frame.bottom - item.centerY;
+  return frame.axisY + item.centerY;
+}
+
+/** Svislá poloha názvu pásma v pixelech plátna. */
+export function bandLabelY(band: BandGeometry, frame: Frame): number {
+  if (band.place === 'top') return frame.top + band.labelY;
+  if (band.place === 'bottom') return frame.bottom - band.labelY;
+  return frame.axisY + band.labelY;
 }
 
 export type MeasureText = (text: string, weight?: 'normal' | 'bold') => number;
@@ -279,8 +330,13 @@ function laneHeightOf(band: BandDefinition): number {
 
 /** Odstup pásma od čáry, když leží k ní nejblíž. */
 function axisGapOf(band: BandDefinition): number {
-  if (band.side === 'below') return BAR_BAND_AXIS_GAP_BELOW;
+  if (band.place === 'below') return BAR_BAND_AXIS_GAP_BELOW;
   return band.shape === 'bar' ? BAR_BAND_AXIS_GAP_ABOVE : POINT_BAND_AXIS_GAP;
+}
+
+/** Výška tvaru v pásmu. */
+function itemHeightOf(band: BandDefinition): number {
+  return band.shape === 'bar' ? BAR_HEIGHT : PILL_HEIGHT;
 }
 
 /**
@@ -421,39 +477,71 @@ export function layoutEvents(
   const geometryByBand = new Map<string, BandGeometry>();
   const bands: BandGeometry[] = [];
 
-  for (const side of ['above', 'below'] as const) {
-    // Nad čárou leží první pásmo v seznamu nejvýš, takže se skládá odzadu.
-    const list = packedBands.filter((p) => p.band.side === side);
-    const fromAxis = side === 'above' ? [...list].reverse() : list;
+  /**
+   * Uloží geometrii pásma. `near` je vždy KLADNÁ vzdálenost od výchozí hrany
+   * (čára nebo okraj plochy); směr dovnitř plochy nese `sign`. Vrací, kam až
+   * pásmo sahá, aby na něj mohlo navázat další.
+   */
+  const push = (packed: Packed, near: number, sign: 1 | -1, labelNear: number): number => {
+    const extent = (packed.laneCount - 1) * laneHeightOf(packed.band) + itemHeightOf(packed.band);
+    const geometry: BandGeometry = {
+      id: packed.band.id,
+      place: packed.band.place,
+      laneCount: packed.laneCount,
+      near: sign * near,
+      extent,
+      labelY: sign * labelNear,
+      singleLane: packed.band.singleLane,
+      labelsReserved: packed.labelsReserved,
+    };
+    geometryByBand.set(packed.band.id, geometry);
+    bands.push(geometry);
+    return near + extent;
+  };
+
+  // Plovoucí pásma: skládají se od čáry ven. Nad čárou leží první pásmo
+  // v seznamu nejvýš, takže se prochází odzadu. Název pásma sedí v mezeře
+  // na straně přivrácené k čáře.
+  for (const place of ['above', 'below'] as const) {
+    const list = packedBands.filter((p) => p.band.place === place);
+    const fromAxis = place === 'above' ? [...list].reverse() : list;
+    const sign = place === 'above' ? -1 : 1;
 
     let cursor = 0;
     for (const [index, packed] of fromAxis.entries()) {
-      const laneHeight = laneHeightOf(packed.band);
-      const itemHeight = packed.band.shape === 'bar' ? BAR_HEIGHT : PILL_HEIGHT;
       const near = index === 0 ? axisGapOf(packed.band) : cursor + BAND_GAP;
-      const extent = (packed.laneCount - 1) * laneHeight + itemHeight;
-      const sign = side === 'above' ? -1 : 1;
-
-      const geometry: BandGeometry = {
-        id: packed.band.id,
-        side,
-        laneCount: packed.laneCount,
-        near,
-        extent,
-        labelY: sign * (near - BAND_GAP / 2),
-        singleLane: packed.band.singleLane,
-        labelsReserved: packed.labelsReserved,
-      };
-      geometryByBand.set(packed.band.id, geometry);
-      bands.push(geometry);
-      cursor = near + extent;
+      cursor = push(packed, near, sign, near - BAND_GAP / 2);
     }
   }
 
-  const farEdge = (side: BandSide) =>
+  // Připnutá pásma: skládají se od hrany dovnitř, takže `sign` je vždy kladné
+  // (`itemY` směr obrátí podle hrany). U dolní hrany je poslední pásmo
+  // v seznamu úplně dole, proto se prochází odzadu. Název pásma sedí za
+  // pruhem směrem dovnitř plochy — nikdy ho tedy nepřekryje.
+  for (const place of ['top', 'bottom'] as const) {
+    const list = packedBands.filter((p) => p.band.place === place);
+    const fromEdge = place === 'bottom' ? [...list].reverse() : list;
+
+    let cursor = PINNED_EDGE_PADDING;
+    for (const packed of fromEdge) {
+      const konec = push(packed, cursor, 1, cursor + itemHeightOf(packed.band) + BAND_CAPTION_HEIGHT / 2);
+      cursor = konec + BAND_CAPTION_HEIGHT + PINNED_BAND_GAP;
+    }
+  }
+
+  const floatingEdge = (place: 'above' | 'below') =>
     bands
-      .filter((b) => b.side === side)
-      .reduce((max, b) => Math.max(max, b.near + b.extent), 0);
+      .filter((b) => b.place === place)
+      .reduce((max, b) => Math.max(max, Math.abs(b.near) + b.extent), 0);
+
+  const pinnedEdge = (place: 'top' | 'bottom') => {
+    const list = bands.filter((b) => b.place === place);
+    if (list.length === 0) return 0;
+    return (
+      list.reduce((max, b) => Math.max(max, b.near + b.extent + BAND_CAPTION_HEIGHT), 0) +
+      PINNED_EDGE_PADDING
+    );
+  };
 
   // --- geometrie jednotlivých záznamů ---------------------------------------
 
@@ -461,7 +549,8 @@ export function layoutEvents(
 
   for (const packed of packedBands) {
     const geometry = geometryByBand.get(packed.band.id)!;
-    const sign = geometry.side === 'above' ? -1 : 1;
+    // U pásem nad čárou roste `near` nahoru, jinde dolů; znaménko drží `near`.
+    const sign = geometry.near < 0 ? -1 : 1;
     const laneHeight = laneHeightOf(packed.band);
 
     for (const m of packed.members) {
@@ -488,10 +577,11 @@ export function layoutEvents(
         event: m.event,
         bandId: packed.band.id,
         lane,
-        centerY: sign * (geometry.near + lane * laneHeight + height / 2),
+        place: packed.band.place,
+        centerY: geometry.near + sign * (lane * laneHeight + height / 2),
         height,
         asPill: m.asPill,
-        stem: m.asPill && geometry.side === 'above',
+        stem: m.asPill && packed.band.place === 'above',
         segment: packed.band.singleLane && !m.asPill,
         shade: packed.shades.get(m.event.id) ?? 0,
         x1: m.x1,
@@ -519,19 +609,24 @@ export function layoutEvents(
   return {
     items,
     bands,
-    heightAbove: farEdge('above'),
-    heightBelow: Math.max(AXIS_LABEL_SPACE, farEdge('below')),
+    heightAbove: floatingEdge('above'),
+    heightBelow: Math.max(AXIS_LABEL_SPACE, floatingEdge('below')),
+    pinnedTop: pinnedEdge('top'),
+    pinnedBottom: pinnedEdge('bottom'),
   };
 }
 
-/**
- * Zásah kliknutím. `y` je vzdálenost od centrální čáry (záporná = nad ní).
- */
-export function hitTest(layout: LayoutResult, x: number, yFromAxis: number): EventGeometry | null {
+/** Zásah kliknutím; `x` a `y` jsou souřadnice v pixelech plátna. */
+export function hitTest(
+  layout: LayoutResult,
+  x: number,
+  y: number,
+  frame: Frame,
+): EventGeometry | null {
   let best: EventGeometry | null = null;
   for (const item of layout.items) {
     const half = item.height / 2 + 4;
-    if (Math.abs(yFromAxis - item.centerY) > half) continue;
+    if (Math.abs(y - itemY(item, frame)) > half) continue;
 
     const outside = item.labelMode === 'outside-full' || item.labelMode === 'outside-name';
     const labelWidth =

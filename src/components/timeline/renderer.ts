@@ -11,7 +11,8 @@
  *   - otevřená hranice = šipka na tu stranu, na kterou je údaj otevřený.
  *
  * O pásmech tady nic není: svislou polohu i výšku každého tvaru přináší
- * rozvržení (`item.centerY`, `item.height`).
+ * rozvržení (`itemY`, `item.height`). Připnutá pásma u hran se kreslí až
+ * nakonec na neprůhledný pruh, aby jim plovoucí obsah projížděl pod ním.
  */
 
 import type { Tick, Viewport } from '../../lib/viewport';
@@ -21,12 +22,15 @@ import {
   BAR_LABEL_GAP,
   BAR_RADIUS,
   SEGMENT_BAR_RADIUS,
+  bandLabelY,
+  itemY,
   NODE_RADIUS,
   OPEN_END_WIDTH,
   PILL_HEIGHT,
   PILL_GAP,
   PILL_PADDING_X,
   type EventGeometry,
+  type Frame,
   type LayoutResult,
 } from './layout';
 
@@ -73,8 +77,8 @@ export interface RenderInput {
   ticks: Tick[];
   /** výška plátna v CSS pixelech */
   height: number;
-  /** svislá poloha centrální čáry */
-  axisY: number;
+  /** volná plocha: hrany pro připnutá pásma a poloha centrální čáry */
+  frame: Frame;
   periods: PeriodSpan[];
   selectedId: string | null;
   hoveredId: string | null;
@@ -171,9 +175,40 @@ export function renderTimeline(input: RenderInput): void {
 
   drawGrid(input);
   drawAxis(input);
-  drawRanges(input);
+  drawRanges(input, false);
   drawPoints(input);
-  drawBandLabels(input);
+  drawBandLabels(input, false);
+  drawPinnedBands(input);
+}
+
+/**
+ * Připnuté pásy u hran plochy. Nejdřív neprůhledný podklad, aby pod ním
+ * plovoucí obsah zmizel, pak pruhy a názvy.
+ */
+function drawPinnedBands(input: RenderInput): void {
+  const { ctx, view, layout, theme, frame, height } = input;
+
+  for (const place of ['top', 'bottom'] as const) {
+    if (!layout.bands.some((b) => b.place === place)) continue;
+    const tloustka = place === 'top' ? layout.pinnedTop : layout.pinnedBottom;
+    // Podklad sahá až za hranu plochy, aby pod ním nic neprosvítalo.
+    const y = place === 'top' ? -8 : frame.bottom - tloustka;
+    const h = place === 'top' ? frame.top + tloustka + 8 : tloustka + height;
+
+    ctx.fillStyle = theme.background;
+    ctx.fillRect(0, y, view.width, h);
+
+    const hrana = place === 'top' ? frame.top + tloustka : frame.bottom - tloustka;
+    ctx.strokeStyle = theme.gridDot;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(0, Math.round(hrana) + 0.5);
+    ctx.lineTo(view.width, Math.round(hrana) + 0.5);
+    ctx.stroke();
+  }
+
+  drawRanges(input, true);
+  drawBandLabels(input, true);
 }
 
 /** Tečkované svislé linky v místech dělení. */
@@ -202,8 +237,8 @@ function drawGrid(input: RenderInput): void {
  * Gradient se skládá jen z období, která do výřezu zasahují.
  */
 function drawAxis(input: RenderInput): void {
-  const { ctx, view, ticks, theme, axisY, periods } = input;
-  const y = Math.round(axisY);
+  const { ctx, view, ticks, theme, periods } = input;
+  const y = Math.round(input.frame.axisY);
 
   let fill: string | CanvasGradient = theme.tick;
   const visible = periods
@@ -254,11 +289,12 @@ function drawAxis(input: RenderInput): void {
 // Životy a období pod čárou
 // ---------------------------------------------------------------------------
 
-function drawRanges(input: RenderInput): void {
-  const { layout, view, axisY, selectedId, hoveredId } = input;
+function drawRanges(input: RenderInput, pinned: boolean): void {
+  const { layout, view, selectedId, hoveredId } = input;
 
   for (const item of layout.items) {
     if (item.asPill) continue;
+    if (jePripnute(item.place) !== pinned) continue;
     const rightmost =
       item.labelMode === 'outside-full'
         ? item.labelX + item.nameWidth + BAR_LABEL_GAP + item.yearsWidth
@@ -267,12 +303,14 @@ function drawRanges(input: RenderInput): void {
           : item.x2;
     if (rightmost < -8 || item.x1 > view.width + 8) continue;
 
-    const centerY = axisY + item.centerY;
+    const centerY = itemY(item, input.frame);
     if (centerY < -item.height || centerY > input.height + item.height) continue;
 
     drawBar(input, item, centerY, item.event.id === selectedId, item.event.id === hoveredId);
   }
 }
+
+const jePripnute = (place: EventGeometry['place']) => place === 'top' || place === 'bottom';
 
 /**
  * Výplň pruhu. Pásma na jedné řadě (vlády, velmoci) se dotýkají bez mezer,
@@ -419,13 +457,15 @@ function drawOpenArrow(
 // ---------------------------------------------------------------------------
 
 function drawPoints(input: RenderInput): void {
-  const { ctx, layout, view, axisY, theme, selectedId, hoveredId } = input;
+  const { ctx, layout, view, theme, selectedId, hoveredId } = input;
+  const axisY = input.frame.axisY;
 
   for (const item of layout.items) {
     if (!item.asPill) continue;
+    if (jePripnute(item.place)) continue;
     if (item.x2 < -8 || item.x1 > view.width + 8) continue;
 
-    const centerY = axisY + item.centerY;
+    const centerY = itemY(item, input.frame);
     if (centerY < -PILL_HEIGHT || centerY > input.height + PILL_HEIGHT) continue;
 
     const selected = item.event.id === selectedId;
@@ -475,7 +515,7 @@ function drawPoints(input: RenderInput): void {
       drawOpenArrow(
         ctx,
         item.startOpen === 'right' ? item.centerX + NODE_RADIUS + 3 : item.centerX - NODE_RADIUS - 3,
-        axisY,
+        input.frame.axisY,
         item.color,
         item.startOpen,
       );
@@ -494,8 +534,8 @@ function drawPoints(input: RenderInput): void {
  * vlády) – u nich se řada nedá odvodit z obsahu a bez popisku by nešlo poznat,
  * jestli je řádek judský, nebo izraelský.
  */
-function drawBandLabels(input: RenderInput): void {
-  const { ctx, layout, axisY, theme, bandLabels, height } = input;
+function drawBandLabels(input: RenderInput, pinned: boolean): void {
+  const { ctx, layout, theme, bandLabels, height } = input;
 
   ctx.font = input.bandFont;
   ctx.textBaseline = 'middle';
@@ -504,10 +544,11 @@ function drawBandLabels(input: RenderInput): void {
 
   for (const band of layout.bands) {
     if (!band.singleLane) continue;
+    if ((band.place === 'top' || band.place === 'bottom') !== pinned) continue;
     const label = bandLabels.get(band.id);
     if (!label) continue;
 
-    const y = axisY + band.labelY;
+    const y = bandLabelY(band, input.frame);
     if (y < 8 || y > height - 4) continue;
     ctx.fillText(label, 12, y);
   }
@@ -515,7 +556,8 @@ function drawBandLabels(input: RenderInput): void {
 
 /** Uzel na čáře: bílý střed s barevným prstencem kategorie. */
 function drawNode(input: RenderInput, item: EventGeometry, emphasized: boolean): void {
-  const { ctx, axisY, theme } = input;
+  const { ctx, theme } = input;
+  const axisY = input.frame.axisY;
   const r = emphasized ? NODE_RADIUS + 1 : NODE_RADIUS;
   withShadow(ctx, 'rgba(70, 58, 30, 0.18)', 6, 2, () => {
     ctx.beginPath();

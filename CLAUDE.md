@@ -94,18 +94,28 @@ oddálení pilulky vytlačily osu mimo obrazovku.
 **Pásma jsou v `BANDS` v `layout.ts`** — jediné místo, kde se mění pořadí
 i štítky. Shora dolů:
 
-| Pásmo | Štítky | Tvar | Řada |
-|---|---|---|---|
-| Světové velmoci | `velmoc` | pruhy | jedna |
-| Události | `udalost`, `kniha` | pilulky | řádkuje se |
-| — *centrální čára* — | | | |
-| Životy | `zivot` | pruhy | řádkuje se |
-| Vláda – Juda | `vlada-juda`, `vlada-12kmenu` | pruhy | jedna |
-| Vláda – Izrael | `vlada-izrael` | pruhy | jedna |
-| Ostatní | zbytek | podle typu | řádkuje se |
+| Pásmo | Štítky | Umístění | Tvar | Řada |
+|---|---|---|---|---|
+| Světové velmoci | `velmoc` | připnuto nahoře | pruhy | jedna |
+| Události | `udalost`, `kniha` | plave nad čárou | pilulky | řádkuje se |
+| — *centrální čára* — | | | | |
+| Životy | `zivot` | plave pod čárou | pruhy | řádkuje se |
+| Ostatní | zbytek | plave pod čárou | podle typu | řádkuje se |
+| Vláda – Izrael | `vlada-izrael` | připnuto dole | pruhy | jedna |
+| Vláda – Juda | `vlada-juda`, `vlada-12kmenu` | připnuto dole | pruhy | jedna |
 
 Pásmo bez záznamů (nebo skryté v legendě) **nezabírá žádné svislé místo**.
 `MAX_LANES_WITH_LABELS` a zhuštěný režim se vyhodnocují za každé pásmo zvlášť.
+
+**Připnutá pásma se svisle nehýbou.** Velmoci sedí u horní hrany, vlády u dolní
+(Juda úplně dole, Izrael nad ní); plovoucí obsah jim projíždí pod neprůhledným
+podkladem. Jsou to souvislé pásy přes celé dějiny — kdyby plavaly s osou,
+hledaly by se hůř než cokoli jiného.
+
+Souřadnice `centerY` proto **neznamená totéž pro všechny položky**: u plovoucích
+pásem je to odstup od čáry (záporný nad ní), u připnutých odstup od hrany plochy
+(vždy kladný, směrem dovnitř). Na pixely plátna to přepočítá `itemY(item, frame)`,
+kde `Frame` je `{ axisY, top, bottom }`. `hitTest` bere rovnou souřadnice plátna.
 
 **Pásmo na jedné řadě (`singleLane`) se neřádkuje.** Vlády i velmoci navazují
 bez mezer — konec jedné je začátek další — takže by je packing rozházel do
@@ -166,6 +176,16 @@ z posledních pohybů vyhlazeným průměrem; po delší pauze prstu se zapomene
 zastavený prst nespustil doběh. Doběh ruší cokoli dalšího — dotyk, kolečko,
 gesto — a zastaví se i na kraji rozsahu, kde by běžel naprázdno.
 
+Čas se bere z `performance.now()`, **ne z `event.timeStamp`**. Safari u dotykových
+pointer událostí neručí za společnou epochu; s `timeStamp` vycházely nesmyslné
+prodlevy mezi pohyby, rychlost se pořád zahazovala a na iPadu se doběh nikdy
+nespustil.
+
+**Gesto se zamyká na převládající směr.** Vodorovné švihnutí na trackpadu nese
+i drobné `deltaY`. Bez zámku osa při posunu poskakovala svisle a řádky se zdály
+přeskakovat — přitom řádkování je při posunu prokazatelně stabilní (pakuje se
+v pixelech, které se posunou všechny stejně; mění ho až zoom).
+
 **Kreslí se v jedné trvalé rAF smyčce** se značkou „je co překreslit"
 (`dirtyRef`). Zakládat a rušit snímek v efektu při každé změně stavu bylo na
 dotykových zařízeních znát.
@@ -202,6 +222,12 @@ Netlify staví z větve `main`. Proměnné `VITE_SUPABASE_URL` a
 nutný nový deploy. `netlify.toml` je vyjímá ze skenování tajemství
 (`SECRETS_SCAN_OMIT_KEYS`) — bez toho build spadne, protože veřejný anon klíč
 z podstaty věci skončí v klientském bundlu.
+
+`netlify/functions/udrzet-vzhuru.mjs` je naplánovaná funkce (`@daily`), která
+jednou denně přečte jeden řádek z `events`. Supabase na free tieru uspí projekt
+po sedmi dnech bez provozu a aplikace se ptá jen když ji někdo otevře. Funkce
+běží na stejných proměnných jako aplikace; když se přejde na placený tarif, dá
+se smazat.
 
 ## Kontext projektu
 

@@ -5,6 +5,7 @@ import {
   bandOf,
   eventExtent,
   hitTest,
+  itemY,
   layoutEvents,
   MAX_POINT_LANES,
   NO_CATEGORY_COLOR,
@@ -71,6 +72,17 @@ const layout = (events: TimelineEvent[], v: Viewport, hidden?: Set<string>) =>
 const named = (result: ReturnType<typeof layout>, name: string) =>
   result.items.find((i) => i.event.name === name)!;
 
+/** Rám plochy: plátno 900 px vysoké, čára uprostřed. */
+const frame = (result: ReturnType<typeof layout>) => ({
+  axisY: 450,
+  top: result.pinnedTop,
+  bottom: 900 - result.pinnedBottom,
+});
+
+/** Svislá poloha záznamu v pixelech plátna. */
+const yOf = (result: ReturnType<typeof layout>, name: string) =>
+  itemY(named(result, name), frame(result));
+
 describe('rozsah záznamu na ose', () => {
   it('rozsah pokrývá celé krajní roky', () => {
     const { from, to } = eventExtent(rangeEvent('Metuzalém', 3339, 2370));
@@ -117,7 +129,7 @@ describe('svislé skládání pásem', () => {
     expect(named(result, 'Noe').centerY).toBeGreaterThan(0);
   });
 
-  it('velmoci jsou nad událostmi, vlády pod životy', () => {
+  it('shora dolů: velmoci, události, čára, životy, Izrael, Juda', () => {
     const result = layout(
       [
         rangeEvent('Egypt', 1600, 874, { tags: ['velmoc'] }),
@@ -128,11 +140,23 @@ describe('svislé skládání pásem', () => {
       ],
       view(-3000, 0.3),
     );
-    // nad čárou: čím výš, tím zápornější
-    expect(named(result, 'Egypt').centerY).toBeLessThan(named(result, 'Potopa').centerY);
-    // pod čárou: čím níž, tím větší
-    expect(named(result, 'Noe').centerY).toBeLessThan(named(result, 'Asa').centerY);
-    expect(named(result, 'Asa').centerY).toBeLessThan(named(result, 'Omri').centerY);
+    const poradi = ['Egypt', 'Potopa', 'Noe', 'Omri', 'Asa'].map((n) => yOf(result, n));
+    for (let i = 1; i < poradi.length; i++) expect(poradi[i]).toBeGreaterThan(poradi[i - 1]);
+    expect(yOf(result, 'Noe')).toBeGreaterThan(frame(result).axisY);
+    expect(yOf(result, 'Potopa')).toBeLessThan(frame(result).axisY);
+  });
+
+  it('připnutá pásma se svislým posunem osy nehýbou', () => {
+    const events = [
+      rangeEvent('Egypt', 1600, 874, { tags: ['velmoc'] }),
+      rangeEvent('Noe', 2970, 2020),
+      reignEvent('Asa', 977, 937),
+    ];
+    const result = layout(events, view(-3000, 0.3));
+    const posunuty = { ...frame(result), axisY: 300 };
+    expect(itemY(named(result, 'Egypt'), posunuty)).toBe(yOf(result, 'Egypt'));
+    expect(itemY(named(result, 'Asa'), posunuty)).toBe(yOf(result, 'Asa'));
+    expect(itemY(named(result, 'Noe'), posunuty)).not.toBe(yOf(result, 'Noe'));
   });
 
   it('každé pásmo se řádkuje samostatně', () => {
@@ -152,7 +176,8 @@ describe('svislé skládání pásem', () => {
       view(-3000, 0.5),
     );
     expect(bezVlad.bands.map((b) => b.id)).toEqual(['zivoty']);
-    expect(sVladami.heightBelow).toBeGreaterThan(bezVlad.heightBelow);
+    expect(bezVlad.pinnedBottom).toBe(0);
+    expect(sVladami.pinnedBottom).toBeGreaterThan(0);
   });
 
   it('skryté pásmo zmizí i s místem, které zabíralo', () => {
@@ -161,17 +186,30 @@ describe('svislé skládání pásem', () => {
     const bezVlad = layout(events, view(-3000, 0.5), new Set(['juda']));
     expect(bezVlad.items.some((i) => i.bandId === 'juda')).toBe(false);
     expect(bezVlad.bands.map((b) => b.id)).toEqual(['zivoty']);
-    expect(bezVlad.heightBelow).toBeLessThan(vse.heightBelow);
+    expect(vse.pinnedBottom).toBeGreaterThan(0);
+    expect(bezVlad.pinnedBottom).toBe(0);
   });
 
-  it('mezi pásmy je mezera', () => {
+  it('mezi plovoucími pásmy je mezera', () => {
+    const result = layout(
+      [rangeEvent('Noe', 2970, 2020), pointEvent('Něco', 2000, { tags: ['neznamy'] })],
+      view(-3000, 0.5),
+    );
+    const zivoty = result.bands.find((b) => b.id === 'zivoty')!;
+    const ostatni = result.bands.find((b) => b.id === 'ostatni')!;
+    expect(ostatni.near).toBe(zivoty.near + zivoty.extent + BAND_GAP);
+  });
+
+  it('Juda je úplně dole, Izrael nad ní', () => {
     const result = layout(
       [reignEvent('Asa', 977, 937), reignEvent('Omri', 940, 930, 'vlada-izrael')],
       view(-1000, 1),
     );
     const juda = result.bands.find((b) => b.id === 'juda')!;
     const izrael = result.bands.find((b) => b.id === 'izrael')!;
-    expect(izrael.near).toBe(juda.near + juda.extent + BAND_GAP);
+    // `near` je vzdálenost od dolní hrany, takže Juda má menší
+    expect(juda.near).toBeLessThan(izrael.near);
+    expect(yOf(result, 'Asa')).toBeGreaterThan(yOf(result, 'Omri'));
   });
 
   it('výška pásma roste s počtem řádků', () => {
@@ -308,33 +346,36 @@ describe('barvy', () => {
 });
 
 describe('zásah kliknutím', () => {
-  it('trefí pruh podle vzdálenosti od čáry', () => {
+  it('trefí pruh pod čárou', () => {
     const result = layout([rangeEvent('Noe', 2970, 2020)], view(-3000, 1));
     const item = result.items[0];
-    expect(hitTest(result, item.centerX, item.centerY)?.event.id).toBe(item.event.id);
+    const f = frame(result);
+    expect(hitTest(result, item.centerX, itemY(item, f), f)?.event.id).toBe(item.event.id);
     // nad čárou v tom místě nic není
-    expect(hitTest(result, item.centerX, -90)).toBeNull();
+    expect(hitTest(result, item.centerX, f.axisY - 90, f)).toBeNull();
   });
 
   it('trefí pilulku nad čárou', () => {
     const result = layout([pointEvent('Potopa', 2370)], view(-2400, 1));
     const item = result.items[0];
-    expect(hitTest(result, item.centerX, item.centerY)?.event.id).toBe(item.event.id);
+    const f = frame(result);
+    expect(hitTest(result, item.centerX, itemY(item, f), f)?.event.id).toBe(item.event.id);
   });
 
-  it('rozliší dvě pásma pod sebou', () => {
+  it('rozliší dvě připnutá pásma pod sebou', () => {
     const result = layout(
       [reignEvent('Asa', 977, 937), reignEvent('Omri', 940, 930, 'vlada-izrael')],
       view(-1000, 1),
     );
-    const asa = named(result, 'Asa');
+    const f = frame(result);
     const omri = named(result, 'Omri');
-    expect(hitTest(result, omri.centerX, asa.centerY)?.event.name).toBe('Asa');
-    expect(hitTest(result, omri.centerX, omri.centerY)?.event.name).toBe('Omri');
+    expect(hitTest(result, omri.centerX, yOf(result, 'Asa'), f)?.event.name).toBe('Asa');
+    expect(hitTest(result, omri.centerX, yOf(result, 'Omri'), f)?.event.name).toBe('Omri');
   });
 
   it('mimo záznam vrací null', () => {
     const result = layout([rangeEvent('Noe', 2970, 2020)], view(-3000, 1));
-    expect(hitTest(result, 990, result.items[0].centerY)).toBeNull();
+    const f = frame(result);
+    expect(hitTest(result, 990, itemY(result.items[0], f), f)).toBeNull();
   });
 });
