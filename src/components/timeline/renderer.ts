@@ -21,7 +21,6 @@ import {
   AXIS_LINE_HEIGHT,
   BAR_LABEL_GAP,
   BAR_RADIUS,
-  SEGMENT_BAR_RADIUS,
   bandLabelY,
   itemY,
   NODE_RADIUS,
@@ -330,7 +329,7 @@ function drawBar(
 ): void {
   const { ctx, view, theme } = input;
   const height = item.height;
-  const radius = item.segment ? SEGMENT_BAR_RADIUS : BAR_RADIUS;
+  const radius = BAR_RADIUS;
   const x1 = Math.max(item.x1, -MAX_OVERFLOW);
   const x2 = Math.min(item.x2, view.width + MAX_OVERFLOW);
   const w = Math.max(x2 - x1, 3);

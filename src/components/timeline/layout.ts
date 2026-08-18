@@ -11,7 +11,7 @@
  */
 
 import { packLanes, type LaneInput } from '../../lib/lanes';
-import { openDirection, toContinuous, toContinuousCenter } from '../../lib/time';
+import { openDirection, toContinuous } from '../../lib/time';
 import { xOf, type Viewport } from '../../lib/viewport';
 import type { Category, TimelineEvent } from '../../data/types';
 
@@ -50,11 +50,7 @@ export const MIN_BAR_WIDTH = 20;
  * takže široké minimum by krátké vlády roztáhlo přes sousedy.
  */
 export const MIN_SEGMENT_WIDTH = 2;
-/**
- * Zaoblení pruhu v pásmu na jedné řadě. Malé, aby navazující vlády četly jako
- * díly jednoho pásu, ne jako řetěz samostatných pilulek.
- */
-export const SEGMENT_BAR_RADIUS = 3;
+
 /** Odsazení popisku uvnitř pruhu. */
 export const BAR_LABEL_INSET = 13;
 export const BAR_LABEL_GAP = 9;
@@ -131,9 +127,10 @@ export interface BandDefinition {
  */
 export const BANDS: readonly BandDefinition[] = [
   { id: 'velmoci', tags: ['velmoc'], place: 'top', shape: 'bar', singleLane: true },
-  { id: 'udalosti', tags: ['udalost', 'kniha'], place: 'above', shape: 'pill', singleLane: false },
+  { id: 'udalosti', tags: ['udalost', 'kniha', 'kniha-dokonceno'], place: 'above', shape: 'pill', singleLane: false },
   // --- centrální čára ---
   { id: 'zivoty', tags: ['zivot'], place: 'below', shape: 'bar', singleLane: false },
+  { id: 'knihy', tags: ['kniha-zahrnuto'], place: 'below', shape: 'bar', singleLane: false },
   { id: 'ostatni', tags: [], place: 'below', shape: 'auto', singleLane: false },
   { id: 'izrael', tags: ['vlada-izrael'], place: 'bottom', shape: 'bar', singleLane: true },
   // Juda je úplně dole. 12 kmenů se s ní nepřekrývá (předchází rozdělení),
@@ -173,7 +170,7 @@ export interface EventGeometry {
   asPill: boolean;
   /** kreslí se stopka od uzlu na čáře k pilulce */
   stem: boolean;
-  /** díl souvislého pásu (pásmo na jedné řadě) — menší zaoblení */
+  /** díl souvislého pásu (pásmo na jedné řadě) — nerozšiřuje se na minimum */
   segment: boolean;
   /**
    * Střídavý odstín v pásmu na jedné řadě. Navazující vlády se dotýkají,
@@ -259,13 +256,20 @@ export function bandLabelY(band: BandGeometry, frame: Frame): number {
 
 export type MeasureText = (text: string, weight?: 'normal' | 'bold') => number;
 
-/** Rozsah záznamu na spojité ose (pro rozsah i bod). */
+/**
+ * Rozsah záznamu na spojité ose (pro rozsah i bod).
+ *
+ * Obě hranice se berou jako **začátek** svého intervalu: rozsah 1107–1037 sahá
+ * od začátku roku 1107 do začátku roku 1037, ne do jeho konce. Kdyby zabíral
+ * i celý koncový rok, navazující vlády by se o rok překrývaly a bod by seděl
+ * uprostřed roku místo na něm.
+ */
 export function eventExtent(event: TimelineEvent): { from: number; to: number } {
+  const from = toContinuous(event.start, 'start');
   if (event.type === 'range' && event.end) {
-    return { from: toContinuous(event.start, 'start'), to: toContinuous(event.end, 'end') };
+    return { from, to: toContinuous(event.end, 'start') };
   }
-  const center = toContinuousCenter(event.start);
-  return { from: center, to: center };
+  return { from, to: from };
 }
 
 export function categoryColor(
@@ -284,8 +288,16 @@ interface Measured {
   /** jestli se kreslí jako pilulka (jinak pruh) */
   asPill: boolean;
   from: number;
+  to: number;
   x1: number;
   x2: number;
+  /**
+   * Levý a pravý okraj v souřadnici, která NEZÁVISÍ na posunu výřezu
+   * (`rok × pxPerYear`, bez `t0`). Řádkuje se v ní, aby posun nemohl
+   * přehodit ani jednu položku do jiného řádku.
+   */
+  packX1: number;
+  packX2: number;
   centerX: number;
   color: string;
   name: string;
@@ -301,7 +313,9 @@ interface Measured {
 /** Vybere nejbohatší popisek, který se do pruhu (nebo vedle něj) vejde. */
 function chooseLabelMode(m: Measured, reserveOutside: boolean): LabelMode {
   if (m.asPill) return 'inside-full';
-  const usable = m.x2 - m.x1 - BAR_LABEL_INSET - 12;
+  // Šířka z `packX*`, ne z `x*`: na posunu nezávislá, takže se popisek
+  // uprostřed tažení nepřepne do jiného režimu.
+  const usable = m.packX2 - m.packX1 - BAR_LABEL_INSET - 12;
   if (usable >= m.nameWidth + BAR_LABEL_GAP + m.yearsWidth) return 'inside-full';
   if (usable >= m.nameWidth) return 'inside-name';
   if (!reserveOutside) return 'none';
@@ -312,14 +326,14 @@ function chooseLabelMode(m: Measured, reserveOutside: boolean): LabelMode {
 function occupiedRightOf(m: Measured, mode: LabelMode): number {
   const openRight = (m.asPill ? m.startOpen : m.endOpen) === 'right';
   const arrow = openRight ? OPEN_END_WIDTH : 0;
-  if (m.asPill) return m.x2 + arrow;
+  if (m.asPill) return m.packX2 + arrow;
   switch (mode) {
     case 'outside-full':
-      return m.x2 + arrow + LABEL_GAP + m.nameWidth + BAR_LABEL_GAP + m.yearsWidth;
+      return m.packX2 + arrow + LABEL_GAP + m.nameWidth + BAR_LABEL_GAP + m.yearsWidth;
     case 'outside-name':
-      return m.x2 + arrow + LABEL_GAP + m.nameWidth;
+      return m.packX2 + arrow + LABEL_GAP + m.nameWidth;
     default:
-      return m.x2 + arrow;
+      return m.packX2 + arrow;
   }
 }
 
@@ -368,12 +382,19 @@ export function layoutEvents(
     const rawX2 = xOf(view, extent.to);
     const centerX = isPoint ? rawX1 : (rawX1 + rawX2) / 2;
     const minWidth = band.singleLane ? MIN_SEGMENT_WIDTH : MIN_BAR_WIDTH;
-    const barHalf = Math.max((rawX2 - rawX1) / 2, minWidth / 2);
+    // Šířka se počítá z délky v letech, ne z rozdílu pixelů na plátně —
+    // ten se s posunem výřezu nepatrně mění a rozhodoval by o řádkování.
+    const barHalf = Math.max(((extent.to - extent.from) * view.pxPerYear) / 2, minWidth / 2);
     const name = event.name;
     const years = formatYears(event);
     const nameWidth = measureText(name, 'bold');
     const yearsWidth = measureText(years);
     const pillWidth = PILL_PADDING_X * 2 + nameWidth + (years ? PILL_GAP + yearsWidth : 0);
+    // Totéž bez `t0`: souřadnice pro řádkování, na posunu nezávislá.
+    const packCenter = isPoint
+      ? extent.from * view.pxPerYear
+      : ((extent.from + extent.to) / 2) * view.pxPerYear;
+    const packHalf = asPill ? pillWidth / 2 : barHalf;
 
     measured.push({
       event,
@@ -382,8 +403,11 @@ export function layoutEvents(
       isPoint,
       asPill,
       from: extent.from,
+      to: extent.to,
       x1: asPill ? centerX - pillWidth / 2 : centerX - barHalf,
       x2: asPill ? centerX + pillWidth / 2 : centerX + barHalf,
+      packX1: packCenter - packHalf,
+      packX2: packCenter + packHalf,
       centerX,
       color: categoryColor(event.categoryId, categories),
       name,
@@ -439,7 +463,7 @@ export function layoutEvents(
     const pack = (reserveOutside: boolean) => {
       const inputs: LaneInput[] = members.map((m) => ({
         id: m.event.id,
-        left: m.x1 - (m.startOpen === 'left' ? OPEN_END_WIDTH : 0),
+        left: m.packX1 - (m.startOpen === 'left' ? OPEN_END_WIDTH : 0),
         right: occupiedRightOf(m, chooseLabelMode(m, reserveOutside)),
       }));
       return packLanes(inputs, ITEM_GAP);
@@ -604,7 +628,13 @@ export function layoutEvents(
   }
 
   // Širší pruhy se kreslí dřív, aby krátké vlády zůstaly nahoře a byly vidět.
-  items.sort((a, b) => b.x2 - b.x1 - (a.x2 - a.x1));
+  // Řadí se podle délky v LETECH a při shodě podle id — pixelová šířka se
+  // s posunem nepatrně mění a pořadí kreslení by kolísalo.
+  const delka = new Map(measured.map((m) => [m.event.id, m.to - m.from]));
+  items.sort(
+    (a, b) =>
+      delka.get(b.event.id)! - delka.get(a.event.id)! || a.event.id.localeCompare(b.event.id),
+  );
 
   return {
     items,

@@ -56,6 +56,12 @@ function pointEvent(name: string, yearBc: number, extra: Partial<TimelineEvent> 
   };
 }
 
+/** Rozsah zadaný astronomickými roky (kladné = n. l.). */
+function adRange(name: string, from: number, to: number): TimelineEvent {
+  const bod = (year: number) => ({ year, month: null, day: null, approx: false, qualifier: null });
+  return { ...rangeEvent(name, 1, 1), start: bod(from), end: bod(to) };
+}
+
 /** Vláda v pásmu na jedné řadě. */
 function reignEvent(
   name: string,
@@ -84,14 +90,65 @@ const yOf = (result: ReturnType<typeof layout>, name: string) =>
   itemY(named(result, name), frame(result));
 
 describe('rozsah záznamu na ose', () => {
-  it('rozsah pokrývá celé krajní roky', () => {
+  it('rozsah končí na začátku koncového roku, ne na jeho konci', () => {
     const { from, to } = eventExtent(rangeEvent('Metuzalém', 3339, 2370));
-    expect(to - from).toBeCloseTo(970, 6);
+    // stejná délka, jakou hlásí `rangeLengthYears`
+    expect(to - from).toBeCloseTo(969, 6);
+    expect(to).toBe(toAstronomicalYear(2370, 'bc'));
   });
 
-  it('bod je jediný okamžik', () => {
+  it('navazující vlády se nepřekrývají', () => {
+    const prvni = eventExtent(reignEvent('Rechoboam', 997, 980));
+    const druha = eventExtent(reignEvent('Abijam', 980, 978));
+    expect(prvni.to).toBe(druha.from);
+  });
+
+  it('bod leží na začátku svého roku, ne uprostřed', () => {
     const { from, to } = eventExtent(pointEvent('Potopa', 2370));
     expect(from).toBe(to);
+    expect(from).toBe(toAstronomicalYear(2370, 'bc'));
+  });
+});
+
+describe('stabilita při vodorovném posunu', () => {
+  /**
+   * Řádkuje se v souřadnicích odvozených z let, ne z pixelů na plátně —
+   * jinak posun mění zaokrouhlení a položky se stejným začátkem si přehazují
+   * řádky (projevovalo se problikáváním u apoštolů kolem přelomu letopočtu).
+   */
+  const soubezne = [
+    adRange('Marie Magdaléna', -4, 33),
+    adRange('Štěpán', -4, 33),
+    adRange('Petr', -4, 64),
+    adRange('Barnabáš', -4, 55),
+    adRange('apoštol Jan', -4, 100),
+    adRange('Ježíš', -1, 33),
+    adRange('Jan Křtitel', -1, 32),
+  ];
+
+  for (const [popis, pxPerYear, t0] of [
+    ['při velkém oddálení', 0.34, -4200],
+    ['přiblíženo na přelom letopočtu', 6, -60],
+  ] as const) {
+    it(`${popis} nezmění ani jeden řádek`, () => {
+      let predchozi: string | null = null;
+      for (let i = 0; i < 60; i++) {
+        const result = layout(soubezne, view(t0 + i * (1 / pxPerYear), pxPerYear, 1500));
+        const otisk = result.items.map((x) => `${x.name}:${x.lane}`).sort().join('|');
+        if (predchozi !== null) expect(otisk).toBe(predchozi);
+        predchozi = otisk;
+      }
+    });
+  }
+
+  it('pořadí kreslení se posunem nemění', () => {
+    let predchozi: string | null = null;
+    for (let i = 0; i < 60; i++) {
+      const result = layout(soubezne, view(-60 + i / 6, 6, 1500));
+      const poradi = result.items.map((x) => x.name).join('|');
+      if (predchozi !== null) expect(poradi).toBe(predchozi);
+      predchozi = poradi;
+    }
   });
 });
 

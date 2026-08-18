@@ -38,6 +38,11 @@ na letopočet patří **výhradně** do vstupní a zobrazovací vrstvy
 př. n. l. a vnucuje přesnost, kterou údaje nemají. Veškerá časová logika je
 vlastní, nad celočíselnými roky.
 
+**Hranice se čtou jako začátky.** Rozsah 1107–1037 sahá od začátku roku 1107
+do začátku roku 1037 a bod leží na začátku svého roku, ne uprostřed. Kdyby
+rozsah zabíral i celý koncový rok, navazující vlády by se o rok překrývaly.
+Délka pruhu tak odpovídá tomu, co hlásí `rangeLengthYears`.
+
 **Tři nezávislé vlastnosti každého údaje.** Slévat je dohromady je chyba:
 
 | Vlastnost | Kde se bere | Text | Na ose |
@@ -97,12 +102,13 @@ i štítky. Shora dolů:
 | Pásmo | Štítky | Umístění | Tvar | Řada |
 |---|---|---|---|---|
 | Světové velmoci | `velmoc` | připnuto nahoře | pruhy | jedna |
-| Události | `udalost`, `kniha` | plave nad čárou | pilulky | řádkuje se |
+| Události | `udalost`, `kniha`, `kniha-dokonceno` | plave nad čárou | pilulky | řádkuje se |
 | — *centrální čára* — | | | | |
 | Životy | `zivot` | plave pod čárou | pruhy | řádkuje se |
+| Knihy – zahrnuté období | `kniha-zahrnuto` | plave pod čárou | pruhy | řádkuje se |
 | Ostatní | zbytek | plave pod čárou | podle typu | řádkuje se |
-| Vláda – Izrael | `vlada-izrael` | připnuto dole | pruhy | jedna |
-| Vláda – Juda | `vlada-juda`, `vlada-12kmenu` | připnuto dole | pruhy | jedna |
+| Vláda – sev. izraelské království | `vlada-izrael` | připnuto dole | pruhy | jedna |
+| Vláda – již. judské království | `vlada-juda`, `vlada-12kmenu` | připnuto dole | pruhy | jedna |
 
 Pásmo bez záznamů (nebo skryté v legendě) **nezabírá žádné svislé místo**.
 `MAX_LANES_WITH_LABELS` a zhuštěný režim se vyhodnocují za každé pásmo zvlášť.
@@ -120,9 +126,9 @@ kde `Frame` je `{ axisY, top, bottom }`. `hitTest` bere rovnou souřadnice plát
 **Pásmo na jedné řadě (`singleLane`) se neřádkuje.** Vlády i velmoci navazují
 bez mezer — konec jedné je začátek další — takže by je packing rozházel do
 desítek řádků. Popisek se tam vejde jen dovnitř pruhu, nikdy vedle, a sousedé
-se odliší **střídavým odstínem** (`shade`), ne mezerou. Pruhy mají menší
-zaoblení (`SEGMENT_BAR_RADIUS`) a menší minimální šířku (`MIN_SEGMENT_WIDTH`),
-aby četly jako díly jednoho pásu, ne jako řetěz pilulek.
+se odliší **střídavým odstínem** (`shade`), ne mezerou. Zaoblení mají stejné
+jako životy, jen menší minimální šířku (`MIN_SEGMENT_WIDTH`) — široké minimum
+by krátké vlády roztáhlo přes sousedy.
 
 Názvy pásem jsou v `cs.timeline.bands`; na plátně se kreslí do mezery nad
 pásmem, jen u pásem na jedné řadě — u ostatních se řada pozná z obsahu.
@@ -151,6 +157,12 @@ přes 6000 let a vlastního vykreslení nejistoty.
 
 - Řádkuje se **přes všechny záznamy, ne jen viditelné** — jinak by při posunu
   poskakovaly mezi řádky. Ořez na viewport dělá až `renderer.ts`.
+- **Řádkuje se v `packX1`/`packX2`, ne v `x1`/`x2`.** Pakovací souřadnice je
+  `rok × pxPerYear` bez `t0`, takže na posunu vůbec nezávisí. S obyčejnými
+  pixely plátna se zaokrouhlení s posunem měnilo a položky se stejným
+  začátkem si přehazovaly řádky — projevovalo se to problikáváním apoštolů
+  kolem přelomu letopočtu. Ze stejného důvodu se pořadí kreslení řadí podle
+  délky v letech, ne podle pixelové šířky.
 - Do obsazeného místa se počítá i šířka popisku. Když by řádků bylo přes
   `MAX_LANES_WITH_LABELS`, přepne se do zhuštěného režimu a popisky, které se
   nevejdou, se skryjí (ukážou se po najetí a v detailu).

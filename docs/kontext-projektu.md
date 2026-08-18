@@ -55,6 +55,10 @@ i `authenticated`, ne jen existencí politik.
 Tahle část je důležitější než seznam funkcí — bez ní se dřív nebo později
 někdo pokusí „opravit" něco, co je záměr.
 
+**Hranice rozsahu i bodu se čtou jako začátky.** Rozsah 1107–1037 končí na
+začátku roku 1037, ne na jeho konci, a bod leží na začátku svého roku. Jinak
+by se navazující vlády o rok překrývaly a bod by seděl uprostřed roku.
+
 **Astronomické roky, ne záporné inty podle chuti.** 1 př. n. l. = 0. Rok nula
 neexistuje, takže bez astronomického číslování by rozdíl mezi −1 a 1 nebyl
 jeden rok. Převod je jen ve vstupní a zobrazovací vrstvě.
@@ -88,7 +92,8 @@ s pruhy pletla.
 
 **Pásma podle štítků, ne dvě pevná pásma.** Osa je rozdělená na pásma
 definovaná štítky (`BANDS` v `layout.ts`), shora dolů: světové velmoci,
-události, čára, životy, ostatní, vláda nad Izraelem, vláda nad Judou. Judské
+události, čára, životy, zahrnutá období knih, ostatní, severní izraelské
+království, jižní judské království. Judské
 a izraelské království vládly současně — v jednom pásmu by je řádkování
 promíchalo a nešlo by odečíst, kdo vládl souběžně s kým. Pásmo bez záznamů
 nebo skryté nezabírá žádné svislé místo.
@@ -166,6 +171,7 @@ přidat bez zásahu do osy.
   `netlify/functions/udrzet-vzhuru.mjs` jednou denně a přečte jeden řádek.
   Stojí to na tom, že web na Netlify běží — po přechodu na placený tarif se dá
   funkce smazat.
-- **Řádkování je při posunu stabilní, při zoomu ne.** Pakuje se v pixelech,
-  které se posunou všechny stejně; změřeno, posun po 1 px nezmění ani jeden
-  řádek. Když se zdá, že řádky přeskakují, hýbe se svisle osa, ne řádkování.
+- **Řádkování je při posunu stabilní, při zoomu ne.** Pakuje se v souřadnici
+  odvozené z let (`rok × pxPerYear`), která na posunu vůbec nezávisí. Dokud se
+  pakovalo v pixelech plátna, měnilo se s posunem zaokrouhlení a položky se
+  stejným začátkem si přehazovaly řádky. Testy to hlídají.
