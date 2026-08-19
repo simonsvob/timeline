@@ -275,12 +275,21 @@ describe('nepovinná pole', () => {
     }
   });
 
-  it('štítky ořezává a odstraňuje duplicity a prázdné', () => {
+  it('klíčová slova ořezává a odstraňuje duplicity a prázdné', () => {
     const res = validateEventForm(
-      form({ start: startInput(), tags: [' patriarchové ', 'patriarchové', '', 'potopa'] }),
+      form({ start: startInput(), keywords: [' patriarchové ', 'patriarchové', '', 'potopa'] }),
     );
     expect(res.ok).toBe(true);
-    if (res.ok) expect(res.value.tags).toEqual(['patriarchové', 'potopa']);
+    if (res.ok) expect(res.value.keywords).toEqual(['patriarchové', 'potopa']);
+  });
+
+  it('umístění a štítek projdou beze změny', () => {
+    const res = validateEventForm(form({ start: startInput(), placement: 'velmoci', tagId: 't1' }));
+    expect(res.ok).toBe(true);
+    if (res.ok) {
+      expect(res.value.placement).toBe('velmoci');
+      expect(res.value.tagId).toBe('t1');
+    }
   });
 });
 

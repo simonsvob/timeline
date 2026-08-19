@@ -1,34 +1,23 @@
 /**
- * Správa kategorií: vytvoření, přejmenování, barva (paleta i vlastní hex),
- * pořadí a smazání. Smazáním kategorie záznamy nemizí, jen přijdou o kategorii.
+ * Správa období: vytvoření, přejmenování, barva (paleta i vlastní hex),
+ * pořadí a smazání.
+ *
+ * Období barví centrální čáru a dráhu minimapy podle toho, KDY se něco stalo.
+ * Barvu jednotlivých záznamů neurčují – tu nese štítek (viz TagManager).
+ * Vazba na záznamy proto neexistuje a smazání období se jich nedotkne.
  */
 
 import { useState } from 'react';
 import { cs } from '../i18n/cs';
 import { formatYear } from '../lib/format';
 import { isValidHexColor, validateCategoryForm } from '../lib/validation';
-import type { Category, CategoryDraft, TimelineEvent } from '../data/types';
+import type { Category, CategoryDraft } from '../data/types';
 import { ConfirmDialog, Modal } from './ui';
-
-/** Paleta k chladné neutrální osě – syté, ale ne křiklavé. */
-export const COLOR_PALETTE = [
-  '#4f46e5',
-  '#0d9488',
-  '#e11d48',
-  '#d97706',
-  '#7c3aed',
-  '#0284c7',
-  '#65a30d',
-  '#db2777',
-  '#ea580c',
-  '#0891b2',
-  '#9333ea',
-  '#475569',
-];
+import { COLOR_PALETTE, ColorPicker } from './ColorPicker';
 
 interface Props {
   categories: Category[];
-  events: TimelineEvent[];
+  canEdit: boolean;
   onSave: (id: string | null, draft: CategoryDraft) => Promise<void>;
   onDelete: (id: string) => Promise<void>;
   onReorder: (ordered: Category[]) => Promise<void>;
@@ -37,7 +26,7 @@ interface Props {
 
 export function CategoryManager({
   categories,
-  events,
+  canEdit,
   onSave,
   onDelete,
   onReorder,
@@ -47,8 +36,6 @@ export function CategoryManager({
   const [newColor, setNewColor] = useState(COLOR_PALETTE[0]);
   const [error, setError] = useState<string | null>(null);
   const [pendingDelete, setPendingDelete] = useState<Category | null>(null);
-
-  const countFor = (id: string) => events.filter((event) => event.categoryId === id).length;
 
   const handleAdd = async () => {
     const problems = validateCategoryForm(newName, newColor);
@@ -108,6 +95,8 @@ export function CategoryManager({
           </button>
         }
       >
+        <p className="muted manager-intro">{cs.categories.intro}</p>
+
         {error ? <p className="form-error">{error}</p> : null}
 
         {categories.length === 0 ? (
@@ -116,27 +105,36 @@ export function CategoryManager({
           <ul className="category-list">
             {categories.map((category, index) => (
               <li key={category.id} className="category-row">
-                <ColorPicker
-                  value={category.color}
-                  onChange={(color) => void handleUpdate(category, { color })}
-                />
-                <input
-                  className="input category-name"
-                  defaultValue={category.name}
-                  aria-label={cs.categories.name}
-                  onBlur={(e) => {
-                    if (e.target.value.trim() !== category.name) {
-                      void handleUpdate(category, { name: e.target.value });
-                    }
-                  }}
-                />
+                {canEdit ? (
+                  <ColorPicker
+                    value={category.color}
+                    onChange={(color) => void handleUpdate(category, { color })}
+                  />
+                ) : (
+                  <span className="color-swatch" style={{ background: category.color }} />
+                )}
+                {canEdit ? (
+                  <input
+                    className="input category-name"
+                    defaultValue={category.name}
+                    aria-label={cs.categories.name}
+                    onBlur={(e) => {
+                      if (e.target.value.trim() !== category.name) {
+                        void handleUpdate(category, { name: e.target.value });
+                      }
+                    }}
+                  />
+                ) : (
+                  <span className="category-name">{category.name}</span>
+                )}
                 <span className="category-count">
                   {category.fromYear !== null && category.toYear !== null
-                    ? `${formatYear(category.fromYear)} – ${formatYear(category.toYear)} · `
-                    : ''}
-                  {cs.categories.eventCount(countFor(category.id))}
+                    ? cs.categories.span(
+                        `${formatYear(category.fromYear)} – ${formatYear(category.toYear)}`,
+                      )
+                    : cs.categories.spanNone}
                 </span>
-                <div className="category-actions">
+                <div className="category-actions" hidden={!canEdit}>
                   <button
                     type="button"
                     className="icon-button"
@@ -169,7 +167,7 @@ export function CategoryManager({
           </ul>
         )}
 
-        <div className="category-new">
+        <div className="category-new" hidden={!canEdit}>
           <h3>{cs.categories.newCategory}</h3>
           <div className="category-row">
             <ColorPicker value={newColor} onChange={setNewColor} />
@@ -196,7 +194,7 @@ export function CategoryManager({
       {pendingDelete ? (
         <ConfirmDialog
           title={cs.categories.deleteConfirmTitle}
-          body={cs.categories.deleteConfirmBody(pendingDelete.name, countFor(pendingDelete.id))}
+          body={cs.categories.deleteConfirmBody(pendingDelete.name)}
           confirmLabel={cs.app.delete}
           destructive
           onCancel={() => setPendingDelete(null)}
@@ -211,71 +209,3 @@ export function CategoryManager({
   );
 }
 
-function ColorPicker({ value, onChange }: { value: string; onChange: (color: string) => void }) {
-  const [open, setOpen] = useState(false);
-  const [hex, setHex] = useState(value);
-
-  return (
-    <div className="color-picker">
-      <button
-        type="button"
-        className="color-swatch"
-        style={{ background: value }}
-        aria-label={cs.categories.color}
-        onClick={() => {
-          setHex(value);
-          setOpen((prev) => !prev);
-        }}
-      />
-      {open ? (
-        <div className="color-popover">
-          <div className="color-grid">
-            {COLOR_PALETTE.map((color) => (
-              <button
-                key={color}
-                type="button"
-                className={`color-swatch${color === value ? ' color-swatch-active' : ''}`}
-                style={{ background: color }}
-                aria-label={color}
-                onClick={() => {
-                  onChange(color);
-                  setOpen(false);
-                }}
-              />
-            ))}
-          </div>
-          <label className="color-custom">
-            <span>{cs.categories.customColor}</span>
-            <input
-              className="input"
-              value={hex}
-              onChange={(e) => setHex(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && isValidHexColor(hex)) {
-                  onChange(hex.trim());
-                  setOpen(false);
-                }
-              }}
-            />
-          </label>
-          <div className="color-popover-actions">
-            <button type="button" className="button" onClick={() => setOpen(false)}>
-              {cs.app.cancel}
-            </button>
-            <button
-              type="button"
-              className="button button-primary"
-              disabled={!isValidHexColor(hex)}
-              onClick={() => {
-                onChange(hex.trim());
-                setOpen(false);
-              }}
-            >
-              {cs.app.save}
-            </button>
-          </div>
-        </div>
-      ) : null}
-    </div>
-  );
-}

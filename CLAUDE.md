@@ -87,8 +87,8 @@ src/components/    UI; components/timeline/ je vykreslovací řetězec
 ```
 
 **Model „Řeka".** Osa je jedna vodorovná čára uprostřed plochy. Kolem ní leží
-**pásma** — vodorovné pruhy plochy s vlastním řádkováním, definovaná štítky
-záznamů. `lane` 0 je řádek nejblíž čáře; hotovou svislou polohu i výšku tvaru
+**pásma** — vodorovné pruhy plochy s vlastním řádkováním, vybraná umístěním
+záznamu (`placement`). `lane` 0 je řádek nejblíž čáře; hotovou svislou polohu i výšku tvaru
 nese každá položka sama (`centerY`, `height`, záporné = nad čárou), vykreslení
 si ji nepočítá.
 
@@ -96,19 +96,25 @@ Pilulek se nad čáru vejde jen `MAX_POINT_LANES` řádků. Co se nevejde, ztrat
 pilulku (`labelMode: 'none'`) a zůstane jen uzlem na čáře — jinak by při
 oddálení pilulky vytlačily osu mimo obrazovku.
 
-**Pásma jsou v `BANDS` v `layout.ts`** — jediné místo, kde se mění pořadí
-i štítky. Shora dolů:
+**Pásma jsou v `BANDS` v `layout.ts`** — jediné místo, kde se mění pořadí.
+`band.id` je zároveň hodnota `placement` na záznamu, takže volba ve formuláři
+a pásmo na ose jsou jedno a totéž. Shora dolů:
 
-| Pásmo | Štítky | Umístění | Tvar | Řada |
+| `placement` | Pásmo | Kde | Tvar | Řada |
 |---|---|---|---|---|
-| Světové velmoci | `velmoc` | připnuto nahoře | pruhy | jedna |
-| Události | `udalost`, `kniha`, `kniha-dokonceno` | plave nad čárou | pilulky | řádkuje se |
-| — *centrální čára* — | | | | |
-| Životy | `zivot` | plave pod čárou | pruhy | řádkuje se |
-| Knihy – zahrnuté období | `kniha-zahrnuto` | plave pod čárou | pruhy | řádkuje se |
-| Ostatní | zbytek | plave pod čárou | podle typu | řádkuje se |
-| Vláda – sev. izraelské království | `vlada-izrael` | připnuto dole | pruhy | jedna |
-| Vláda – již. judské království | `vlada-juda`, `vlada-12kmenu` | připnuto dole | pruhy | jedna |
+| `velmoci` | Světové velmoci | připnuto nahoře | pruhy | jedna |
+| `udalosti` | Události | plave nad čárou | pilulky | řádkuje se |
+| | — *centrální čára* — | | | |
+| `zivoty` | Životy | plave pod čárou | pruhy | řádkuje se |
+| `knihy` | Knihy – zahrnuté období | plave pod čárou | pruhy | řádkuje se |
+| `ostatni` | Ostatní | plave pod čárou | podle typu | řádkuje se |
+| `izrael` | Vláda – sev. izraelské království | připnuto dole | pruhy | jedna |
+| `juda` | Vláda – již. judské království | připnuto dole | pruhy | jedna |
+
+Seznam umístění je **pevný**, protože ke každé hodnotě patří i kus vykreslení
+(připnutý pás, jedna řada, tvar) — nedá se zakládat z aplikace jako štítek.
+Neznámé umístění (starší data, cizí import) spadne do „Ostatní"
+(`DEFAULT_PLACEMENT`), nikdy nezmizí.
 
 Pásmo bez záznamů (nebo skryté v legendě) **nezabírá žádné svislé místo**.
 `MAX_LANES_WITH_LABELS` a zhuštěný režim se vyhodnocují za každé pásmo zvlášť.
@@ -133,11 +139,27 @@ by krátké vlády roztáhlo přes sousedy.
 Názvy pásem jsou v `cs.timeline.bands`; na plátně se kreslí do mezery nad
 pásmem, jen u pásem na jedné řadě — u ostatních se řada pozná z obsahu.
 
-**Kategorie jsou období.** Kategorie s vyplněným `fromYear`/`toYear` se chová
-jako časové období: barví centrální čáru (plynulý gradient přes období ve
-výřezu) a dráhu minimapy. Záznamy dědí barvu své kategorie. Filtrování
-v legendě už na kategoriích nestojí — čipy nad osou zapínají a vypínají
-**pásma**.
+**Umístění, štítek, kategorie — tři různé věci.** Slévat je zpátky dohromady
+je ta chyba, kvůli které se to předělávalo:
+
+| | Co říká | Kdo ji vybírá | Co dělá |
+|---|---|---|---|
+| umístění (`placement`) | KDE záznam je | pevný seznam v kódu | pásmo na ose |
+| štítek (`tagId`) | CO záznam je | zakládá se v aplikaci | barvu záznamu |
+| kategorie | KDY se něco dělo | zakládá se v aplikaci | barví osu a minimapu |
+| klíčová slova (`keywords`) | nic závazného | volný text | jen popis, hledá se v nich |
+
+Kategorie s vyplněným `fromYear`/`toYear` se chová jako časové období: barví
+centrální čáru (plynulý gradient přes období ve výřezu) a dráhu minimapy.
+Na barvu záznamů **nemá vliv** — tu nese výhradně štítek (`tagColor`);
+záznam bez štítku dostane `NO_TAG_COLOR`. Barva tak znamená druh záznamu
+(životy modře, knihy fialově, velmoci zeleně…), ne dobu.
+
+Záznam má nejvýš **jeden** štítek. Štítky se spravují v modálu „Štítky"
+(`TagManager`), období v modálu „Období" (`CategoryManager`); oba sdílejí
+`ColorPicker`. Filtrování v legendě na štítcích nestojí — čipy nad osou
+zapínají a vypínají **pásma** a jsou ve výchozím stavu složené pod tlačítkem,
+aby osa dostala co nejvíc místa.
 
 **Vykreslovací řetězec osy** (`src/components/timeline/`) — tři kroky, každý
 v jiném souboru:
@@ -170,7 +192,7 @@ přes 6000 let a vlastního vykreslení nejistoty.
   při změně fontu je potřeba cache zneplatnit.
 - Popisek degraduje podle místa (`LabelMode`): jméno + roky uvnitř → jen jméno
   uvnitř → vedle pruhu → nic. Řádkování počítá s reálnou šířkou popisku.
-- Jméno na pruhu nese barvu kategorie ztmavenou o 42 % (`darken`), roky tutéž
+- Jméno na pruhu nese barvu štítku ztmavenou o 42 % (`darken`), roky tutéž
   barvu poloprůhlednou. Neutrální černá se nepoužívá — text má patřit k pruhu.
 
 **Gesta.** Přibližuje jen pinch, samotné kolečko posouvá. Pinch chodí do
@@ -230,11 +252,18 @@ Export/import má verzi schématu (`EXPORT_SCHEMA_VERSION` v `src/data/types.ts`
 Import umí načíst i starší verze; při přidání pole verzi zvyš a rozšiř
 `SUPPORTED_IMPORT_VERSIONS`.
 
-**Štítky určují pásmo na ose.** Rozvržení zná `velmoc`, `udalost`, `kniha`,
-`kniha-dokonceno`, `kniha-zahrnuto`, `zivot`, `vlada-juda`, `vlada-izrael`
-a `vlada-12kmenu`; ostatní štítky (`kral`, `narozeni`, `kr`, `obdobi`, …) jsou
-jen popisné a záznam s nimi spadne do pásma „Ostatní". Záznam bez známého štítku spadne do
-pásma „Ostatní" — nový záznam proto vždycky otaguj.
+**Tři sloupce, tři role.** `events.placement` (text, CHECK na sedm známých
+hodnot) rozhoduje o pásmu, `events.tag_id` → `tags` nese barvu,
+`events.keywords` (dřív `events.tags`) je jen popisný text z importů
+(`kral`, `narozeni`, `kr`, …) a na vykreslení nemá vliv. Sloupec
+`events.category_id` padl — kategorie na záznamech nevisí.
+
+Osmý štítek `období` vznikl při importu pro záznamy, které nejsou ani událost,
+ani život; kdyby přestal dávat smysl, stačí je přepsat na `událost` a štítek
+smazat.
+
+Nový záznam **vždycky** dostane umístění (jinak spadne do „Ostatní")
+i štítek (jinak bude šedivý).
 
 ## Nasazení
 

@@ -31,10 +31,11 @@ Postup nastavení od nuly (migrace, RLS, účty, proměnné, deploy) je v `READM
 ## Stav
 
 Aplikace je hotová a nasazená. Funguje osa s plynulým zoomem, formulářová
-editace, správa kategorií, tabulkový přehled, export/import a přihlášení.
-V databázi je **188 záznamů**: tři časové osy z knihy *Odvážně choď s Bohem*
-(str. 14–15, 104–105, 186–187) a chronologie králů, knih a událostí z hesla
-„Chronologie" a z dodatku nwt A6. Testů 152, všechny procházejí.
+editace, správa štítků i období, tabulkový přehled, export/import a přihlášení.
+V databázi je **552 záznamů**: tři časové osy z knihy *Odvážně choď s Bohem*
+(str. 14–15, 104–105, 186–187), chronologie králů, knih a událostí z hesla
+„Chronologie" a z dodatku nwt A6, přehled biblických knih a dávka událostí
+z tabulky zadavatele. Testů 164, všechny procházejí.
 
 Ověřeno měřením, ne odhadem: 60 fps (medián 16,6 ms na snímek) při zoomu
 a posunu s 3000 záznamy; RLS testována chováním pod rolemi `anon`
@@ -44,9 +45,15 @@ i `authenticated`, ne jen existencí politik.
 
 - **Období jsou předběžná.** Šest kategorií (do potopy, patriarchové, soudci,
   králové, od návratu z Babylonu, od Ježíše dál) je zatím na zkoušku. Hranice
-  jsou odvozené z událostí v datech a dají se změnit ve správě kategorií.
-  Zadavatel ještě zvažuje, jestli mají všechny postavy nosit barvu období;
-  zatím ji nosí všechny — každý záznam má kategorii podle roku začátku.
+  jsou odvozené z událostí v datech a dají se změnit ve správě období.
+  Barví jen osu a minimapu, na záznamy nesahají. Zadavatel si se systémem
+  období chce do budoucna ještě pohrát.
+- **Sada štítků.** Osm štítků: `život`, `událost`, `kniha dopsáno`,
+  `kniha zahrnuto`, `velmoc`, `vláda Judsko`, `vláda Izrael`, `období`.
+  Prvních sedm zadal zadavatel, `období` vzniklo při importu pro záznamy,
+  které nejsou ani událost, ani život — dá se sloučit do `událost`.
+- **Filtrování.** Čipy pásem jsou zatím schované pod tlačítkem „Zobrazit
+  pásma". Zadavatel chce filtry ladit později; teď nejsou priorita.
 - **Priorita postav.** Do budoucna má jít postavy seřadit podle důležitosti,
   aby výš byly výraznější. Zatím řádkuje jen greedy packing podle místa.
 
@@ -90,13 +97,29 @@ Hledání se přesunulo do hlavičky, přihlášení je jen ikona zámku.
 a kreslí se jako svislé značky. Rozházené mezi pruhy se ztrácely a kolečka se
 s pruhy pletla.
 
-**Pásma podle štítků, ne dvě pevná pásma.** Osa je rozdělená na pásma
-definovaná štítky (`BANDS` v `layout.ts`), shora dolů: světové velmoci,
+**Pásma podle umístění, ne dvě pevná pásma.** Osa je rozdělená na pásma
+(`BANDS` v `layout.ts`), shora dolů: světové velmoci,
 události, čára, životy, zahrnutá období knih, ostatní, severní izraelské
 království, jižní judské království. Judské
 a izraelské království vládly současně — v jednom pásmu by je řádkování
 promíchalo a nešlo by odečíst, kdo vládl souběžně s kým. Pásmo bez záznamů
 nebo skryté nezabírá žádné svislé místo.
+
+**Umístění, štítek a období jsou tři různé věci.** Původně se to slévalo:
+kategorie znamenala období (barvu podle toho KDY) a zároveň dávala barvu
+záznamu, a o pásmu rozhodovala textová pole štítků, do kterých se muselo
+trefit jméno, které znal jen kód. Bylo to naruby a bez obojího vyplněného se
+záznam vůbec neukázal. Nově:
+
+- **umístění** říká KDE záznam je → pásmo na ose. Pevný seznam v kódu, protože
+  ke každé hodnotě patří i kus vykreslení (připnutý pás, jedna řada, tvar).
+- **štítek** říká CO záznam je → jeho barva. Zakládá se v aplikaci, záznam má
+  nejvýš jeden. Barva tak znamená druh (životy modře, knihy fialově), ne dobu.
+- **období** říká KDY se něco dělo → barví jen centrální čáru a minimapu.
+
+Klíčová slova z importů zůstala jako `keywords` a nic neřídí. Kdyby někdo
+příště chtěl „opravit" barvu tak, aby se zase brala z období: byla tak,
+a právě proto se to předělalo.
 
 **Velmoci a vlády jsou připnuté k hranám plochy.** Nehýbou se se svislým
 posunem osy: velmoci sedí nahoře, Izrael a pod ním Juda dole. Jsou to souvislé
@@ -140,12 +163,16 @@ Konvence v datech:
   `nwt A6`, `ia`. Bez názvu a stran.
 - **poznámka** — text ze zdroje, u sloučených životů vysvětlení, u duplicit
   informace o dvojím výskytu.
-- **štítky** — určují pásmo na ose, nic jiného. Rozvržení je zná:
-  `velmoc`, `udalost`, `kniha`, `zivot`, `vlada-juda`, `vlada-izrael`,
-  `vlada-12kmenu`. Ostatní (`kral`, `narozeni`, `predpotopni`, `popotopni`)
-  jsou zatím jen popisné.
+- **umístění** (`placement`) — pásmo na ose. Pevný seznam v kódu:
+  `velmoci`, `udalosti`, `zivoty`, `knihy`, `izrael`, `juda`, `ostatni`.
+- **štítek** (`tagId`) — druh záznamu a jeho barva. Nejvýš jeden na záznam,
+  zakládá se v aplikaci.
+- **klíčová slova** (`keywords`, dřív se jmenovala `tags`) — `kral`,
+  `narozeni`, `predpotopni`, `popotopni`, `kr` … Čistě popisné, hledá se v nich
+  v tabulce, na vykreslení nemají vliv.
 
-Každý záznam musí mít aspoň jeden štítek — bez něj spadne do pásma „Ostatní".
+Nový záznam potřebuje obojí: bez umístění spadne do pásma „Ostatní", bez štítku
+bude šedivý.
 
 ## Co se záměrně nestaví
 
@@ -153,8 +180,8 @@ Relativní datování („X let po Y"), drag & drop editace na ose, veřejná
 registrace, mapový pohled, pohledy podle období a postav, převod kalendářů.
 
 Data pro mapu a pohledy podle postav se ale **už ukládají** (`place_name`,
-`lat`, `lng`, `tags`) a datová vrstva je oddělená od vizualizace, takže se dají
-přidat bez zásahu do osy.
+`lat`, `lng`, `keywords`) a datová vrstva je oddělená od vizualizace, takže se
+dají přidat bez zásahu do osy.
 
 ## Na co narazíš
 

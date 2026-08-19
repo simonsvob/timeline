@@ -1,6 +1,6 @@
 /**
  * Kostra aplikace: přepínání pohledů (osa / tabulka), přihlášení,
- * modály (formulář, kategorie, data) a detail vybraného záznamu.
+ * modály (formulář, štítky, období, data) a detail vybraného záznamu.
  */
 
 import { useCallback, useMemo, useRef, useState } from 'react';
@@ -13,13 +13,14 @@ import { DetailPanel } from './components/DetailPanel';
 import { EventForm } from './components/EventForm';
 import { SearchBox, LockButton } from './components/SearchBox';
 import { TableView } from './components/TableView';
+import { TagManager } from './components/TagManager';
 import { periodsOf, TimelineView, type ExternalFocus, type SelectionAnchor } from './components/TimelineView';
 import { formatYear } from './lib/format';
 import { ConfirmDialog, Spinner } from './components/ui';
 import type { EventDraft, TimelineEvent } from './data/types';
 
 type ViewMode = 'timeline' | 'table';
-type ModalKind = 'none' | 'event' | 'categories' | 'data' | 'auth';
+type ModalKind = 'none' | 'event' | 'tags' | 'categories' | 'data' | 'auth';
 
 export function App() {
   const state = useAppState();
@@ -141,17 +142,18 @@ export function App() {
         </nav>
 
         <div className="app-actions">
-          <SearchBox events={state.events} categoryMap={state.categoryMap} onPick={showOnTimeline} />
+          <SearchBox events={state.events} tagMap={state.tagMap} onPick={showOnTimeline} />
           {state.canEdit ? (
-            <>
-              <button type="button" className="pill pill-dark" onClick={openNew}>
-                {cs.table.newEvent}
-              </button>
-              <button type="button" className="pill" onClick={() => setModal('categories')}>
-                {cs.nav.categories}
-              </button>
-            </>
+            <button type="button" className="pill pill-dark" onClick={openNew}>
+              {cs.table.newEvent}
+            </button>
           ) : null}
+          <button type="button" className="pill" onClick={() => setModal('tags')}>
+            {cs.nav.tags}
+          </button>
+          <button type="button" className="pill" onClick={() => setModal('categories')}>
+            {cs.nav.periods}
+          </button>
           <button type="button" className="pill" onClick={() => setModal('data')}>
             {cs.nav.data}
           </button>
@@ -192,7 +194,7 @@ export function App() {
                 <TimelineView
                   events={state.events}
                   categories={state.categories}
-                  categoryMap={state.categoryMap}
+                  tagMap={state.tagMap}
                   selectedId={selectedId}
                   onSelect={(event, at) => {
                     setSelectedId(event?.id ?? null);
@@ -204,8 +206,8 @@ export function App() {
               ) : (
                 <TableView
                   events={state.events}
-                  categories={state.categories}
-                  categoryMap={state.categoryMap}
+                  tags={state.tags}
+                  tagMap={state.tagMap}
                   canEdit={state.canEdit}
                   onOpen={(event) => (state.canEdit ? openEdit(event) : setSelectedId(event.id))}
                   onCreate={openNew}
@@ -217,7 +219,7 @@ export function App() {
             {selected ? (
               <DetailPanel
                 event={selected}
-                category={selected.categoryId ? (state.categoryMap.get(selected.categoryId) ?? null) : null}
+                tag={selected.tagId ? (state.tagMap.get(selected.tagId) ?? null) : null}
                 canEdit={state.canEdit}
                 anchor={anchor}
                 onEdit={() => openEdit(selected)}
@@ -232,17 +234,32 @@ export function App() {
       {modal === 'event' ? (
         <EventForm
           event={editing}
-          categories={state.categories}
+          tags={state.tags}
           onSubmit={handleSubmit}
           onClose={() => setModal('none')}
-          onManageCategories={() => setModal('categories')}
+          onManageTags={() => setModal('tags')}
+        />
+      ) : null}
+
+      {modal === 'tags' ? (
+        <TagManager
+          tags={state.tags}
+          events={state.events}
+          canEdit={state.canEdit}
+          onSave={async (id, draft) => {
+            await state.saveTag(id, draft);
+          }}
+          onDelete={async (id) => {
+            await state.removeTag(id);
+          }}
+          onClose={() => setModal('none')}
         />
       ) : null}
 
       {modal === 'categories' ? (
         <CategoryManager
           categories={state.categories}
-          events={state.events}
+          canEdit={state.canEdit}
           onSave={async (id, draft) => {
             await state.saveCategory(id, draft);
           }}
@@ -256,7 +273,7 @@ export function App() {
 
       {modal === 'data' ? (
         <DataPanel
-          dataset={{ categories: state.categories, events: state.events }}
+          dataset={{ categories: state.categories, tags: state.tags, events: state.events }}
           canEdit={state.canEdit}
           onImport={state.importDataset}
           onClose={() => setModal('none')}

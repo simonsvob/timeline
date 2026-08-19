@@ -13,12 +13,14 @@ const dataset: Dataset = {
       toYear: -1472,
     },
   ],
+  tags: [{ id: 't1', name: 'událost', color: '#b1734c', sortOrder: 0 }],
   events: [
     {
       id: 'e1',
       name: 'Potopa',
       type: 'point',
-      categoryId: 'c1',
+      placement: 'udalosti',
+      tagId: 't1',
       start: { year: -2369, month: null, day: null, approx: false, qualifier: null },
       end: null,
       source: '1. Mojžíšova 7,11',
@@ -26,7 +28,7 @@ const dataset: Dataset = {
       placeName: null,
       lat: null,
       lng: null,
-      tags: ['potopa'],
+      keywords: ['potopa'],
       createdAt: '2025-01-01T00:00:00Z',
       updatedAt: '2025-01-01T00:00:00Z',
     },
@@ -34,7 +36,8 @@ const dataset: Dataset = {
       id: 'e2',
       name: 'Metuzalém',
       type: 'range',
-      categoryId: 'c1',
+      placement: 'zivoty',
+      tagId: 't1',
       start: { year: -3338, month: null, day: null, approx: true, qualifier: null },
       end: { year: -2369, month: 10, day: 7, approx: false, qualifier: null },
       source: null,
@@ -42,7 +45,7 @@ const dataset: Dataset = {
       placeName: null,
       lat: null,
       lng: null,
-      tags: [],
+      keywords: [],
       createdAt: '',
       updatedAt: '',
     },
@@ -54,6 +57,7 @@ describe('export', () => {
     const file = buildExport(dataset);
     expect(file.schemaVersion).toBe(EXPORT_SCHEMA_VERSION);
     expect(file.categories).toHaveLength(1);
+    expect(file.tags).toHaveLength(1);
     expect(file.events).toHaveLength(2);
     expect(file.exportedAt).toMatch(/^\d{4}-\d{2}-\d{2}T/);
   });
@@ -209,14 +213,40 @@ describe('import', () => {
     expect(result.dataset.events[0].start.approx).toBe(false);
   });
 
-  it('zahodí odkaz na neexistující kategorii', () => {
+  it('zahodí odkaz na neexistující štítek', () => {
     const file = {
       ...buildExport(dataset),
-      categories: [],
+      tags: [],
     };
     const result = parseImport(JSON.stringify(file));
     expect(result.ok).toBe(true);
     if (!result.ok) return;
-    expect(result.dataset.events.every((e) => e.categoryId === null)).toBe(true);
+    expect(result.dataset.events.every((e) => e.tagId === null)).toBe(true);
+  });
+
+  it('starší export bez umístění ho odvodí z klíčových slov', () => {
+    const result = parseImport(
+      JSON.stringify({
+        schemaVersion: 3,
+        exportedAt: '',
+        categories: [],
+        events: [
+          { name: 'Egypt', type: 'range', start: { year: -1600 }, end: { year: -874 }, tags: ['velmoc'] },
+          { name: 'Asa', type: 'range', start: { year: -976 }, end: { year: -936 }, tags: ['vlada-juda', 'kral'] },
+          { name: 'Noe', type: 'range', start: { year: -2970 }, end: { year: -2020 }, tags: ['zivot'] },
+          { name: 'Něco', type: 'point', start: { year: -800 }, tags: ['neznamy'] },
+        ],
+      }),
+    );
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.dataset.events.map((e) => e.placement)).toEqual([
+      'velmoci',
+      'juda',
+      'zivoty',
+      'ostatni',
+    ]);
+    // Klíčová slova se ze starého `tags` přenesou beze změny.
+    expect(result.dataset.events[1].keywords).toEqual(['vlada-juda', 'kral']);
   });
 });

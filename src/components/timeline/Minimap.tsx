@@ -6,22 +6,22 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { cs } from '../../i18n/cs';
 import { clampViewport, tOf, viewEnd, type Domain, type Viewport } from '../../lib/viewport';
-import type { Category, TimelineEvent } from '../../data/types';
-import { categoryColor, eventExtent } from './layout';
+import type { Tag, TimelineEvent } from '../../data/types';
+import { eventExtent, tagColor } from './layout';
 import { renderMinimap, THEME, type PeriodSpan } from './renderer';
 
 const MINIMAP_HEIGHT = 36;
 
 interface Props {
   events: TimelineEvent[];
-  categoryMap: Map<string, Category>;
+  tagMap: Map<string, Tag>;
   periods: PeriodSpan[];
   view: Viewport;
   domain: Domain;
   onViewChange: (view: Viewport) => void;
 }
 
-export function Minimap({ events, categoryMap, periods, view, domain, onViewChange }: Props) {
+export function Minimap({ events, tagMap, periods, view, domain, onViewChange }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(0);
@@ -39,9 +39,9 @@ export function Minimap({ events, categoryMap, periods, view, domain, onViewChan
     () =>
       events.map((event) => {
         const extent = eventExtent(event);
-        return { from: extent.from, to: extent.to, color: categoryColor(event.categoryId, categoryMap) };
+        return { from: extent.from, to: extent.to, color: tagColor(event.tagId, tagMap) };
       }),
-    [events, categoryMap],
+    [events, tagMap],
   );
 
   const viewFrom = tOf(view, 0);

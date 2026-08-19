@@ -8,9 +8,9 @@ import {
   itemY,
   layoutEvents,
   MAX_POINT_LANES,
-  NO_CATEGORY_COLOR,
+  NO_TAG_COLOR,
 } from './layout';
-import type { Category, TimelineEvent } from '../../data/types';
+import type { Placement, Tag, TimelineEvent } from '../../data/types';
 import { toAstronomicalYear } from '../../lib/time';
 import type { Viewport } from '../../lib/viewport';
 
@@ -18,7 +18,7 @@ const measure = (text: string, weight: 'normal' | 'bold' = 'normal') =>
   text.length * (weight === 'bold' ? 7.7 : 6.2);
 const roky = (event: TimelineEvent) => (event.end ? 'roky' : 'rok');
 const view = (t0: number, pxPerYear: number, width = 1000): Viewport => ({ t0, pxPerYear, width });
-const noCategories = new Map<string, Category>();
+const noTags = new Map<string, Tag>();
 
 let counter = 0;
 function rangeEvent(
@@ -31,7 +31,8 @@ function rangeEvent(
     id: `e${counter++}`,
     name,
     type: 'range',
-    categoryId: null,
+    placement: 'zivoty',
+    tagId: null,
     start: { year: toAstronomicalYear(fromBc, 'bc'), month: null, day: null, approx: false, qualifier: null },
     end: { year: toAstronomicalYear(toBc, 'bc'), month: null, day: null, approx: false, qualifier: null },
     source: null,
@@ -39,7 +40,7 @@ function rangeEvent(
     placeName: null,
     lat: null,
     lng: null,
-    tags: ['zivot'],
+    keywords: [],
     createdAt: '',
     updatedAt: '',
     ...extra,
@@ -51,7 +52,7 @@ function pointEvent(name: string, yearBc: number, extra: Partial<TimelineEvent> 
     ...rangeEvent(name, yearBc, yearBc, extra),
     type: 'point',
     end: null,
-    tags: ['udalost'],
+    placement: 'udalosti',
     ...extra,
   };
 }
@@ -67,13 +68,13 @@ function reignEvent(
   name: string,
   fromBc: number,
   toBc: number,
-  bandTag = 'vlada-juda',
+  placement: Placement = 'juda',
 ): TimelineEvent {
-  return rangeEvent(name, fromBc, toBc, { tags: [bandTag, 'kral'] });
+  return rangeEvent(name, fromBc, toBc, { placement });
 }
 
 const layout = (events: TimelineEvent[], v: Viewport, hidden?: Set<string>) =>
-  layoutEvents(events, v, noCategories, measure, roky, hidden);
+  layoutEvents(events, v, noTags, measure, roky, hidden);
 
 const named = (result: ReturnType<typeof layout>, name: string) =>
   result.items.find((i) => i.event.name === name)!;
@@ -157,19 +158,20 @@ describe('zařazení do pásem', () => {
     expect(bandOf(pointEvent('Potopa', 2370)).id).toBe('udalosti');
     expect(bandOf(rangeEvent('Noe', 2970, 2020)).id).toBe('zivoty');
     expect(bandOf(reignEvent('Asa', 977, 937)).id).toBe('juda');
-    expect(bandOf(reignEvent('Omri', 940, 930, 'vlada-izrael')).id).toBe('izrael');
-    expect(bandOf(rangeEvent('Egypt', 1600, 874, { tags: ['velmoc'] })).id).toBe('velmoci');
+    expect(bandOf(reignEvent('Omri', 940, 930, 'izrael')).id).toBe('izrael');
+    expect(bandOf(rangeEvent('Egypt', 1600, 874, { placement: 'velmoci' })).id).toBe('velmoci');
   });
 
   it('kniha patří k událostem, neznámý štítek do ostatních', () => {
-    expect(bandOf(pointEvent('Kniha Amos', 803, { tags: ['kniha'] })).id).toBe('udalosti');
-    expect(bandOf(pointEvent('Něco', 800, { tags: ['neznamy'] })).id).toBe('ostatni');
-    expect(bandOf(pointEvent('Bez štítku', 800, { tags: [] })).id).toBe('ostatni');
+    expect(bandOf(pointEvent('Kniha Amos', 803, { placement: 'udalosti' })).id).toBe('udalosti');
+    expect(bandOf(pointEvent('Něco', 800, { placement: 'ostatni' })).id).toBe('ostatni');
+    // Neznámé umístění spadne do pásma „Ostatní" – data můžou být starší než kód.
+    expect(bandOf(pointEvent('Cizí', 800, { placement: 'xxx' as Placement })).id).toBe('ostatni');
   });
 
   it('12 kmenů sdílí řadu s Judou a nepřekrývá se s ní', () => {
     const result = layout(
-      [reignEvent('Saul', 1117, 1077, 'vlada-12kmenu'), reignEvent('Rechoboam', 997, 980)],
+      [reignEvent('Saul', 1117, 1077, 'juda'), reignEvent('Rechoboam', 997, 980)],
       view(-1200, 1),
     );
     const saul = named(result, 'Saul');
@@ -189,11 +191,11 @@ describe('svislé skládání pásem', () => {
   it('shora dolů: velmoci, události, čára, životy, Izrael, Juda', () => {
     const result = layout(
       [
-        rangeEvent('Egypt', 1600, 874, { tags: ['velmoc'] }),
+        rangeEvent('Egypt', 1600, 874, { placement: 'velmoci' }),
         pointEvent('Potopa', 2370),
         rangeEvent('Noe', 2970, 2020),
         reignEvent('Asa', 977, 937),
-        reignEvent('Omri', 940, 930, 'vlada-izrael'),
+        reignEvent('Omri', 940, 930, 'izrael'),
       ],
       view(-3000, 0.3),
     );
@@ -205,7 +207,7 @@ describe('svislé skládání pásem', () => {
 
   it('připnutá pásma se svislým posunem osy nehýbou', () => {
     const events = [
-      rangeEvent('Egypt', 1600, 874, { tags: ['velmoc'] }),
+      rangeEvent('Egypt', 1600, 874, { placement: 'velmoci' }),
       rangeEvent('Noe', 2970, 2020),
       reignEvent('Asa', 977, 937),
     ];
@@ -249,7 +251,7 @@ describe('svislé skládání pásem', () => {
 
   it('mezi plovoucími pásmy je mezera', () => {
     const result = layout(
-      [rangeEvent('Noe', 2970, 2020), pointEvent('Něco', 2000, { tags: ['neznamy'] })],
+      [rangeEvent('Noe', 2970, 2020), pointEvent('Něco', 2000, { placement: 'ostatni' })],
       view(-3000, 0.5),
     );
     const zivoty = result.bands.find((b) => b.id === 'zivoty')!;
@@ -259,7 +261,7 @@ describe('svislé skládání pásem', () => {
 
   it('Juda je úplně dole, Izrael nad ní', () => {
     const result = layout(
-      [reignEvent('Asa', 977, 937), reignEvent('Omri', 940, 930, 'vlada-izrael')],
+      [reignEvent('Asa', 977, 937), reignEvent('Omri', 940, 930, 'izrael')],
       view(-1000, 1),
     );
     const juda = result.bands.find((b) => b.id === 'juda')!;
@@ -386,19 +388,19 @@ describe('otevřené hranice', () => {
 });
 
 describe('barvy', () => {
-  it('bere barvu z kategorie', () => {
-    const categories = new Map<string, Category>([
-      ['c1', { id: 'c1', name: 'Do potopy', color: '#b16c4c', sortOrder: 0, fromYear: -4200, toYear: -2369 }],
+  it('bere barvu ze štítku, ne z období', () => {
+    const tags = new Map<string, Tag>([
+      ['t1', { id: 't1', name: 'událost', color: '#b16c4c', sortOrder: 0 }],
     ]);
     const result = layoutEvents(
-      [pointEvent('Potopa', 2370, { categoryId: 'c1' }), pointEvent('Jiné', 2000)],
+      [pointEvent('Potopa', 2370, { tagId: 't1' }), pointEvent('Jiné', 2000)],
       view(-2400, 1),
-      categories,
+      tags,
       measure,
       roky,
     );
     expect(named(result, 'Potopa').color).toBe('#b16c4c');
-    expect(named(result, 'Jiné').color).toBe(NO_CATEGORY_COLOR);
+    expect(named(result, 'Jiné').color).toBe(NO_TAG_COLOR);
   });
 });
 
@@ -421,7 +423,7 @@ describe('zásah kliknutím', () => {
 
   it('rozliší dvě připnutá pásma pod sebou', () => {
     const result = layout(
-      [reignEvent('Asa', 977, 937), reignEvent('Omri', 940, 930, 'vlada-izrael')],
+      [reignEvent('Asa', 977, 937), reignEvent('Omri', 940, 930, 'izrael')],
       view(-1000, 1),
     );
     const f = frame(result);

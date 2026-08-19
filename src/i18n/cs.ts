@@ -29,7 +29,8 @@ export const cs = {
   nav: {
     timeline: 'Osa',
     table: 'Tabulka',
-    categories: 'Kategorie',
+    tags: 'Štítky',
+    periods: 'Období',
     data: 'Data',
   },
 
@@ -107,7 +108,9 @@ export const cs = {
     searchPlaceholder: 'Hledat…',
     noSearchResults: 'Nic nenalezeno',
     legend: 'Pásma',
-    withoutCategory: 'Bez kategorie',
+    legendShow: 'Zobrazit pásma',
+    legendHide: 'Skrýt pásma',
+    withoutTag: 'Bez štítku',
     emptyTitle: 'Zatím tu nic není',
     minimapHint: 'Přehled celého rozsahu – tažením posunete výřez',
     /** Názvy pásem osy; klíče odpovídají `BANDS` v components/timeline/layout.ts. */
@@ -124,7 +127,8 @@ export const cs = {
 
   detail: {
     title: 'Detail záznamu',
-    category: 'Kategorie',
+    tag: 'Štítek',
+    placement: 'Umístění',
     type: 'Typ',
     start: 'Začátek',
     end: 'Konec',
@@ -133,7 +137,7 @@ export const cs = {
     note: 'Poznámka',
     place: 'Místo',
     coordinates: 'Souřadnice',
-    tags: 'Štítky',
+    keywords: 'Klíčová slova',
     duration: 'Trvání',
     durationYears: (n: number) => `${formatNumber(n)} ${plural(n, 'rok', 'roky', 'let')}`,
     durationApprox: 'přibližně',
@@ -149,9 +153,12 @@ export const cs = {
     type: 'Typ',
     typePoint: 'Bod',
     typeRange: 'Rozsah',
-    category: 'Kategorie',
-    categoryNone: '— bez kategorie —',
-    manageCategories: 'Spravovat kategorie',
+    placement: 'Umístění na ose',
+    placementHint: 'Do kterého pásma záznam patří; chování pásma je dané kódem',
+    tag: 'Štítek',
+    tagHint: 'Určuje barvu záznamu na ose',
+    tagNone: '— bez štítku —',
+    manageTags: 'Spravovat štítky',
     start: 'Začátek',
     end: 'Konec',
     year: 'Rok',
@@ -169,9 +176,10 @@ export const cs = {
     placePlaceholder: 'např. Jeruzalém',
     lat: 'Zeměpisná šířka',
     lng: 'Zeměpisná délka',
-    tags: 'Štítky',
-    tagsPlaceholder: 'Přidat štítek a stisknout Enter',
-    tagRemove: (tag: string) => `Odebrat štítek ${tag}`,
+    keywords: 'Klíčová slova',
+    keywordsHint: 'Jen popisná – na vykreslení ani na barvu nemají vliv',
+    keywordsPlaceholder: 'Přidat klíčové slovo a stisknout Enter',
+    keywordRemove: (keyword: string) => `Odebrat klíčové slovo ${keyword}`,
     optional: 'nepovinné',
     preview: 'Náhled datace',
     saveError: 'Záznam se nepodařilo uložit.',
@@ -194,20 +202,23 @@ export const cs = {
     lngInvalid: 'Zeměpisná délka musí být v rozsahu −180 až 180.',
     latLngPair: 'Vyplňte obě souřadnice, nebo žádnou.',
     colorInvalid: 'Barva musí být hex, např. #a2563c.',
-    categoryNameRequired: 'Vyplňte název kategorie.',
+    categoryNameRequired: 'Vyplňte název období.',
+    tagNameRequired: 'Vyplňte název štítku.',
   },
 
   table: {
     title: 'Tabulkový přehled',
     newEvent: 'Nový záznam',
-    searchPlaceholder: 'Hledat v názvech, zdrojích, poznámkách a štítcích…',
-    filterCategory: 'Kategorie',
+    searchPlaceholder: 'Hledat v názvech, zdrojích, poznámkách a klíčových slovech…',
+    filterTag: 'Štítek',
+    filterPlacement: 'Umístění',
     colName: 'Jméno',
-    colCategory: 'Kategorie',
+    colTag: 'Štítek',
+    colPlacement: 'Umístění',
     colStart: 'Začátek',
     colEnd: 'Konec',
     colType: 'Typ',
-    colTags: 'Štítky',
+    colKeywords: 'Klíčová slova',
     empty: 'Žádné záznamy neodpovídají filtru.',
     sortAsc: 'vzestupně',
     sortDesc: 'sestupně',
@@ -216,8 +227,31 @@ export const cs = {
   },
 
   categories: {
-    title: 'Správa kategorií',
-    newCategory: 'Nová kategorie',
+    title: 'Období na ose',
+    intro:
+      'Období barví centrální čáru a minimapu podle toho, KDY se něco stalo. ' +
+      'Na barvu jednotlivých záznamů nemají vliv – tu určuje štítek.',
+    newCategory: 'Nové období',
+    name: 'Název',
+    color: 'Barva',
+    customColor: 'Vlastní barva (hex)',
+    order: 'Pořadí',
+    moveUp: 'Nahoru',
+    moveDown: 'Dolů',
+    span: (text: string) => `Rozsah: ${text}`,
+    spanNone: 'Bez vymezeného rozsahu – osu nebarví',
+    deleteConfirmTitle: 'Smazat období?',
+    deleteConfirmBody: (name: string) => `Opravdu smazat období „${name}"? Záznamů se to nedotkne.`,
+    empty: 'Zatím žádná období.',
+    saveError: 'Období se nepodařilo uložit.',
+  },
+
+  tags: {
+    title: 'Štítky',
+    intro:
+      'Štítek říká, CO záznam je, a dává mu barvu na ose. Každý záznam má nejvýš jeden. ' +
+      'Kam na osu záznam padne, řeší jeho umístění, ne štítek.',
+    newTag: 'Nový štítek',
     name: 'Název',
     color: 'Barva',
     customColor: 'Vlastní barva (hex)',
@@ -225,30 +259,39 @@ export const cs = {
     moveUp: 'Nahoru',
     moveDown: 'Dolů',
     eventCount: (n: number) => `${n} ${plural(n, 'záznam', 'záznamy', 'záznamů')}`,
-    deleteConfirmTitle: 'Smazat kategorii?',
+    unused: 'zatím nepoužitý',
+    placementsTitle: 'Umístění na ose',
+    placementsIntro:
+      'Kam záznam na ose padne. Seznam je pevný – ke každé volbě patří i kus ' +
+      'vykreslení (připnutý pás u okraje, jedna řada, tvar). Vybírá se u záznamu.',
+    deleteConfirmTitle: 'Smazat štítek?',
     deleteConfirmBody: (name: string, count: number) =>
       count > 0
-        ? `Kategorie „${name}" bude smazána. ${count} ${plural(count, 'záznam zůstane', 'záznamy zůstanou', 'záznamů zůstane')} zachován${count === 1 ? '' : 'y'}, jen přijde o kategorii.`
-        : `Opravdu smazat kategorii „${name}"?`,
-    empty: 'Zatím žádné kategorie.',
-    saveError: 'Kategorii se nepodařilo uložit.',
+        ? `Štítek „${name}" bude smazán. ${count} ${plural(count, 'záznam zůstane', 'záznamy zůstanou', 'záznamů zůstane')} zachován${count === 1 ? '' : 'y'}, jen přijde o barvu.`
+        : `Opravdu smazat štítek „${name}"?`,
+    empty: 'Zatím žádné štítky.',
+    saveError: 'Štítek se nepodařilo uložit.',
   },
 
   dataIO: {
     title: 'Data',
     overview: 'Přehled',
-    counts: (categories: number, events: number) =>
-      `${events} ${plural(events, 'záznam', 'záznamy', 'záznamů')}, ${categories} ${plural(categories, 'kategorie', 'kategorie', 'kategorií')}`,
+    counts: (categories: number, tags: number, events: number) =>
+      `${events} ${plural(events, 'záznam', 'záznamy', 'záznamů')}, ` +
+      `${tags} ${plural(tags, 'štítek', 'štítky', 'štítků')}, ` +
+      `${categories} ${plural(categories, 'období', 'období', 'období')}`,
     export: 'Exportovat data',
-    exportHint: 'Stáhne všechny kategorie i záznamy jako jeden JSON soubor.',
+    exportHint: 'Stáhne období, štítky i záznamy jako jeden JSON soubor.',
     exportFileName: 'biblicka-casova-osa',
     import: 'Importovat data',
     importHint: 'Nahrajte dříve exportovaný JSON soubor.',
     chooseFile: 'Vybrat soubor…',
     fileLabel: 'Soubor',
     previewTitle: 'Náhled importu',
-    previewCounts: (categories: number, events: number) =>
-      `Soubor obsahuje ${categories} ${plural(categories, 'kategorii', 'kategorie', 'kategorií')} a ${events} ${plural(events, 'záznam', 'záznamy', 'záznamů')}.`,
+    previewCounts: (categories: number, tags: number, events: number) =>
+      `Soubor obsahuje ${categories} ${plural(categories, 'období', 'období', 'období')}, ` +
+      `${tags} ${plural(tags, 'štítek', 'štítky', 'štítků')} a ` +
+      `${events} ${plural(events, 'záznam', 'záznamy', 'záznamů')}.`,
     schemaVersion: (v: number) => `Verze schématu: ${v}`,
     modeLabel: 'Způsob importu',
     modeMerge: 'Sloučit (upsert podle id)',
@@ -257,13 +300,13 @@ export const cs = {
     modeReplaceHint: 'Nejprve se smažou všechna současná data, pak se nahraje soubor.',
     confirmReplaceTitle: 'Nahradit všechna data?',
     confirmReplaceBody:
-      'Všechny současné kategorie a záznamy budou smazány a nahrazeny obsahem souboru. Tuto akci nelze vzít zpět.',
+      'Všechna současná období, štítky a záznamy budou smazány a nahrazeny obsahem souboru. Tuto akci nelze vzít zpět.',
     confirmMergeTitle: 'Sloučit data?',
     confirmMergeBody: 'Záznamy se stejným id budou přepsány obsahem souboru.',
     runImport: 'Spustit import',
     importing: 'Importuji…',
-    importDone: (categories: number, events: number) =>
-      `Hotovo – naimportováno ${categories} kategorií a ${events} záznamů.`,
+    importDone: (categories: number, tags: number, events: number) =>
+      `Hotovo – naimportováno ${categories} období, ${tags} štítků a ${events} záznamů.`,
     invalidJson: 'Soubor není platný JSON.',
     invalidSchema: 'Soubor nemá očekávanou strukturu exportu.',
     unsupportedVersion: (v: unknown) => `Nepodporovaná verze schématu: ${String(v)}.`,

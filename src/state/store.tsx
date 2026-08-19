@@ -1,5 +1,5 @@
 /**
- * Stav aplikace: data (kategorie + záznamy) a přihlášení.
+ * Stav aplikace: data (období, štítky, záznamy) a přihlášení.
  * Datová vrstva je schovaná v ../data/repository – tady se řeší jen držení
  * stavu v paměti a promítnutí změn do UI.
  */
@@ -17,15 +17,25 @@ import type { Session } from '@supabase/supabase-js';
 import { cs } from '../i18n/cs';
 import { isSupabaseConfigured, supabase } from '../lib/supabase';
 import * as repo from '../data/repository';
-import type { Category, CategoryDraft, Dataset, EventDraft, TimelineEvent } from '../data/types';
+import type {
+  Category,
+  CategoryDraft,
+  Dataset,
+  EventDraft,
+  Tag,
+  TagDraft,
+  TimelineEvent,
+} from '../data/types';
 
 interface AppState {
   configured: boolean;
   loading: boolean;
   error: string | null;
   categories: Category[];
+  tags: Tag[];
   events: TimelineEvent[];
   categoryMap: Map<string, Category>;
+  tagMap: Map<string, Tag>;
   session: Session | null;
   canEdit: boolean;
   reload: () => Promise<void>;
@@ -36,6 +46,8 @@ interface AppState {
   saveCategory: (id: string | null, draft: CategoryDraft) => Promise<Category>;
   removeCategory: (id: string) => Promise<void>;
   reorderCategories: (ordered: Category[]) => Promise<void>;
+  saveTag: (id: string | null, draft: TagDraft) => Promise<Tag>;
+  removeTag: (id: string) => Promise<void>;
   importDataset: (dataset: Dataset, mode: 'merge' | 'replace') => Promise<void>;
 }
 
@@ -55,6 +67,10 @@ function sortCategories(categories: Category[]): Category[] {
   return [...categories].sort(
     (a, b) => a.sortOrder - b.sortOrder || a.name.localeCompare(b.name, 'cs'),
   );
+}
+
+function sortTags(tags: Tag[]): Tag[] {
+  return [...tags].sort((a, b) => a.sortOrder - b.sortOrder || a.name.localeCompare(b.name, 'cs'));
 }
 
 /**
@@ -81,6 +97,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(isSupabaseConfigured);
   const [error, setError] = useState<string | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [tags, setTags] = useState<Tag[]>([]);
   const [events, setEvents] = useState<TimelineEvent[]>([]);
   const [session, setSession] = useState<Session | null>(null);
 
@@ -95,6 +112,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         cs.app.loadTimeout,
       );
       setCategories(sortCategories(dataset.categories));
+      setTags(sortTags(dataset.tags));
       setEvents(sortEvents(dataset.events));
     } catch (err) {
       setError(describeError(err));
@@ -151,8 +169,19 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const removeCategory = useCallback(async (id: string) => {
     await repo.deleteCategory(id);
     setCategories((prev) => prev.filter((c) => c.id !== id));
-    // záznamy zůstávají, jen přijdou o kategorii (ON DELETE SET NULL)
-    setEvents((prev) => prev.map((e) => (e.categoryId === id ? { ...e, categoryId: null } : e)));
+  }, []);
+
+  const saveTag = useCallback(async (id: string | null, draft: TagDraft) => {
+    const saved = id ? await repo.updateTag(id, draft) : await repo.createTag(draft);
+    setTags((prev) => sortTags(id ? prev.map((t) => (t.id === id ? saved : t)) : [...prev, saved]));
+    return saved;
+  }, []);
+
+  const removeTag = useCallback(async (id: string) => {
+    await repo.deleteTag(id);
+    setTags((prev) => prev.filter((t) => t.id !== id));
+    // záznamy zůstávají, jen přijdou o barvu (ON DELETE SET NULL)
+    setEvents((prev) => prev.map((e) => (e.tagId === id ? { ...e, tagId: null } : e)));
   }, []);
 
   const reorderCategories = useCallback(async (ordered: Category[]) => {
@@ -170,6 +199,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     [reload],
   );
 
+  const tagMap = useMemo(() => new Map(tags.map((t) => [t.id, t] as const)), [tags]);
+
   const categoryMap = useMemo(
     () => new Map(categories.map((c) => [c.id, c] as const)),
     [categories],
@@ -181,8 +212,10 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       loading,
       error,
       categories,
+      tags,
       events,
       categoryMap,
+      tagMap,
       session,
       canEdit: session !== null,
       reload,
@@ -193,14 +226,18 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       saveCategory,
       removeCategory,
       reorderCategories,
+      saveTag,
+      removeTag,
       importDataset,
     }),
     [
       loading,
       error,
       categories,
+      tags,
       events,
       categoryMap,
+      tagMap,
       session,
       reload,
       signIn,
@@ -210,6 +247,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       saveCategory,
       removeCategory,
       reorderCategories,
+      saveTag,
+      removeTag,
       importDataset,
     ],
   );

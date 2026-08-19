@@ -6,11 +6,14 @@
 import { cs } from '../i18n/cs';
 import { daysInMonth, type Qualifier } from '../lib/time';
 import {
+  DEFAULT_PLACEMENT,
   EXPORT_SCHEMA_VERSION,
+  isPlacement,
   SUPPORTED_IMPORT_VERSIONS,
   type Category,
   type Dataset,
   type ExportFile,
+  type Tag,
   type TimelineEvent,
 } from './types';
 
@@ -19,6 +22,7 @@ export function buildExport(dataset: Dataset): ExportFile {
     schemaVersion: EXPORT_SCHEMA_VERSION,
     exportedAt: new Date().toISOString(),
     categories: dataset.categories,
+    tags: dataset.tags,
     events: dataset.events,
   };
 }
@@ -94,6 +98,32 @@ function parseCategory(raw: unknown): Category | null {
   };
 }
 
+/**
+ * Umístění pro záznamy ze starších exportů. Do verze 3 o něm rozhodovala
+ * klíčová slova, tak se z nich odvodí i teď — první shoda vyhrává.
+ */
+function placementFromKeywords(keywords: string[]) {
+  const has = (name: string) => keywords.includes(name);
+  if (has('velmoc')) return 'velmoci';
+  if (has('vlada-izrael')) return 'izrael';
+  if (has('vlada-juda') || has('vlada-12kmenu')) return 'juda';
+  if (has('kniha-zahrnuto')) return 'knihy';
+  if (has('udalost') || has('kniha') || has('kniha-dokonceno')) return 'udalosti';
+  if (has('zivot')) return 'zivoty';
+  return DEFAULT_PLACEMENT;
+}
+
+function parseTag(raw: unknown): Tag | null {
+  if (!isRecord(raw)) return null;
+  if (typeof raw.name !== 'string' || typeof raw.color !== 'string') return null;
+  return {
+    id: typeof raw.id === 'string' && raw.id !== '' ? raw.id : newId(),
+    name: raw.name,
+    color: raw.color,
+    sortOrder: typeof raw.sortOrder === 'number' ? raw.sortOrder : 0,
+  };
+}
+
 function parseEvent(raw: unknown): TimelineEvent | null {
   if (!isRecord(raw)) return null;
   if (typeof raw.name !== 'string') return null;
@@ -125,7 +155,11 @@ function parseEvent(raw: unknown): TimelineEvent | null {
     if (!end) return null;
   }
 
-  const tags = Array.isArray(raw.tags) ? raw.tags.filter((t): t is string => typeof t === 'string') : [];
+  // Do verze 3 se klíčovým slovům říkalo `tags`; jméno se uvolnilo pro štítky.
+  const rawKeywords = Array.isArray(raw.keywords) ? raw.keywords : raw.tags;
+  const keywords = Array.isArray(rawKeywords)
+    ? rawKeywords.filter((t): t is string => typeof t === 'string')
+    : [];
   const optionalText = (value: unknown) => (typeof value === 'string' && value !== '' ? value : null);
   const optionalNumber = (value: unknown) => (typeof value === 'number' && Number.isFinite(value) ? value : null);
 
@@ -133,7 +167,9 @@ function parseEvent(raw: unknown): TimelineEvent | null {
     id: typeof raw.id === 'string' && raw.id !== '' ? raw.id : newId(),
     name: raw.name,
     type,
-    categoryId: typeof raw.categoryId === 'string' && raw.categoryId !== '' ? raw.categoryId : null,
+    // Starší verze umístění neznaly – dopočítá se z klíčových slov.
+    placement: isPlacement(raw.placement) ? raw.placement : placementFromKeywords(keywords),
+    tagId: typeof raw.tagId === 'string' && raw.tagId !== '' ? raw.tagId : null,
     start,
     end: end ?? null,
     source: optionalText(raw.source),
@@ -141,7 +177,7 @@ function parseEvent(raw: unknown): TimelineEvent | null {
     placeName: optionalText(raw.placeName),
     lat: optionalNumber(raw.lat),
     lng: optionalNumber(raw.lng),
-    tags,
+    keywords,
     createdAt: typeof raw.createdAt === 'string' ? raw.createdAt : '',
     updatedAt: typeof raw.updatedAt === 'string' ? raw.updatedAt : '',
   };
@@ -171,6 +207,14 @@ export function parseImport(text: string): ParseResult {
     categories.push(parsed);
   }
 
+  // Štítky přibyly až ve verzi 4; starší soubor jich prostě žádné nemá.
+  const tags: Tag[] = [];
+  for (const item of Array.isArray(raw.tags) ? raw.tags : []) {
+    const parsed = parseTag(item);
+    if (!parsed) return { ok: false, error: cs.dataIO.invalidSchema };
+    tags.push(parsed);
+  }
+
   const events: TimelineEvent[] = [];
   for (const item of raw.events) {
     const parsed = parseEvent(item);
@@ -178,13 +222,11 @@ export function parseImport(text: string): ParseResult {
     events.push(parsed);
   }
 
-  // Odkaz na neexistující kategorii by porušil cizí klíč – raději ho zahodíme.
-  const knownCategories = new Set(categories.map((c) => c.id));
+  // Odkaz na neexistující štítek by porušil cizí klíč – raději ho zahodíme.
+  const knownTags = new Set(tags.map((t) => t.id));
   const cleaned = events.map((event) =>
-    event.categoryId && !knownCategories.has(event.categoryId)
-      ? { ...event, categoryId: null }
-      : event,
+    event.tagId && !knownTags.has(event.tagId) ? { ...event, tagId: null } : event,
   );
 
-  return { ok: true, dataset: { categories, events: cleaned }, schemaVersion };
+  return { ok: true, dataset: { categories, tags, events: cleaned }, schemaVersion };
 }

@@ -23,7 +23,7 @@ import {
   type Domain,
   type Viewport,
 } from '../../lib/viewport';
-import type { Category, TimelineEvent } from '../../data/types';
+import type { Tag, TimelineEvent } from '../../data/types';
 import { BANDS, hitTest, itemY, layoutEvents, type Frame, type LayoutResult } from './layout';
 import { renderTimeline, THEME, type PeriodSpan } from './renderer';
 
@@ -96,7 +96,7 @@ export interface FocusRequest {
 
 interface Props {
   events: TimelineEvent[];
-  categoryMap: Map<string, Category>;
+  tagMap: Map<string, Tag>;
   view: Viewport;
   onViewChange: (view: Viewport) => void;
   domain: Domain;
@@ -109,7 +109,7 @@ interface Props {
 
 export function TimelineCanvas({
   events,
-  categoryMap,
+  tagMap,
   view,
   onViewChange,
   domain,
@@ -138,8 +138,8 @@ export function TimelineCanvas({
   }, []);
 
   const layout: LayoutResult = useMemo(
-    () => layoutEvents(events, view, categoryMap, measureText, formatYearsOf, hiddenBands),
-    [events, view, categoryMap, hiddenBands],
+    () => layoutEvents(events, view, tagMap, measureText, formatYearsOf, hiddenBands),
+    [events, view, tagMap, hiddenBands],
   );
 
   /**

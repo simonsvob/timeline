@@ -8,15 +8,15 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { cs, formatNumber, plural } from '../i18n/cs';
 import { formatRange, rangeLengthYears } from '../lib/format';
-import type { Category, TimelineEvent } from '../data/types';
-import { NO_CATEGORY_COLOR } from './timeline/layout';
+import type { Tag, TimelineEvent } from '../data/types';
+import { NO_TAG_COLOR } from './timeline/layout';
 
 const CARD_WIDTH = 300;
 const MARGIN = 12;
 
 interface Props {
   event: TimelineEvent;
-  category: Category | null;
+  tag: Tag | null;
   canEdit: boolean;
   anchor: { x: number; y: number } | null;
   onEdit: () => void;
@@ -24,7 +24,7 @@ interface Props {
   onClose: () => void;
 }
 
-export function DetailPanel({ event, category, canEdit, anchor, onEdit, onDelete, onClose }: Props) {
+export function DetailPanel({ event, tag, canEdit, anchor, onEdit, onDelete, onClose }: Props) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState<{ left: number; top: number } | null>(null);
 
@@ -71,7 +71,7 @@ export function DetailPanel({ event, category, canEdit, anchor, onEdit, onDelete
       aria-label={cs.detail.title}
     >
       <header className="popover-header">
-        <span className="popover-dot" style={{ background: category?.color ?? NO_CATEGORY_COLOR }} />
+        <span className="popover-dot" style={{ background: tag?.color ?? NO_TAG_COLOR }} />
         <h2>{event.name}</h2>
         <button type="button" className="popover-close" onClick={onClose} aria-label={cs.a11y.closePanel}>
           ×
@@ -92,8 +92,11 @@ export function DetailPanel({ event, category, canEdit, anchor, onEdit, onDelete
           </>
         ) : null}
 
-        <dt>{cs.detail.category}</dt>
-        <dd>{category?.name ?? cs.timeline.withoutCategory}</dd>
+        <dt>{cs.detail.tag}</dt>
+        <dd>{tag?.name ?? cs.timeline.withoutTag}</dd>
+
+        <dt>{cs.detail.placement}</dt>
+        <dd>{cs.timeline.bands[event.placement]}</dd>
 
         {event.source ? (
           <>
@@ -124,13 +127,13 @@ export function DetailPanel({ event, category, canEdit, anchor, onEdit, onDelete
           </>
         ) : null}
 
-        {event.tags.length > 0 ? (
+        {event.keywords.length > 0 ? (
           <>
-            <dt>{cs.detail.tags}</dt>
+            <dt>{cs.detail.keywords}</dt>
             <dd className="tag-list">
-              {event.tags.map((tag) => (
-                <span key={tag} className="tag">
-                  {tag}
+              {event.keywords.map((keyword) => (
+                <span key={keyword} className="tag">
+                  {keyword}
                 </span>
               ))}
             </dd>

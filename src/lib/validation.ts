@@ -6,7 +6,7 @@
  */
 
 import { cs } from '../i18n/cs';
-import type { EventDraft, EventType } from '../data/types';
+import { DEFAULT_PLACEMENT, type EventDraft, type EventType, type Placement } from '../data/types';
 import {
   compareTimePoints,
   daysInMonth,
@@ -33,7 +33,10 @@ export interface TimeInput {
 export interface EventFormInput {
   name: string;
   type: EventType;
-  categoryId: string | null;
+  /** kam na osu záznam patří */
+  placement: Placement;
+  /** druh záznamu; nese barvu */
+  tagId: string | null;
   start: TimeInput;
   end: TimeInput;
   source: string;
@@ -41,7 +44,7 @@ export interface EventFormInput {
   placeName: string;
   lat: string;
   lng: string;
-  tags: string[];
+  keywords: string[];
 }
 
 export type FieldErrors = Record<string, string>;
@@ -58,7 +61,8 @@ export function emptyEventForm(): EventFormInput {
   return {
     name: '',
     type: 'point',
-    categoryId: null,
+    placement: DEFAULT_PLACEMENT,
+    tagId: null,
     start: emptyTimeInput(),
     end: emptyTimeInput(),
     source: '',
@@ -66,7 +70,7 @@ export function emptyEventForm(): EventFormInput {
     placeName: '',
     lat: '',
     lng: '',
-    tags: [],
+    keywords: [],
   };
 }
 
@@ -189,8 +193,8 @@ export function validateEventForm(input: EventFormInput): ValidationResult {
     return { ok: false, errors };
   }
 
-  const tags = Array.from(
-    new Set(input.tags.map((t) => t.trim()).filter((t) => t !== '')),
+  const keywords = Array.from(
+    new Set(input.keywords.map((t) => t.trim()).filter((t) => t !== '')),
   );
 
   return {
@@ -199,7 +203,8 @@ export function validateEventForm(input: EventFormInput): ValidationResult {
     value: {
       name,
       type: input.type,
-      categoryId: input.categoryId,
+      placement: input.placement,
+      tagId: input.tagId,
       start,
       // bod nikdy nemá koncová pole, i kdyby v formuláři něco zbylo
       end: input.type === 'range' ? end : null,
@@ -208,7 +213,7 @@ export function validateEventForm(input: EventFormInput): ValidationResult {
       placeName: nullIfBlank(input.placeName),
       lat: (lat as number | null) ?? null,
       lng: (lng as number | null) ?? null,
-      tags,
+      keywords,
     },
   };
 }

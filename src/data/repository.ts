@@ -7,7 +7,16 @@
 
 import { cs } from '../i18n/cs';
 import { requireSupabase } from '../lib/supabase';
-import type { Category, CategoryDraft, Dataset, EventDraft, TimelineEvent } from './types';
+import type {
+  Category,
+  CategoryDraft,
+  Dataset,
+  EventDraft,
+  Placement,
+  Tag,
+  TagDraft,
+  TimelineEvent,
+} from './types';
 
 /**
  * Strop pro čtení dat. Bez něj by výpadek sítě nechal aplikaci viset na
@@ -28,11 +37,19 @@ interface CategoryRow {
   to_year: number | null;
 }
 
+interface TagRow {
+  id: string;
+  name: string;
+  color: string;
+  sort_order: number;
+}
+
 interface EventRow {
   id: string;
   name: string;
   type: 'point' | 'range';
-  category_id: string | null;
+  placement: Placement;
+  tag_id: string | null;
   start_year: number;
   start_month: number | null;
   start_day: number | null;
@@ -48,17 +65,18 @@ interface EventRow {
   place_name: string | null;
   lat: number | null;
   lng: number | null;
-  tags: string[] | null;
+  keywords: string[] | null;
   created_at: string;
   updated_at: string;
 }
 
 const EVENT_COLUMNS =
-  'id,name,type,category_id,start_year,start_month,start_day,start_approx,start_qualifier,' +
-  'end_year,end_month,end_day,end_approx,end_qualifier,source,note,place_name,lat,lng,tags,' +
+  'id,name,type,placement,tag_id,start_year,start_month,start_day,start_approx,start_qualifier,' +
+  'end_year,end_month,end_day,end_approx,end_qualifier,source,note,place_name,lat,lng,keywords,' +
   'created_at,updated_at';
 
 const CATEGORY_COLUMNS = 'id,name,color,sort_order,from_year,to_year';
+const TAG_COLUMNS = 'id,name,color,sort_order';
 
 // ---------------------------------------------------------------------------
 // Mapování řádek <-> doména
@@ -85,12 +103,21 @@ export function categoryToRow(draft: CategoryDraft): Omit<CategoryRow, 'id'> {
   };
 }
 
+export function tagFromRow(row: TagRow): Tag {
+  return { id: row.id, name: row.name, color: row.color, sortOrder: row.sort_order };
+}
+
+export function tagToRow(draft: TagDraft): Omit<TagRow, 'id'> {
+  return { name: draft.name, color: draft.color, sort_order: draft.sortOrder };
+}
+
 export function eventFromRow(row: EventRow): TimelineEvent {
   return {
     id: row.id,
     name: row.name,
     type: row.type,
-    categoryId: row.category_id,
+    placement: row.placement,
+    tagId: row.tag_id,
     start: {
       year: row.start_year,
       month: row.start_month,
@@ -113,7 +140,7 @@ export function eventFromRow(row: EventRow): TimelineEvent {
     placeName: row.place_name,
     lat: row.lat,
     lng: row.lng,
-    tags: row.tags ?? [],
+    keywords: row.keywords ?? [],
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -124,7 +151,8 @@ export function eventToRow(draft: EventDraft): Omit<EventRow, 'id' | 'created_at
   return {
     name: draft.name,
     type: draft.type,
-    category_id: draft.categoryId,
+    placement: draft.placement,
+    tag_id: draft.tagId,
     start_year: draft.start.year,
     start_month: draft.start.month,
     start_day: draft.start.day,
@@ -140,7 +168,7 @@ export function eventToRow(draft: EventDraft): Omit<EventRow, 'id' | 'created_at
     place_name: draft.placeName,
     lat: draft.lat,
     lng: draft.lng,
-    tags: draft.tags,
+    keywords: draft.keywords,
   };
 }
 
@@ -153,10 +181,15 @@ export async function fetchDataset(timeoutMs = READ_TIMEOUT_MS): Promise<Dataset
   const client = requireSupabase();
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
-  const [categories, events] = await Promise.all([
+  const [categories, tags, events] = await Promise.all([
     client
       .from('categories')
       .select(CATEGORY_COLUMNS)
+      .order('sort_order', { ascending: true })
+      .abortSignal(controller.signal),
+    client
+      .from('tags')
+      .select(TAG_COLUMNS)
       .order('sort_order', { ascending: true })
       .abortSignal(controller.signal),
     client
@@ -166,9 +199,11 @@ export async function fetchDataset(timeoutMs = READ_TIMEOUT_MS): Promise<Dataset
       .abortSignal(controller.signal),
   ]).finally(() => clearTimeout(timer));
   if (categories.error) throw asReadableError(categories.error);
+  if (tags.error) throw asReadableError(tags.error);
   if (events.error) throw asReadableError(events.error);
   return {
     categories: (categories.data as unknown as CategoryRow[]).map(categoryFromRow),
+    tags: (tags.data as unknown as TagRow[]).map(tagFromRow),
     events: (events.data as unknown as EventRow[]).map(eventFromRow),
   };
 }
@@ -245,6 +280,36 @@ export async function deleteCategory(id: string): Promise<void> {
   if (error) throw error;
 }
 
+export async function createTag(draft: TagDraft): Promise<Tag> {
+  const client = requireSupabase();
+  const { data, error } = await client
+    .from('tags')
+    .insert(tagToRow(draft))
+    .select(TAG_COLUMNS)
+    .single();
+  if (error) throw error;
+  return tagFromRow(data as unknown as TagRow);
+}
+
+export async function updateTag(id: string, draft: TagDraft): Promise<Tag> {
+  const client = requireSupabase();
+  const { data, error } = await client
+    .from('tags')
+    .update(tagToRow(draft))
+    .eq('id', id)
+    .select(TAG_COLUMNS)
+    .single();
+  if (error) throw error;
+  return tagFromRow(data as unknown as TagRow);
+}
+
+/** Smazání štítku: záznamy zůstávají, jen přijdou o barvu (ON DELETE SET NULL). */
+export async function deleteTag(id: string): Promise<void> {
+  const client = requireSupabase();
+  const { error } = await client.from('tags').delete().eq('id', id);
+  if (error) throw error;
+}
+
 export async function saveCategoryOrder(categories: Category[]): Promise<void> {
   const client = requireSupabase();
   const { error } = await client.from('categories').upsert(
@@ -268,6 +333,13 @@ export async function upsertDataset(dataset: Dataset): Promise<void> {
     );
     if (error) throw error;
   }
+  if (dataset.tags.length > 0) {
+    const { error } = await client.from('tags').upsert(
+      dataset.tags.map((t) => ({ id: t.id, ...tagToRow(t) })),
+      { onConflict: 'id' },
+    );
+    if (error) throw error;
+  }
   if (dataset.events.length > 0) {
     const { error } = await client.from('events').upsert(
       dataset.events.map((e) => ({ id: e.id, ...eventToRow(e) })),
@@ -280,9 +352,11 @@ export async function upsertDataset(dataset: Dataset): Promise<void> {
 /** Smaže všechna data a nahraje soubor – „nahradit vše". */
 export async function replaceDataset(dataset: Dataset): Promise<void> {
   const client = requireSupabase();
-  // Nejprve záznamy, pak kategorie (kvůli cizímu klíči).
+  // Nejprve záznamy, pak číselníky (kvůli cizím klíčům).
   const deleteEvents = await client.from('events').delete().not('id', 'is', null);
   if (deleteEvents.error) throw deleteEvents.error;
+  const deleteTags = await client.from('tags').delete().not('id', 'is', null);
+  if (deleteTags.error) throw deleteTags.error;
   const deleteCategories = await client.from('categories').delete().not('id', 'is', null);
   if (deleteCategories.error) throw deleteCategories.error;
   await upsertDataset(dataset);

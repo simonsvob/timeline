@@ -15,15 +15,15 @@ import {
   type FieldErrors,
   type TimeInput,
 } from '../lib/validation';
-import type { Category, EventDraft, TimelineEvent } from '../data/types';
+import { PLACEMENTS, type EventDraft, type Tag, type TimelineEvent } from '../data/types';
 import { Field, Modal } from './ui';
 
 interface Props {
   event: TimelineEvent | null;
-  categories: Category[];
+  tags: Tag[];
   onSubmit: (draft: EventDraft) => Promise<void>;
   onClose: () => void;
-  onManageCategories: () => void;
+  onManageTags: () => void;
 }
 
 function timePointToInput(tp: TimePoint | null): TimeInput {
@@ -44,7 +44,8 @@ function eventToInput(event: TimelineEvent | null): EventFormInput {
   return {
     name: event.name,
     type: event.type,
-    categoryId: event.categoryId,
+    placement: event.placement,
+    tagId: event.tagId,
     start: timePointToInput(event.start),
     end: event.end ? timePointToInput(event.end) : timePointToInput(null),
     source: event.source ?? '',
@@ -52,16 +53,16 @@ function eventToInput(event: TimelineEvent | null): EventFormInput {
     placeName: event.placeName ?? '',
     lat: event.lat === null ? '' : String(event.lat),
     lng: event.lng === null ? '' : String(event.lng),
-    tags: [...event.tags],
+    keywords: [...event.keywords],
   };
 }
 
-export function EventForm({ event, categories, onSubmit, onClose, onManageCategories }: Props) {
+export function EventForm({ event, tags, onSubmit, onClose, onManageTags }: Props) {
   const [input, setInput] = useState<EventFormInput>(() => eventToInput(event));
   const [errors, setErrors] = useState<FieldErrors>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [tagDraft, setTagDraft] = useState('');
+  const [keywordDraft, setKeywordDraft] = useState('');
 
   const preview = useMemo(() => {
     const result = validateEventForm(input);
@@ -72,11 +73,11 @@ export function EventForm({ event, categories, onSubmit, onClose, onManageCatego
   const patchTime = (which: 'start' | 'end', changes: Partial<TimeInput>) =>
     setInput((prev) => ({ ...prev, [which]: { ...prev[which], ...changes } }));
 
-  const addTag = () => {
-    const value = tagDraft.trim();
+  const addKeyword = () => {
+    const value = keywordDraft.trim();
     if (value === '') return;
-    if (!input.tags.includes(value)) patch({ tags: [...input.tags, value] });
-    setTagDraft('');
+    if (!input.keywords.includes(value)) patch({ keywords: [...input.keywords, value] });
+    setKeywordDraft('');
   };
 
   const handleSubmit = async (formEvent: FormEvent) => {
@@ -258,23 +259,41 @@ export function EventForm({ event, categories, onSubmit, onClose, onManageCatego
             </div>
           </div>
 
-          <Field label={cs.form.category} htmlFor="event-category">
+          <Field label={cs.form.placement} htmlFor="event-placement" hint={cs.form.placementHint}>
+            <select
+              id="event-placement"
+              className="input"
+              value={input.placement}
+              onChange={(e) => patch({ placement: e.target.value as EventFormInput['placement'] })}
+            >
+              {PLACEMENTS.map((placement) => (
+                <option key={placement} value={placement}>
+                  {cs.timeline.bands[placement]}
+                </option>
+              ))}
+            </select>
+          </Field>
+
+        </div>
+
+        <div className="form-row">
+          <Field label={cs.form.tag} htmlFor="event-tag" hint={cs.form.tagHint}>
             <div className="category-row">
               <select
-                id="event-category"
+                id="event-tag"
                 className="input"
-                value={input.categoryId ?? ''}
-                onChange={(e) => patch({ categoryId: e.target.value === '' ? null : e.target.value })}
+                value={input.tagId ?? ''}
+                onChange={(e) => patch({ tagId: e.target.value === '' ? null : e.target.value })}
               >
-                <option value="">{cs.form.categoryNone}</option>
-                {categories.map((category) => (
-                  <option key={category.id} value={category.id}>
-                    {category.name}
+                <option value="">{cs.form.tagNone}</option>
+                {tags.map((tag) => (
+                  <option key={tag.id} value={tag.id}>
+                    {tag.name}
                   </option>
                 ))}
               </select>
-              <button type="button" className="link-button" onClick={onManageCategories}>
-                {cs.form.manageCategories}
+              <button type="button" className="link-button" onClick={onManageTags}>
+                {cs.form.manageTags}
               </button>
             </div>
           </Field>
@@ -333,34 +352,34 @@ export function EventForm({ event, categories, onSubmit, onClose, onManageCatego
           </Field>
         </div>
 
-        <Field label={cs.form.tags} htmlFor="event-tags" optional>
+        <Field label={cs.form.keywords} htmlFor="event-keywords" hint={cs.form.keywordsHint} optional>
           <div className="tag-editor">
-            {input.tags.map((tag) => (
-              <span key={tag} className="tag tag-editable">
-                {tag}
+            {input.keywords.map((keyword) => (
+              <span key={keyword} className="tag tag-editable">
+                {keyword}
                 <button
                   type="button"
                   className="tag-remove"
-                  aria-label={cs.form.tagRemove(tag)}
-                  onClick={() => patch({ tags: input.tags.filter((t) => t !== tag) })}
+                  aria-label={cs.form.keywordRemove(keyword)}
+                  onClick={() => patch({ keywords: input.keywords.filter((t) => t !== keyword) })}
                 >
                   ×
                 </button>
               </span>
             ))}
             <input
-              id="event-tags"
+              id="event-keywords"
               className="input tag-input"
-              value={tagDraft}
-              placeholder={cs.form.tagsPlaceholder}
-              onChange={(e) => setTagDraft(e.target.value)}
+              value={keywordDraft}
+              placeholder={cs.form.keywordsPlaceholder}
+              onChange={(e) => setKeywordDraft(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ',') {
                   e.preventDefault();
-                  addTag();
+                  addKeyword();
                 }
               }}
-              onBlur={addTag}
+              onBlur={addKeyword}
             />
           </div>
         </Field>

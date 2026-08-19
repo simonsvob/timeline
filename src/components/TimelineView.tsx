@@ -1,9 +1,11 @@
 /**
- * Hlavní pohled: čipy pásem, plátno osy a plovoucí minimapa.
+ * Hlavní pohled: plátno osy, plovoucí minimapa a schovaná legenda pásem.
  * Nástrojová lišta tu není — gesta ji nahradila.
  *
  * Čipy filtrují po pásmech (velmoci, události, životy, vlády), ne po
- * kategoriích — kategorie zůstávají obdobími, která barví osu a záznamy.
+ * štítcích — štítek nese barvu, ne polohu. Ve výchozím stavu jsou složené
+ * pod tlačítkem, aby osa dostala co nejvíc místa; filtrování je zatím
+ * okrajová funkce.
  */
 
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -17,7 +19,7 @@ import {
   type Domain,
   type Viewport,
 } from '../lib/viewport';
-import type { Category, TimelineEvent } from '../data/types';
+import type { Category, Tag, TimelineEvent } from '../data/types';
 import { BANDS, bandOf, eventExtent } from './timeline/layout';
 import { Minimap } from './timeline/Minimap';
 import type { PeriodSpan } from './timeline/renderer';
@@ -36,7 +38,7 @@ export interface SelectionAnchor {
 interface Props {
   events: TimelineEvent[];
   categories: Category[];
-  categoryMap: Map<string, Category>;
+  tagMap: Map<string, Tag>;
   selectedId: string | null;
   onSelect: (event: TimelineEvent | null, anchor: SelectionAnchor | null) => void;
   externalFocus: ExternalFocus | null;
@@ -70,13 +72,14 @@ export function periodsOf(categories: Category[]): PeriodSpan[] {
 export function TimelineView({
   events,
   categories,
-  categoryMap,
+  tagMap,
   selectedId,
   onSelect,
   externalFocus,
   onRangeChange,
 }: Props) {
   const [hiddenBands, setHiddenBands] = useState<Set<string>>(new Set());
+  const [legendOpen, setLegendOpen] = useState(false);
   const [view, setView] = useState<Viewport>({ t0: DEFAULT_DOMAIN.min, pxPerYear: 0.2, width: 0 });
   const [focusRequest, setFocusRequest] = useState<FocusRequest | null>(null);
   const nonce = useRef(0);
@@ -175,22 +178,35 @@ export function TimelineView({
   return (
     <div className="timeline-view">
       {visibleBands.length > 1 ? (
-        <div className="chips" role="group" aria-label={cs.timeline.legend}>
-          {visibleBands.map((band) => {
-            const hidden = hiddenBands.has(band.id);
-            const dimmed = !inViewport.has(band.id);
-            return (
-              <button
-                key={band.id}
-                type="button"
-                className={`chip${hidden ? ' chip-off' : ''}${dimmed ? ' chip-dim' : ''}`}
-                onClick={() => toggleBand(band.id)}
-                aria-pressed={!hidden}
-              >
-                {cs.timeline.bands[band.id as keyof typeof cs.timeline.bands] ?? band.id}
-              </button>
-            );
-          })}
+        <div className="legend">
+          <button
+            type="button"
+            className={`chip chip-toggle${hiddenBands.size > 0 ? ' chip-toggle-active' : ''}`}
+            onClick={() => setLegendOpen((prev) => !prev)}
+            aria-expanded={legendOpen}
+          >
+            {legendOpen ? cs.timeline.legendHide : cs.timeline.legendShow}
+            {hiddenBands.size > 0 ? ` (${visibleBands.length - hiddenBands.size}/${visibleBands.length})` : ''}
+          </button>
+          {legendOpen ? (
+            <div className="chips" role="group" aria-label={cs.timeline.legend}>
+              {visibleBands.map((band) => {
+                const hidden = hiddenBands.has(band.id);
+                const dimmed = !inViewport.has(band.id);
+                return (
+                  <button
+                    key={band.id}
+                    type="button"
+                    className={`chip${hidden ? ' chip-off' : ''}${dimmed ? ' chip-dim' : ''}`}
+                    onClick={() => toggleBand(band.id)}
+                    aria-pressed={!hidden}
+                  >
+                    {cs.timeline.bands[band.id] ?? band.id}
+                  </button>
+                );
+              })}
+            </div>
+          ) : null}
         </div>
       ) : null}
 
@@ -202,7 +218,7 @@ export function TimelineView({
         ) : null}
         <TimelineCanvas
           events={visibleEvents}
-          categoryMap={categoryMap}
+          tagMap={tagMap}
           view={view}
           onViewChange={setView}
           domain={domain}
@@ -214,7 +230,7 @@ export function TimelineView({
         />
         <Minimap
           events={visibleEvents}
-          categoryMap={categoryMap}
+          tagMap={tagMap}
           periods={periods}
           view={view}
           domain={domain}

@@ -6,16 +6,16 @@
 import { useMemo, useRef, useState } from 'react';
 import { cs } from '../i18n/cs';
 import { formatYear } from '../lib/format';
-import type { Category, TimelineEvent } from '../data/types';
-import { NO_CATEGORY_COLOR } from './timeline/layout';
+import type { Tag, TimelineEvent } from '../data/types';
+import { tagColor } from './timeline/layout';
 
 interface Props {
   events: TimelineEvent[];
-  categoryMap: Map<string, Category>;
+  tagMap: Map<string, Tag>;
   onPick: (event: TimelineEvent) => void;
 }
 
-export function SearchBox({ events, categoryMap, onPick }: Props) {
+export function SearchBox({ events, tagMap, onPick }: Props) {
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -69,7 +69,7 @@ export function SearchBox({ events, categoryMap, onPick }: Props) {
                 >
                   <span
                     className="suggestion-color"
-                    style={{ background: categoryMap.get(event.categoryId ?? '')?.color ?? NO_CATEGORY_COLOR }}
+                    style={{ background: tagColor(event.tagId, tagMap) }}
                   />
                   <span className="suggestion-name">{event.name}</span>
                   <span className="suggestion-year">{formatYear(event.start.year)}</span>

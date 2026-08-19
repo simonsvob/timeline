@@ -13,7 +13,7 @@
 import { packLanes, type LaneInput } from '../../lib/lanes';
 import { openDirection, toContinuous } from '../../lib/time';
 import { xOf, type Viewport } from '../../lib/viewport';
-import type { Category, TimelineEvent } from '../../data/types';
+import { DEFAULT_PLACEMENT, type Placement, type Tag, type TimelineEvent } from '../../data/types';
 
 // --- svislá geometrie (v CSS pixelech od centrální čáry) ---------------------
 
@@ -60,7 +60,8 @@ export const LABEL_GAP = 10;
 export const ITEM_GAP = 10;
 /** Šipka za otevřenou hranicí. */
 export const OPEN_END_WIDTH = 13;
-export const NO_CATEGORY_COLOR = '#9a9384';
+/** Barva záznamu bez štítku – neutrální, ať nepřipomíná žádný druh. */
+export const NO_TAG_COLOR = '#9a9384';
 
 /** Svislá mezera mezi dvěma pásmy; vejde se do ní popisek pásma. */
 export const BAND_GAP = 26;
@@ -103,10 +104,8 @@ export type BandPlace = 'top' | 'above' | 'below' | 'bottom';
 export type BandShape = 'pill' | 'bar' | 'auto';
 
 export interface BandDefinition {
-  /** klíč do `cs.timeline.bands` */
-  id: string;
-  /** stačí jeden ze štítků; prázdné pole = zbytek bez známého štítku */
-  tags: string[];
+  /** hodnota `placement` záznamu a zároveň klíč do `cs.timeline.bands` */
+  id: Placement;
   place: BandPlace;
   shape: BandShape;
   /**
@@ -118,35 +117,31 @@ export interface BandDefinition {
 }
 
 /**
- * Pásma shora dolů, jak leží na obrazovce. Pořadí a štítky se mění jen tady —
- * vykreslení o konkrétních pásmech nic neví.
+ * Pásma shora dolů, jak leží na obrazovce. Pořadí a chování se mění jen tady;
+ * který záznam kam patří, říká jeho `placement`.
  *
  * Velmoci i vlády jsou připnuté k hranám: jsou to souvislé pásy přes celé
  * dějiny a při svislém posunu se hledají hůř než cokoli jiného, tak ať mají
  * pevné místo. Mezi nimi plave to, čeho je hodně a co se řádkuje.
  */
 export const BANDS: readonly BandDefinition[] = [
-  { id: 'velmoci', tags: ['velmoc'], place: 'top', shape: 'bar', singleLane: true },
-  { id: 'udalosti', tags: ['udalost', 'kniha', 'kniha-dokonceno'], place: 'above', shape: 'pill', singleLane: false },
+  { id: 'velmoci', place: 'top', shape: 'bar', singleLane: true },
+  { id: 'udalosti', place: 'above', shape: 'pill', singleLane: false },
   // --- centrální čára ---
-  { id: 'zivoty', tags: ['zivot'], place: 'below', shape: 'bar', singleLane: false },
-  { id: 'knihy', tags: ['kniha-zahrnuto'], place: 'below', shape: 'bar', singleLane: false },
-  { id: 'ostatni', tags: [], place: 'below', shape: 'auto', singleLane: false },
-  { id: 'izrael', tags: ['vlada-izrael'], place: 'bottom', shape: 'bar', singleLane: true },
-  // Juda je úplně dole. 12 kmenů se s ní nepřekrývá (předchází rozdělení),
-  // proto sdílí řadu a nepotřebuje vlastní pásmo.
-  { id: 'juda', tags: ['vlada-juda', 'vlada-12kmenu'], place: 'bottom', shape: 'bar', singleLane: true },
+  { id: 'zivoty', place: 'below', shape: 'bar', singleLane: false },
+  { id: 'knihy', place: 'below', shape: 'bar', singleLane: false },
+  { id: 'ostatni', place: 'below', shape: 'auto', singleLane: false },
+  { id: 'izrael', place: 'bottom', shape: 'bar', singleLane: true },
+  // Juda je úplně dole; první tři králové nad dvanácti kmeny se s judskými
+  // nepřekrývají (předcházejí rozdělení), takže sdílejí řadu.
+  { id: 'juda', place: 'bottom', shape: 'bar', singleLane: true },
 ];
 
-const FALLBACK_BAND = BANDS.find((band) => band.tags.length === 0) ?? BANDS[BANDS.length - 1];
+const FALLBACK_BAND = BANDS.find((band) => band.id === DEFAULT_PLACEMENT) ?? BANDS[BANDS.length - 1];
 
-/** Do kterého pásma záznam patří. První pásmo se shodou štítků vyhrává. */
+/** Do kterého pásma záznam patří. */
 export function bandOf(event: TimelineEvent): BandDefinition {
-  for (const band of BANDS) {
-    if (band.tags.length === 0) continue;
-    if (band.tags.some((tag) => event.tags.includes(tag))) return band;
-  }
-  return FALLBACK_BAND;
+  return BANDS.find((band) => band.id === event.placement) ?? FALLBACK_BAND;
 }
 
 /** Jak se popisek pruhu vejde; degraduje odshora dolů. */
@@ -154,7 +149,7 @@ export type LabelMode = 'inside-full' | 'inside-name' | 'outside-full' | 'outsid
 
 export interface EventGeometry {
   event: TimelineEvent;
-  bandId: string;
+  bandId: Placement;
   place: BandPlace;
   /** 0 = řádek nejblíž centrální čáře (u připnutých pásem nejblíž hraně) */
   lane: number;
@@ -200,7 +195,7 @@ export interface EventGeometry {
 }
 
 export interface BandGeometry {
-  id: string;
+  id: Placement;
   place: BandPlace;
   laneCount: number;
   /** vzdálenost od čáry k bližší hraně prvního řádku */
@@ -272,12 +267,10 @@ export function eventExtent(event: TimelineEvent): { from: number; to: number } 
   return { from, to: from };
 }
 
-export function categoryColor(
-  categoryId: string | null,
-  categories: Map<string, Category>,
-): string {
-  if (!categoryId) return NO_CATEGORY_COLOR;
-  return categories.get(categoryId)?.color ?? NO_CATEGORY_COLOR;
+/** Barva záznamu. Bere se ze štítku — kategorie barví jen osu, ne záznamy. */
+export function tagColor(tagId: string | null, tags: Map<string, Tag>): string {
+  if (!tagId) return NO_TAG_COLOR;
+  return tags.get(tagId)?.color ?? NO_TAG_COLOR;
 }
 
 interface Measured {
@@ -362,7 +355,7 @@ function itemHeightOf(band: BandDefinition): number {
 export function layoutEvents(
   events: TimelineEvent[],
   view: Viewport,
-  categories: Map<string, Category>,
+  tags: Map<string, Tag>,
   measureText: MeasureText,
   formatYears: (event: TimelineEvent) => string,
   hiddenBands?: ReadonlySet<string>,
@@ -409,7 +402,7 @@ export function layoutEvents(
       packX1: packCenter - packHalf,
       packX2: packCenter + packHalf,
       centerX,
-      color: categoryColor(event.categoryId, categories),
+      color: tagColor(event.tagId, tags),
       name,
       nameWidth,
       years,

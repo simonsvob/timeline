@@ -61,7 +61,7 @@ export function DataPanel({ dataset, canEdit, onImport, onClose }: Props) {
     setError(null);
     try {
       await onImport(pending, mode);
-      setDone(cs.dataIO.importDone(pending.categories.length, pending.events.length));
+      setDone(cs.dataIO.importDone(pending.categories.length, pending.tags.length, pending.events.length));
       setPending(null);
       setFileName(null);
       if (fileInput.current) fileInput.current.value = '';
@@ -87,7 +87,7 @@ export function DataPanel({ dataset, canEdit, onImport, onClose }: Props) {
         <section className="data-section">
           <h3>{cs.dataIO.overview}</h3>
           <p className="data-counts">
-            {cs.dataIO.counts(dataset.categories.length, dataset.events.length)}
+            {cs.dataIO.counts(dataset.categories.length, dataset.tags.length, dataset.events.length)}
           </p>
         </section>
 
@@ -122,7 +122,7 @@ export function DataPanel({ dataset, canEdit, onImport, onClose }: Props) {
                 <div className="import-preview">
                   <h4>{cs.dataIO.previewTitle}</h4>
                   <p>{fileName}</p>
-                  <p>{cs.dataIO.previewCounts(pending.categories.length, pending.events.length)}</p>
+                  <p>{cs.dataIO.previewCounts(pending.categories.length, pending.tags.length, pending.events.length)}</p>
 
                   <fieldset className="import-mode">
                     <legend>{cs.dataIO.modeLabel}</legend>

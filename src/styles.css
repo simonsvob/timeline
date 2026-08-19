@@ -433,14 +433,32 @@ h4 {
   outline-offset: 2px;
 }
 
-/* --- Čipy kategorií --- */
+/* --- Legenda pásem --- */
+/* Ve výchozím stavu složená pod tlačítkem – osa má dostat co nejvíc místa. */
+
+.legend {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 0 36px 10px;
+}
 
 .chips {
   display: flex;
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
-  padding: 0 36px 10px;
+}
+
+.chip-toggle {
+  color: var(--text-muted);
+}
+
+/* Zapnutý filtr má být vidět i se složenou legendou. */
+.chip-toggle-active {
+  border-color: var(--border-strong);
+  color: var(--text);
 }
 
 .chip {
@@ -1023,6 +1041,12 @@ h4 {
   white-space: nowrap;
 }
 
+/* Rozbalovátko vedle odkazu „Spravovat štítky" nesmí zmizet na pár znaků. */
+.category-row > select.input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
 .form-error {
   margin: 0;
   margin-right: auto;
@@ -1085,7 +1109,48 @@ h4 {
   color: var(--text);
 }
 
-/* --- Kategorie ----------------------------------------------------------- */
+/* --- Štítky a období ------------------------------------------------------ */
+
+.manager-intro {
+  margin: 0 0 16px;
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+
+/* Umístění se v aplikaci nezakládají – jen výpis s počty, co která volba je. */
+.placement-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.placement-list li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 3px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13.5px;
+}
+
+.placement-list li:last-child {
+  border-bottom: 0;
+}
+
+.placement-name {
+  min-width: 0;
+}
+
+.table-placement {
+  color: var(--text-muted);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
 
 .category-list {
   display: flex;
@@ -1259,6 +1324,14 @@ h4 {
   display: inline-flex;
   align-items: center;
   gap: 7px;
+}
+
+/* Barva štítku u řádku tabulky – jinak by sloupec byl jen text. */
+.tag-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex: none;
 }
 
 .table-tags {
