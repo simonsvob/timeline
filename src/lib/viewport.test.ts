@@ -3,13 +3,15 @@ import {
   chooseTickLevel,
   clampViewport,
   generateTicks,
+  limitZoomFactor,
+  MAX_ZOOM_RATE,
   panBy,
   tOf,
+  type Domain,
+  type Viewport,
   viewportForRange,
   xOf,
   zoomAt,
-  type Domain,
-  type Viewport,
 } from './viewport';
 import { DAYS_IN_YEAR } from './time';
 
@@ -122,5 +124,30 @@ describe('měřítko', () => {
     const last = ticks[ticks.length - 1];
     expect(xOf(v, first.t)).toBeLessThanOrEqual(0);
     expect(xOf(v, last.t)).toBeGreaterThanOrEqual(v.width);
+  });
+});
+
+describe('strop na rychlosti zoomu', () => {
+  it('při běžném snímku propustí mírný zoom beze změny', () => {
+    expect(limitZoomFactor(1.02, 16)).toBeCloseTo(1.02, 6);
+    expect(limitZoomFactor(1 / 1.02, 16)).toBeCloseTo(1 / 1.02, 6);
+  });
+
+  it('prudký pinch ořízne na povolenou rychlost', () => {
+    const strop = Math.exp((MAX_ZOOM_RATE * 16) / 1000);
+    expect(limitZoomFactor(3, 16)).toBeCloseTo(strop, 6);
+    expect(limitZoomFactor(1 / 3, 16)).toBeCloseTo(1 / strop, 6);
+  });
+
+  it('dávka setrvačných událostí nepřeletí rozsah', () => {
+    // 60 událostí za vteřinu, každá chce zdvojnásobit měřítko
+    let mereni = 1;
+    for (let i = 0; i < 60; i++) mereni *= limitZoomFactor(2, 1000 / 60);
+    expect(mereni).toBeLessThan(Math.exp(MAX_ZOOM_RATE) * 1.01);
+    expect(mereni).toBeGreaterThan(10);
+  });
+
+  it('dlouhá prodleva nedovolí velký skok', () => {
+    expect(limitZoomFactor(100, 5000)).toBeLessThan(1.5);
   });
 });

@@ -15,7 +15,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { cs } from '../../i18n/cs';
 import { formatRangeCompact } from '../../lib/format';
-import { generateTicks, panBy, zoomAt, type Domain, type Viewport } from '../../lib/viewport';
+import {
+  generateTicks,
+  limitZoomFactor,
+  panBy,
+  zoomAt,
+  type Domain,
+  type Viewport,
+} from '../../lib/viewport';
 import type { Category, TimelineEvent } from '../../data/types';
 import { BANDS, hitTest, itemY, layoutEvents, type Frame, type LayoutResult } from './layout';
 import { renderTimeline, THEME, type PeriodSpan } from './renderer';
@@ -251,6 +258,19 @@ export function TimelineCanvas({
   onViewChangeRef.current = onViewChange;
 
   const pointers = useRef(new Map<number, { x: number; y: number }>());
+  /** čas poslední změny měřítka – drží strop na rychlosti zoomu */
+  const lastZoomAt = useRef(0);
+
+  /**
+   * Ořízne požadovaný násobek měřítka na povolenou rychlost. Volá se u každé
+   * cesty, kterou zoom přichází (kolečko, gesto Safari, pinch přes ukazatele).
+   */
+  const omezenyNasobek = useCallback((factor: number) => {
+    const now = performance.now();
+    const omezeny = limitZoomFactor(factor, now - lastZoomAt.current);
+    lastZoomAt.current = now;
+    return omezeny;
+  }, []);
 
   // --- doběh po švihnutí ----------------------------------------------------
 
@@ -320,7 +340,8 @@ export function TimelineCanvas({
 
       // Pinch na trackpadu Macu i Ctrl+kolečko přicházejí jako wheel s ctrlKey.
       if (event.ctrlKey || event.metaKey) {
-        onViewChange(zoomAt(viewRef.current, x, Math.exp(-event.deltaY * 0.01), domainRef.current));
+        const factor = omezenyNasobek(Math.exp(-event.deltaY * 0.01));
+        if (factor !== 1) onViewChange(zoomAt(viewRef.current, x, factor, domainRef.current));
         return;
       }
       // Vodorovné švihnutí na trackpadu nese i drobné `deltaY`. Bez zámku na
@@ -351,9 +372,10 @@ export function TimelineCanvas({
       const scale = event.scale || 1;
       if (lastScale <= 0 || scale <= 0) return;
       const rect = canvas.getBoundingClientRect();
-      onViewChange(
-        zoomAt(viewRef.current, event.clientX - rect.left, scale / lastScale, domainRef.current),
-      );
+      const factor = omezenyNasobek(scale / lastScale);
+      if (factor !== 1) {
+        onViewChange(zoomAt(viewRef.current, event.clientX - rect.left, factor, domainRef.current));
+      }
       lastScale = scale;
     };
     const onGestureEnd = (event: GestureLikeEvent) => {
@@ -371,7 +393,7 @@ export function TimelineCanvas({
       canvas.removeEventListener('gesturechange', onGestureChange as EventListener);
       canvas.removeEventListener('gestureend', onGestureEnd as EventListener);
     };
-  }, [onViewChange, clampShift, stopInertia]);
+  }, [onViewChange, clampShift, stopInertia, omezenyNasobek]);
 
   const dragState = useRef<{
     moved: number;
@@ -430,7 +452,8 @@ export function TimelineCanvas({
       const centerX = (a.x + b.x) / 2;
       const previous = pinchState.current;
       if (previous.distance > 0 && distance > 0) {
-        let next = zoomAt(viewRef.current, centerX, distance / previous.distance, domainRef.current);
+        const factor = omezenyNasobek(distance / previous.distance);
+        let next = zoomAt(viewRef.current, centerX, factor, domainRef.current);
         next = panBy(next, centerX - previous.centerX, domainRef.current);
         onViewChange(next);
       }

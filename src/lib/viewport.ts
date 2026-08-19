@@ -29,6 +29,29 @@ export const DEFAULT_DOMAIN: Domain = { min: -4200, max: 200 };
 /** Nejtěsnější přiblížení: jeden den zabere zhruba tolik pixelů. */
 export const MAX_PX_PER_DAY = 60;
 
+/**
+ * Nejrychlejší povolený zoom v e-násobcích měřítka za sekundu.
+ *
+ * Trackpad Macu posílá při rychlém pinchi velké `deltaY` a po dojetí prstů
+ * ještě dávku setrvačných událostí. Exponenciální zoom to složí dohromady
+ * a měřítko přeletí půlku rozsahu, než člověk stihne zareagovat. Strop na
+ * rychlost drží pocit stejný bez ohledu na to, kolik událostí dorazí:
+ * plný rozsah (~64 000×) se přejede zhruba za tři vteřiny.
+ */
+export const MAX_ZOOM_RATE = 3.5;
+/** Delší prodleva mezi událostmi se počítá jako tahle, ať nevznikne skok. */
+const ZOOM_RATE_MAX_STEP_MS = 100;
+
+/**
+ * Ořízne násobek zoomu tak, aby nepřekročil `MAX_ZOOM_RATE`. `dtMs` je čas
+ * od minulé změny měřítka.
+ */
+export function limitZoomFactor(factor: number, dtMs: number): number {
+  const dt = Math.min(Math.max(dtMs, 0), ZOOM_RATE_MAX_STEP_MS);
+  const strop = Math.exp((MAX_ZOOM_RATE * dt) / 1000);
+  return Math.min(Math.max(factor, 1 / strop), strop);
+}
+
 export function xOf(view: Viewport, t: number): number {
   return (t - view.t0) * view.pxPerYear;
 }

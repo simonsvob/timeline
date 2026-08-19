@@ -193,6 +193,14 @@ pointer událostí neručí za společnou epochu; s `timeStamp` vycházely nesmy
 prodlevy mezi pohyby, rychlost se pořád zahazovala a na iPadu se doběh nikdy
 nespustil.
 
+**Zoom má strop na rychlosti** (`limitZoomFactor` ve `viewport.ts`). Trackpad
+Macu posílá při rychlém pinchi velké `deltaY` a po dojetí prstů ještě dávku
+setrvačných událostí; exponenciální zoom to složil dohromady a měřítko
+přeletělo půlku rozsahu, než člověk stihl zareagovat. Strop je v e-násobcích
+za sekundu (`MAX_ZOOM_RATE`), takže na počtu událostí nezáleží — plný rozsah
+se přejede zhruba za tři vteřiny. Samotná matematika zoomu je čistě
+geometrická, žádný skok v ní není.
+
 **Gesto se zamyká na převládající směr.** Vodorovné švihnutí na trackpadu nese
 i drobné `deltaY`. Bez zámku osa při posunu poskakovala svisle a řádky se zdály
 přeskakovat — přitom řádkování je při posunu prokazatelně stabilní (pakuje se
@@ -223,8 +231,9 @@ Import umí načíst i starší verze; při přidání pole verzi zvyš a rozši
 `SUPPORTED_IMPORT_VERSIONS`.
 
 **Štítky určují pásmo na ose.** Rozvržení zná `velmoc`, `udalost`, `kniha`,
-`zivot`, `vlada-juda`, `vlada-izrael` a `vlada-12kmenu`; ostatní štítky
-(`kral`, `narozeni`, …) jsou jen popisné. Záznam bez známého štítku spadne do
+`kniha-dokonceno`, `kniha-zahrnuto`, `zivot`, `vlada-juda`, `vlada-izrael`
+a `vlada-12kmenu`; ostatní štítky (`kral`, `narozeni`, `kr`, `obdobi`, …) jsou
+jen popisné a záznam s nimi spadne do pásma „Ostatní". Záznam bez známého štítku spadne do
 pásma „Ostatní" — nový záznam proto vždycky otaguj.
 
 ## Nasazení
