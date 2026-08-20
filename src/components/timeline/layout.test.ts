@@ -40,7 +40,6 @@ function rangeEvent(
     placeName: null,
     lat: null,
     lng: null,
-    keywords: [],
     createdAt: '',
     updatedAt: '',
     ...extra,
@@ -162,11 +161,10 @@ describe('zařazení do pásem', () => {
     expect(bandOf(rangeEvent('Egypt', 1600, 874, { placement: 'velmoci' })).id).toBe('velmoci');
   });
 
-  it('kniha patří k událostem, neznámý štítek do ostatních', () => {
+  it('neznámé umístění spadne mezi rozsahy pod osou', () => {
     expect(bandOf(pointEvent('Kniha Amos', 803, { placement: 'udalosti' })).id).toBe('udalosti');
-    expect(bandOf(pointEvent('Něco', 800, { placement: 'ostatni' })).id).toBe('ostatni');
-    // Neznámé umístění spadne do pásma „Ostatní" – data můžou být starší než kód.
-    expect(bandOf(pointEvent('Cizí', 800, { placement: 'xxx' as Placement })).id).toBe('ostatni');
+    // Data můžou být starší než kód (nebo z cizího importu) – nesmí zmizet.
+    expect(bandOf(pointEvent('Cizí', 800, { placement: 'xxx' as Placement })).id).toBe('zivoty');
   });
 
   it('12 kmenů sdílí řadu s Judou a nepřekrývá se s ní', () => {
@@ -251,12 +249,40 @@ describe('svislé skládání pásem', () => {
 
   it('mezi plovoucími pásmy je mezera', () => {
     const result = layout(
-      [rangeEvent('Noe', 2970, 2020), pointEvent('Něco', 2000, { placement: 'ostatni' })],
+      [rangeEvent('Noe', 2970, 2020), rangeEvent('Ageus', 520, 519, { placement: 'knihy' })],
       view(-3000, 0.5),
     );
     const zivoty = result.bands.find((b) => b.id === 'zivoty')!;
-    const ostatni = result.bands.find((b) => b.id === 'ostatni')!;
-    expect(ostatni.near).toBe(zivoty.near + zivoty.extent + BAND_GAP);
+    const knihy = result.bands.find((b) => b.id === 'knihy')!;
+    expect(knihy.near).toBe(zivoty.near + zivoty.extent + BAND_GAP);
+  });
+
+  it('následující pásmo navazuje na řádky obsazené ve výřezu, ne na všechny', () => {
+    // Dva rozsahy nad sebou (překrývají se) a pod nimi kniha. Ve výřezu, kde
+    // je vidět jen ten první, se kniha posune o řádek výš.
+    const events = [
+      rangeEvent('Noe', 2970, 2020),
+      rangeEvent('Sem', 2468, 1868),
+      rangeEvent('Ageus', 520, 519, { placement: 'knihy' }),
+    ];
+    const obe = layout(events, view(-3000, 0.5));
+    const jenPrvni = layout(events, view(-2990, 0.5, 60));
+    const knihyObe = obe.bands.find((b) => b.id === 'knihy')!;
+    const knihyJedna = jenPrvni.bands.find((b) => b.id === 'knihy')!;
+    expect(obe.bands.find((b) => b.id === 'zivoty')!.laneCount).toBe(2);
+    expect(knihyJedna.near).toBeLessThan(knihyObe.near);
+  });
+
+  it('svislá poloha čáry se posunem nemění', () => {
+    const events = [
+      rangeEvent('Noe', 2970, 2020),
+      rangeEvent('Sem', 2468, 1868),
+      rangeEvent('Ageus', 520, 519, { placement: 'knihy' }),
+    ];
+    const a = layout(events, view(-3000, 0.5, 200));
+    const b = layout(events, view(-1000, 0.5, 200));
+    expect(a.heightAbove).toBe(b.heightAbove);
+    expect(a.heightBelow).toBe(b.heightBelow);
   });
 
   it('Juda je úplně dole, Izrael nad ní', () => {

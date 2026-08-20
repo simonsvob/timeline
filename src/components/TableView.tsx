@@ -48,13 +48,7 @@ export function TableView({
       if (tagFilter !== '' && tagFilter !== NO_TAG_FILTER && event.tagId !== tagFilter) return false;
       if (placementFilter !== '' && event.placement !== placementFilter) return false;
       if (needle === '') return true;
-      const haystack = [
-        event.name,
-        event.source ?? '',
-        event.note ?? '',
-        event.placeName ?? '',
-        ...event.keywords,
-      ]
+      const haystack = [event.name, event.source ?? '', event.note ?? '', event.placeName ?? '']
         .join(' ')
         .toLocaleLowerCase('cs');
       return haystack.includes(needle);
@@ -183,8 +177,8 @@ export function TableView({
               {header('start', cs.table.colStart)}
               {header('end', cs.table.colEnd)}
               {header('type', cs.table.colType)}
-              <th scope="col" className="table-tags">
-                {cs.table.colKeywords}
+              <th scope="col" className="table-source">
+                {cs.table.colSource}
               </th>
               <th scope="col" className="table-actions" aria-label={cs.table.showOnTimeline} />
             </tr>
@@ -220,15 +214,7 @@ export function TableView({
                     <td className="table-date">{formatTimePoint(event.start)}</td>
                     <td className="table-date">{event.end ? formatTimePoint(event.end) : ''}</td>
                     <td>{event.type === 'range' ? cs.form.typeRange : cs.form.typePoint}</td>
-                    <td className="table-tags">
-                      <span className="tag-list">
-                        {event.keywords.map((keyword) => (
-                          <span key={keyword} className="tag tag-small">
-                            {keyword}
-                          </span>
-                        ))}
-                      </span>
-                    </td>
+                    <td className="table-source">{event.source ?? ''}</td>
                     <td className="table-actions">
                       <button
                         type="button"

@@ -28,7 +28,6 @@ const dataset: Dataset = {
       placeName: null,
       lat: null,
       lng: null,
-      keywords: ['potopa'],
       createdAt: '2025-01-01T00:00:00Z',
       updatedAt: '2025-01-01T00:00:00Z',
     },
@@ -45,7 +44,6 @@ const dataset: Dataset = {
       placeName: null,
       lat: null,
       lng: null,
-      keywords: [],
       createdAt: '',
       updatedAt: '',
     },
@@ -240,13 +238,14 @@ describe('import', () => {
     );
     expect(result.ok).toBe(true);
     if (!result.ok) return;
+    // Neznámé klíčové slovo končí u rozsahů pod osou (DEFAULT_PLACEMENT).
     expect(result.dataset.events.map((e) => e.placement)).toEqual([
       'velmoci',
       'juda',
       'zivoty',
-      'ostatni',
+      'zivoty',
     ]);
-    // Klíčová slova se ze starého `tags` přenesou beze změny.
-    expect(result.dataset.events[1].keywords).toEqual(['vlada-juda', 'kral']);
+    // Klíčová slova sama do aplikace nejdou – zbyla jen jako vodítko pro umístění.
+    expect('keywords' in result.dataset.events[1]).toBe(false);
   });
 });

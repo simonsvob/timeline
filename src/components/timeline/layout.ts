@@ -91,7 +91,7 @@ export const MAX_LANES_WITH_LABELS = 40;
  * čáře a popisek se ukáže po najetí nebo v detailu; jinak by při oddálení
  * pilulky vytlačily osu mimo obrazovku.
  */
-export const MAX_POINT_LANES = 5;
+export const MAX_POINT_LANES = 7;
 
 // --- pásma ------------------------------------------------------------------
 
@@ -130,7 +130,6 @@ export const BANDS: readonly BandDefinition[] = [
   // --- centrální čára ---
   { id: 'zivoty', place: 'below', shape: 'bar', singleLane: false },
   { id: 'knihy', place: 'below', shape: 'bar', singleLane: false },
-  { id: 'ostatni', place: 'below', shape: 'auto', singleLane: false },
   { id: 'izrael', place: 'bottom', shape: 'bar', singleLane: true },
   // Juda je úplně dole; první tři králové nad dvanácti kmeny se s judskými
   // nepřekrývají (předcházejí rozdělení), takže sdílejí řadu.
@@ -426,7 +425,28 @@ export function layoutEvents(
     shades: Map<string, 0 | 1>;
     /** id bodů, které se nevešly do povoleného počtu řádků */
     pillHidden: Set<string>;
+    /**
+     * Kolik řádků pásmo zabírá **ve výřezu**. Následující pásmo se skládá
+     * podle téhle hodnoty, ne podle `laneCount` — jinak by knihy visely
+     * o desítky řádků níž než poslední rozsah, který je zrovna vidět.
+     */
+    visibleLaneCount: number;
   }
+
+  /** Nejvyšší obsazený řádek mezi záznamy, které zasahují do výřezu. */
+  const visibleLanesOf = (
+    members: Measured[],
+    lanes: Map<string, number>,
+    pillHidden: Set<string>,
+  ): number => {
+    let max = -1;
+    for (const m of members) {
+      if (m.x2 < 0 || m.x1 > view.width) continue;
+      const lane = pillHidden.has(m.event.id) ? 0 : (lanes.get(m.event.id) ?? 0);
+      if (lane > max) max = lane;
+    }
+    return max + 1;
+  };
 
   const packedBands: Packed[] = [];
 
@@ -449,6 +469,7 @@ export function layoutEvents(
         labelsReserved: false,
         shades,
         pillHidden,
+        visibleLaneCount: 1,
       });
       continue;
     }
@@ -486,6 +507,7 @@ export function layoutEvents(
       labelsReserved,
       shades,
       pillHidden,
+      visibleLaneCount: Math.min(visibleLanesOf(members, packed.lanes, pillHidden), laneCount),
     });
   }
 
@@ -494,13 +516,17 @@ export function layoutEvents(
   const geometryByBand = new Map<string, BandGeometry>();
   const bands: BandGeometry[] = [];
 
+  /** Výška pásma v pixelech pro daný počet řádků. */
+  const extentOf = (band: BandDefinition, laneCount: number): number =>
+    laneCount <= 0 ? 0 : (laneCount - 1) * laneHeightOf(band) + itemHeightOf(band);
+
   /**
    * Uloží geometrii pásma. `near` je vždy KLADNÁ vzdálenost od výchozí hrany
    * (čára nebo okraj plochy); směr dovnitř plochy nese `sign`. Vrací, kam až
    * pásmo sahá, aby na něj mohlo navázat další.
    */
   const push = (packed: Packed, near: number, sign: 1 | -1, labelNear: number): number => {
-    const extent = (packed.laneCount - 1) * laneHeightOf(packed.band) + itemHeightOf(packed.band);
+    const extent = extentOf(packed.band, packed.laneCount);
     const geometry: BandGeometry = {
       id: packed.band.id,
       place: packed.band.place,
@@ -513,12 +539,32 @@ export function layoutEvents(
     };
     geometryByBand.set(packed.band.id, geometry);
     bands.push(geometry);
-    return near + extent;
+    return near + extentOf(packed.band, packed.visibleLaneCount);
+  };
+
+  /**
+   * Kam až plovoucí pásma sahají v NEJHORŠÍM případě, tedy kdyby byly všechny
+   * řádky obsazené. Z toho se počítá svislá poloha čáry — kdyby se odvíjela od
+   * viditelných řádků, čára by při posunu poskakovala nahoru a dolů.
+   */
+  const worstCaseEdge = (place: 'above' | 'below'): number => {
+    const list = packedBands.filter((p) => p.band.place === place);
+    let cursor = 0;
+    for (const [index, packed] of list.entries()) {
+      const near = index === 0 ? axisGapOf(packed.band) : cursor + BAND_GAP;
+      cursor = near + extentOf(packed.band, packed.laneCount);
+    }
+    return cursor;
   };
 
   // Plovoucí pásma: skládají se od čáry ven. Nad čárou leží první pásmo
   // v seznamu nejvýš, takže se prochází odzadu. Název pásma sedí v mezeře
   // na straně přivrácené k čáře.
+  //
+  // Navazuje se podle řádků obsazených ve výřezu, ne podle všech: rozsahy
+  // se řádkují přes celé dějiny a pásmo knih by jinak leželo hluboko pod
+  // posledním pruhem, který je zrovna vidět. Vlastní `extent` v geometrii
+  // zůstává úplný — jeho položky se musí vejít i mimo výřez.
   for (const place of ['above', 'below'] as const) {
     const list = packedBands.filter((p) => p.band.place === place);
     const fromAxis = place === 'above' ? [...list].reverse() : list;
@@ -526,7 +572,7 @@ export function layoutEvents(
 
     let cursor = 0;
     for (const [index, packed] of fromAxis.entries()) {
-      const near = index === 0 ? axisGapOf(packed.band) : cursor + BAND_GAP;
+      const near = index === 0 ? axisGapOf(packed.band) : Math.max(cursor + BAND_GAP, axisGapOf(packed.band));
       cursor = push(packed, near, sign, near - BAND_GAP / 2);
     }
   }
@@ -545,11 +591,6 @@ export function layoutEvents(
       cursor = konec + BAND_CAPTION_HEIGHT + PINNED_BAND_GAP;
     }
   }
-
-  const floatingEdge = (place: 'above' | 'below') =>
-    bands
-      .filter((b) => b.place === place)
-      .reduce((max, b) => Math.max(max, Math.abs(b.near) + b.extent), 0);
 
   const pinnedEdge = (place: 'top' | 'bottom') => {
     const list = bands.filter((b) => b.place === place);
@@ -632,8 +673,8 @@ export function layoutEvents(
   return {
     items,
     bands,
-    heightAbove: floatingEdge('above'),
-    heightBelow: Math.max(AXIS_LABEL_SPACE, floatingEdge('below')),
+    heightAbove: worstCaseEdge('above'),
+    heightBelow: Math.max(AXIS_LABEL_SPACE, worstCaseEdge('below')),
     pinnedTop: pinnedEdge('top'),
     pinnedBottom: pinnedEdge('bottom'),
   };

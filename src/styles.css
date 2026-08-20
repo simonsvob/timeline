@@ -260,7 +260,14 @@ h4 {
   background: transparent;
 }
 
+/*
+ * Pevná šířka schválně: podtitul nese rozsah let, který se při posunu osy
+ * mění každou chvíli. Kdyby značka rostla s textem, přepínač vedle ní by
+ * poskakoval doleva a doprava.
+ */
 .app-brand {
+  flex: 0 0 auto;
+  width: 216px;
   min-width: 0;
 }
 
@@ -274,6 +281,7 @@ h4 {
 .app-context {
   margin: 2px 0 0;
   font-size: 12px;
+  font-variant-numeric: tabular-nums;
   color: var(--text-soft);
   white-space: nowrap;
   overflow: hidden;
@@ -433,71 +441,67 @@ h4 {
   outline-offset: 2px;
 }
 
-/* --- Legenda pásem --- */
-/* Ve výchozím stavu složená pod tlačítkem – osa má dostat co nejvíc místa. */
+/* --- Filtr pásem --- */
+/*
+ * Bublina u tlačítka v hlavičce, ne pruh nad osou ani modál: filtruje se
+ * málokdy a osa má dostat celou plochu.
+ */
 
-.legend {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  flex-wrap: wrap;
-  padding: 0 36px 10px;
+.filter-anchor {
+  position: relative;
 }
 
-.chips {
+.filter-popover {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 40;
+  width: 268px;
+  padding: 14px 16px 10px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  box-shadow: var(--shadow-popover);
+  animation: popover-in 140ms ease-out;
+}
+
+.filter-hint {
+  margin: 0 0 10px;
+  color: var(--text-soft);
+  font-size: 12px;
+}
+
+.filter-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.filter-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
+  gap: 9px;
+  min-height: 32px;
+  font-size: 13.5px;
+  cursor: pointer;
 }
 
-.chip-toggle {
-  color: var(--text-muted);
+.filter-all {
+  margin-top: 8px;
 }
 
-/* Zapnutý filtr má být vidět i se složenou legendou. */
-.chip-toggle-active {
+.filter-all:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+/* Zapnutý filtr má být poznat i se zavřenou bublinou. */
+.pill-active {
   border-color: var(--border-strong);
   color: var(--text);
-}
-
-.chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  min-height: 30px;
-  padding: 4px 13px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-pill);
-  background: var(--surface);
-  color: var(--text-muted);
-  font: inherit;
-  font-size: 12px;
-  cursor: pointer;
-  transition: opacity 0.2s ease, transform 0.15s ease-out;
-}
-
-.chip:hover {
-  transform: translateY(-1px);
-}
-
-.chip-dim {
-  opacity: 0.45;
-}
-
-.chip-off .chip-dot {
-  box-shadow: inset 0 0 0 1.5px #d8cfbd;
-}
-
-.chip-off {
-  color: var(--text-soft);
-}
-
-.chip-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  flex: none;
 }
 
 .app-main {
@@ -1338,6 +1342,12 @@ h4 {
   min-width: 170px;
 }
 
+.table-source {
+  min-width: 150px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
 .table-actions {
   width: 1%;
   white-space: nowrap;
@@ -1450,10 +1460,6 @@ h4 {
   .app-actions .button,
   .view-switch {
     flex: 1;
-  }
-
-  .legend {
-    padding: 6px 12px;
   }
 
   .search {

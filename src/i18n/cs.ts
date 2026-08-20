@@ -29,8 +29,7 @@ export const cs = {
   nav: {
     timeline: 'Osa',
     table: 'Tabulka',
-    tags: 'Štítky',
-    periods: 'Období',
+    filter: 'Filtr',
     data: 'Data',
   },
 
@@ -108,27 +107,25 @@ export const cs = {
     searchPlaceholder: 'Hledat…',
     noSearchResults: 'Nic nenalezeno',
     legend: 'Pásma',
-    legendShow: 'Zobrazit pásma',
-    legendHide: 'Skrýt pásma',
+    legendAll: 'Vybrat vše',
+    legendHint: 'Zapíná a vypíná pásma osy',
     withoutTag: 'Bez štítku',
     emptyTitle: 'Zatím tu nic není',
     minimapHint: 'Přehled celého rozsahu – tažením posunete výřez',
     /** Názvy pásem osy; klíče odpovídají `BANDS` v components/timeline/layout.ts. */
     bands: {
       velmoci: 'Světové velmoci',
-      udalosti: 'Události',
-      zivoty: 'Životy',
+      udalosti: 'Body nad osou',
+      zivoty: 'Rozsahy pod osou',
       knihy: 'Knihy – zahrnuté období',
       izrael: 'Vláda – severní izraelské království',
       juda: 'Vláda – jižní judské království',
-      ostatni: 'Ostatní',
     },
   },
 
   detail: {
     title: 'Detail záznamu',
     tag: 'Štítek',
-    placement: 'Umístění',
     type: 'Typ',
     start: 'Začátek',
     end: 'Konec',
@@ -137,7 +134,6 @@ export const cs = {
     note: 'Poznámka',
     place: 'Místo',
     coordinates: 'Souřadnice',
-    keywords: 'Klíčová slova',
     duration: 'Trvání',
     durationYears: (n: number) => `${formatNumber(n)} ${plural(n, 'rok', 'roky', 'let')}`,
     durationApprox: 'přibližně',
@@ -158,7 +154,6 @@ export const cs = {
     tag: 'Štítek',
     tagHint: 'Určuje barvu záznamu na ose',
     tagNone: '— bez štítku —',
-    manageTags: 'Spravovat štítky',
     start: 'Začátek',
     end: 'Konec',
     year: 'Rok',
@@ -176,10 +171,6 @@ export const cs = {
     placePlaceholder: 'např. Jeruzalém',
     lat: 'Zeměpisná šířka',
     lng: 'Zeměpisná délka',
-    keywords: 'Klíčová slova',
-    keywordsHint: 'Jen popisná – na vykreslení ani na barvu nemají vliv',
-    keywordsPlaceholder: 'Přidat klíčové slovo a stisknout Enter',
-    keywordRemove: (keyword: string) => `Odebrat klíčové slovo ${keyword}`,
     optional: 'nepovinné',
     preview: 'Náhled datace',
     saveError: 'Záznam se nepodařilo uložit.',
@@ -209,7 +200,7 @@ export const cs = {
   table: {
     title: 'Tabulkový přehled',
     newEvent: 'Nový záznam',
-    searchPlaceholder: 'Hledat v názvech, zdrojích, poznámkách a klíčových slovech…',
+    searchPlaceholder: 'Hledat v názvech, zdrojích, poznámkách a místech…',
     filterTag: 'Štítek',
     filterPlacement: 'Umístění',
     colName: 'Jméno',
@@ -218,7 +209,7 @@ export const cs = {
     colStart: 'Začátek',
     colEnd: 'Konec',
     colType: 'Typ',
-    colKeywords: 'Klíčová slova',
+    colSource: 'Zdroj',
     empty: 'Žádné záznamy neodpovídají filtru.',
     sortAsc: 'vzestupně',
     sortDesc: 'sestupně',
@@ -260,10 +251,6 @@ export const cs = {
     moveDown: 'Dolů',
     eventCount: (n: number) => `${n} ${plural(n, 'záznam', 'záznamy', 'záznamů')}`,
     unused: 'zatím nepoužitý',
-    placementsTitle: 'Umístění na ose',
-    placementsIntro:
-      'Kam záznam na ose padne. Seznam je pevný – ke každé volbě patří i kus ' +
-      'vykreslení (připnutý pás u okraje, jedna řada, tvar). Vybírá se u záznamu.',
     deleteConfirmTitle: 'Smazat štítek?',
     deleteConfirmBody: (name: string, count: number) =>
       count > 0

@@ -103,18 +103,27 @@ a pásmo na ose jsou jedno a totéž. Shora dolů:
 | `placement` | Pásmo | Kde | Tvar | Řada |
 |---|---|---|---|---|
 | `velmoci` | Světové velmoci | připnuto nahoře | pruhy | jedna |
-| `udalosti` | Události | plave nad čárou | pilulky | řádkuje se |
+| `udalosti` | Body nad osou | plave nad čárou | pilulky | řádkuje se |
 | | — *centrální čára* — | | | |
-| `zivoty` | Životy | plave pod čárou | pruhy | řádkuje se |
+| `zivoty` | Rozsahy pod osou | plave pod čárou | pruhy | řádkuje se |
 | `knihy` | Knihy – zahrnuté období | plave pod čárou | pruhy | řádkuje se |
-| `ostatni` | Ostatní | plave pod čárou | podle typu | řádkuje se |
 | `izrael` | Vláda – sev. izraelské království | připnuto dole | pruhy | jedna |
 | `juda` | Vláda – již. judské království | připnuto dole | pruhy | jedna |
 
 Seznam umístění je **pevný**, protože ke každé hodnotě patří i kus vykreslení
 (připnutý pás, jedna řada, tvar) — nedá se zakládat z aplikace jako štítek.
-Neznámé umístění (starší data, cizí import) spadne do „Ostatní"
-(`DEFAULT_PLACEMENT`), nikdy nezmizí.
+Neznámé umístění (starší data, cizí import) spadne mezi rozsahy pod osou
+(`DEFAULT_PLACEMENT`), nikdy nezmizí. Prázdný formulář naopak startuje na
+`NEW_EVENT_PLACEMENT` (`udalosti`) — nový záznam je bod a bod patří nad osu.
+
+**Následující pásmo navazuje na řádky obsazené ve výřezu**, ne na všechny.
+Rozsahy se řádkují přes celé dějiny; kdyby se knihy skládaly za jejich plný
+`laneCount`, ležely by o desítky řádků pod posledním pruhem, který je zrovna
+vidět. Svislá poloha čáry se ale počítá z **nejhoršího případu**
+(`worstCaseEdge`) — kdyby se odvíjela od viditelných řádků, čára by při posunu
+poskakovala nahoru a dolů. Když se obsah nevejde, dostane prostor nad čárou
+nejvýš `ABOVE_SHARE` volné plochy: sedm řad pilulek by jinak vytlačilo rozsahy
+mimo obrazovku.
 
 Pásmo bez záznamů (nebo skryté v legendě) **nezabírá žádné svislé místo**.
 `MAX_LANES_WITH_LABELS` a zhuštěný režim se vyhodnocují za každé pásmo zvlášť.
@@ -147,7 +156,6 @@ je ta chyba, kvůli které se to předělávalo:
 | umístění (`placement`) | KDE záznam je | pevný seznam v kódu | pásmo na ose |
 | štítek (`tagId`) | CO záznam je | zakládá se v aplikaci | barvu záznamu |
 | kategorie | KDY se něco dělo | zakládá se v aplikaci | barví osu a minimapu |
-| klíčová slova (`keywords`) | nic závazného | volný text | jen popis, hledá se v nich |
 
 Kategorie s vyplněným `fromYear`/`toYear` se chová jako časové období: barví
 centrální čáru (plynulý gradient přes období ve výřezu) a dráhu minimapy.
@@ -155,11 +163,17 @@ Na barvu záznamů **nemá vliv** — tu nese výhradně štítek (`tagColor`);
 záznam bez štítku dostane `NO_TAG_COLOR`. Barva tak znamená druh záznamu
 (životy modře, knihy fialově, velmoci zeleně…), ne dobu.
 
-Záznam má nejvýš **jeden** štítek. Štítky se spravují v modálu „Štítky"
-(`TagManager`), období v modálu „Období" (`CategoryManager`); oba sdílejí
-`ColorPicker`. Filtrování v legendě na štítcích nestojí — čipy nad osou
-zapínají a vypínají **pásma** a jsou ve výchozím stavu složené pod tlačítkem,
-aby osa dostala co nejvíc místa.
+Záznam má nejvýš **jeden** štítek. Štítky (`TagSection`) i období
+(`PeriodSection`) jsou sekce uvnitř modálu **Data** — sahá se na ně zřídka a
+v hlavičce by jen ubíraly místo ose; obě sdílejí `ColorPicker` a obě mění data
+jen po přihlášení (`canEdit`). Filtrování na štítcích nestojí: tlačítko
+**Filtr** v hlavičce otevře bublinu (`BandFilter`), která zapíná a vypíná
+**pásma**. Stav filtru drží `App`, protože tlačítko je v hlavičce, ale filtruje
+obsah osy.
+
+Barva štítku se na ose projeví u pruhů výplní a obrysem, u pilulek nad osou
+náznakem výplně, obrysem, stínem a jménem — plná výplň by z pilulky udělala
+skvrnu, roky proto zůstávají tlumené.
 
 **Vykreslovací řetězec osy** (`src/components/timeline/`) — tři kroky, každý
 v jiném souboru:
@@ -200,9 +214,11 @@ aplikace **dvěma různými cestami** a obě je potřeba obsluhovat: Chrome a Fi
 posílají `wheel` s `ctrlKey`, Safari (Mac i iPad) vlastní `gesturestart` /
 `gesturechange` / `gestureend`, kde `scale` je poměr vůči začátku gesta, ne
 přírůstek. Na iPadu navíc Safari posílá gesta souběžně s dotyky, které řeší
-pinch přes pointery — proto se obsluha gest při dvou aktivních ukazatelích
-přeskakuje, jinak by se zoom sečetl. Osa nemá nástrojovou lištu ani skok na
-rok, gesta je nahradila.
+pinch přes pointery — proto se obsluha gest přeskakuje, jakmile je na plátně
+**jediný** aktivní ukazatel. Hlídat až dva nestačilo: `gesturestart` umí přijít
+dřív než druhý `pointerdown` a v té skulině se zoom sčítal dvakrát. Na trackpadu
+Macu žádný ukazatel není, do mapy se zapisuje až při `pointerdown`. Osa nemá
+nástrojovou lištu ani skok na rok, gesta je nahradila.
 
 **Setrvačnost.** Po švihnutí prstem posun plynule dojede (`INERTIA_TAU`,
 exponenciální útlum, zastaví se pod `INERTIA_MIN_SPEED`). Rychlost se počítá
@@ -215,13 +231,19 @@ pointer událostí neručí za společnou epochu; s `timeStamp` vycházely nesmy
 prodlevy mezi pohyby, rychlost se pořád zahazovala a na iPadu se doběh nikdy
 nespustil.
 
-**Zoom má strop na rychlosti** (`limitZoomFactor` ve `viewport.ts`). Trackpad
-Macu posílá při rychlém pinchi velké `deltaY` a po dojetí prstů ještě dávku
-setrvačných událostí; exponenciální zoom to složil dohromady a měřítko
-přeletělo půlku rozsahu, než člověk stihl zareagovat. Strop je v e-násobcích
-za sekundu (`MAX_ZOOM_RATE`), takže na počtu událostí nezáleží — plný rozsah
-se přejede zhruba za tři vteřiny. Samotná matematika zoomu je čistě
-geometrická, žádný skok v ní není.
+**Zoom má strop na rychlosti — ale jen na trackpadu** (`limitZoomFactor` ve
+`viewport.ts`). Trackpad Macu posílá při rychlém pinchi velké `deltaY` a po
+dojetí prstů ještě dávku setrvačných událostí; exponenciální zoom to složil
+dohromady a měřítko přeletělo půlku rozsahu, než člověk stihl zareagovat.
+Strop je v e-násobcích za sekundu (`MAX_ZOOM_RATE`), takže na počtu událostí
+nezáleží — plný rozsah se přejede zhruba za tři vteřiny.
+
+**Dotykový pinch se stropem omezovat nesmí.** Vzdálenost prstů JE požadované
+měřítko, žádná setrvačnost tam není a strop ho jen držel zpátky: při 60
+událostech za vteřinu vycházel limit na ~1,06× za snímek, což běžný pinch
+překročí, takže se zoom za prsty opožďoval a trhal. Pinch přes pointery proto
+používá poměr vzdáleností přímo. Samotná matematika zoomu je čistě geometrická,
+žádný skok v ní není.
 
 **Gesto se zamyká na převládající směr.** Vodorovné švihnutí na trackpadu nese
 i drobné `deltaY`. Bez zámku osa při posunu poskakovala svisle a řádky se zdály
@@ -252,18 +274,17 @@ Export/import má verzi schématu (`EXPORT_SCHEMA_VERSION` v `src/data/types.ts`
 Import umí načíst i starší verze; při přidání pole verzi zvyš a rozšiř
 `SUPPORTED_IMPORT_VERSIONS`.
 
-**Tři sloupce, tři role.** `events.placement` (text, CHECK na sedm známých
-hodnot) rozhoduje o pásmu, `events.tag_id` → `tags` nese barvu,
-`events.keywords` (dřív `events.tags`) je jen popisný text z importů
-(`kral`, `narozeni`, `kr`, …) a na vykreslení nemá vliv. Sloupec
-`events.category_id` padl — kategorie na záznamech nevisí.
+**Dva sloupce, dvě role.** `events.placement` (text, CHECK na šest známých
+hodnot) rozhoduje o pásmu, `events.tag_id` → `tags` nese barvu. Sloupce
+`events.category_id` i `events.keywords` padly — kategorie na záznamech
+nevisí a klíčová slova nic neřídila (zbyla po době, kdy se z nich odvozovalo
+pásmo). Import je z nich u starších souborů pořád umí dopočítat.
 
 Osmý štítek `období` vznikl při importu pro záznamy, které nejsou ani událost,
 ani život; kdyby přestal dávat smysl, stačí je přepsat na `událost` a štítek
 smazat.
 
-Nový záznam **vždycky** dostane umístění (jinak spadne do „Ostatní")
-i štítek (jinak bude šedivý).
+Nový záznam **vždycky** dostane štítek — bez něj bude šedivý.
 
 ## Nasazení
 

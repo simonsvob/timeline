@@ -1,10 +1,10 @@
 /**
- * Správa štítků: vytvoření, přejmenování, barva a pořadí.
+ * Sekce se štítky uvnitř modálu Data: seznam s barvami a počty, zakládání,
+ * přejmenování, přebarvení, pořadí a mazání.
  *
  * Štítek říká, CO záznam je, a jediný určuje jeho barvu na ose. Kam záznam
- * padne, řeší umístění (`placement`) – to je pevný seznam v kódu, protože ke
- * každé hodnotě patří i kus vykreslení. Proto se tu umístění jen vypisují
- * s počty, aby bylo vidět, co která volba ve formuláři znamená.
+ * padne, řeší umístění (`placement`) – pevný seznam v kódu, protože ke každé
+ * hodnotě patří i kus vykreslení.
  *
  * Smazáním štítku záznamy nemizí, jen přijdou o barvu (ON DELETE SET NULL).
  */
@@ -12,8 +12,8 @@
 import { useState } from 'react';
 import { cs } from '../i18n/cs';
 import { isValidHexColor, validateCategoryForm } from '../lib/validation';
-import { PLACEMENTS, type Tag, type TagDraft, type TimelineEvent } from '../data/types';
-import { ConfirmDialog, Modal } from './ui';
+import type { Tag, TagDraft, TimelineEvent } from '../data/types';
+import { ConfirmDialog } from './ui';
 import { COLOR_PALETTE, ColorPicker } from './ColorPicker';
 
 interface Props {
@@ -22,19 +22,15 @@ interface Props {
   canEdit: boolean;
   onSave: (id: string | null, draft: TagDraft) => Promise<void>;
   onDelete: (id: string) => Promise<void>;
-  onClose: () => void;
 }
 
-export function TagManager({ tags, events, canEdit, onSave, onDelete, onClose }: Props) {
+export function TagSection({ tags, events, canEdit, onSave, onDelete }: Props) {
   const [newName, setNewName] = useState('');
   const [newColor, setNewColor] = useState(COLOR_PALETTE[0]);
   const [error, setError] = useState<string | null>(null);
   const [pendingDelete, setPendingDelete] = useState<Tag | null>(null);
 
   const countFor = (id: string) => events.filter((event) => event.tagId === id).length;
-  const countForPlacement = (placement: string) =>
-    events.filter((event) => event.placement === placement).length;
-
   const handleAdd = async () => {
     const problems = validateCategoryForm(newName, newColor);
     if (Object.keys(problems).length > 0) {
@@ -76,18 +72,9 @@ export function TagManager({ tags, events, canEdit, onSave, onDelete, onClose }:
   };
 
   return (
-    <>
-      <Modal
-        title={cs.tags.title}
-        onClose={onClose}
-        wide
-        footer={
-          <button type="button" className="button" onClick={onClose}>
-            {cs.app.close}
-          </button>
-        }
-      >
-        <p className="muted manager-intro">{cs.tags.intro}</p>
+    <section className="data-section">
+      <h3>{cs.tags.title}</h3>
+      <p className="muted manager-intro">{cs.tags.intro}</p>
 
         {error ? <p className="form-error">{error}</p> : null}
 
@@ -185,22 +172,6 @@ export function TagManager({ tags, events, canEdit, onSave, onDelete, onClose }:
           </div>
         ) : null}
 
-        <div className="category-new">
-          <h3>{cs.tags.placementsTitle}</h3>
-          <p className="muted manager-intro">{cs.tags.placementsIntro}</p>
-          <ul className="placement-list">
-            {PLACEMENTS.map((placement) => (
-              <li key={placement}>
-                <span className="placement-name">{cs.timeline.bands[placement]}</span>
-                <span className="category-count">
-                  {cs.tags.eventCount(countForPlacement(placement))}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </Modal>
-
       {pendingDelete ? (
         <ConfirmDialog
           title={cs.tags.deleteConfirmTitle}
@@ -215,6 +186,6 @@ export function TagManager({ tags, events, canEdit, onSave, onDelete, onClose }:
           }}
         />
       ) : null}
-    </>
+    </section>
   );
 }

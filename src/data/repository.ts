@@ -65,14 +65,13 @@ interface EventRow {
   place_name: string | null;
   lat: number | null;
   lng: number | null;
-  keywords: string[] | null;
   created_at: string;
   updated_at: string;
 }
 
 const EVENT_COLUMNS =
   'id,name,type,placement,tag_id,start_year,start_month,start_day,start_approx,start_qualifier,' +
-  'end_year,end_month,end_day,end_approx,end_qualifier,source,note,place_name,lat,lng,keywords,' +
+  'end_year,end_month,end_day,end_approx,end_qualifier,source,note,place_name,lat,lng,' +
   'created_at,updated_at';
 
 const CATEGORY_COLUMNS = 'id,name,color,sort_order,from_year,to_year';
@@ -140,7 +139,6 @@ export function eventFromRow(row: EventRow): TimelineEvent {
     placeName: row.place_name,
     lat: row.lat,
     lng: row.lng,
-    keywords: row.keywords ?? [],
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -168,7 +166,6 @@ export function eventToRow(draft: EventDraft): Omit<EventRow, 'id' | 'created_at
     place_name: draft.placeName,
     lat: draft.lat,
     lng: draft.lng,
-    keywords: draft.keywords,
   };
 }
 

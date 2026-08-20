@@ -6,7 +6,7 @@
  */
 
 import { cs } from '../i18n/cs';
-import { DEFAULT_PLACEMENT, type EventDraft, type EventType, type Placement } from '../data/types';
+import { NEW_EVENT_PLACEMENT, type EventDraft, type EventType, type Placement } from '../data/types';
 import {
   compareTimePoints,
   daysInMonth,
@@ -44,7 +44,6 @@ export interface EventFormInput {
   placeName: string;
   lat: string;
   lng: string;
-  keywords: string[];
 }
 
 export type FieldErrors = Record<string, string>;
@@ -61,7 +60,7 @@ export function emptyEventForm(): EventFormInput {
   return {
     name: '',
     type: 'point',
-    placement: DEFAULT_PLACEMENT,
+    placement: NEW_EVENT_PLACEMENT,
     tagId: null,
     start: emptyTimeInput(),
     end: emptyTimeInput(),
@@ -70,7 +69,6 @@ export function emptyEventForm(): EventFormInput {
     placeName: '',
     lat: '',
     lng: '',
-    keywords: [],
   };
 }
 
@@ -193,10 +191,6 @@ export function validateEventForm(input: EventFormInput): ValidationResult {
     return { ok: false, errors };
   }
 
-  const keywords = Array.from(
-    new Set(input.keywords.map((t) => t.trim()).filter((t) => t !== '')),
-  );
-
   return {
     ok: true,
     errors: {} as Record<string, never>,
@@ -213,7 +207,6 @@ export function validateEventForm(input: EventFormInput): ValidationResult {
       placeName: nullIfBlank(input.placeName),
       lat: (lat as number | null) ?? null,
       lng: (lng as number | null) ?? null,
-      keywords,
     },
   };
 }

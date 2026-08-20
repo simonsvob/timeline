@@ -100,7 +100,8 @@ function parseCategory(raw: unknown): Category | null {
 
 /**
  * Umístění pro záznamy ze starších exportů. Do verze 3 o něm rozhodovala
- * klíčová slova, tak se z nich odvodí i teď — první shoda vyhrává.
+ * klíčová slova (`events.tags`), tak se z nich odvodí i teď — první shoda
+ * vyhrává. Samotná klíčová slova se do aplikace už nepřenášejí, nic neřídila.
  */
 function placementFromKeywords(keywords: string[]) {
   const has = (name: string) => keywords.includes(name);
@@ -109,7 +110,6 @@ function placementFromKeywords(keywords: string[]) {
   if (has('vlada-juda') || has('vlada-12kmenu')) return 'juda';
   if (has('kniha-zahrnuto')) return 'knihy';
   if (has('udalost') || has('kniha') || has('kniha-dokonceno')) return 'udalosti';
-  if (has('zivot')) return 'zivoty';
   return DEFAULT_PLACEMENT;
 }
 
@@ -155,7 +155,8 @@ function parseEvent(raw: unknown): TimelineEvent | null {
     if (!end) return null;
   }
 
-  // Do verze 3 se klíčovým slovům říkalo `tags`; jméno se uvolnilo pro štítky.
+  // Klíčová slova ve verzích 1–4: do aplikace se nedostanou, jen z nich
+  // starším záznamům dopočítáme umístění (`tags` se do v4 jmenovala takhle).
   const rawKeywords = Array.isArray(raw.keywords) ? raw.keywords : raw.tags;
   const keywords = Array.isArray(rawKeywords)
     ? rawKeywords.filter((t): t is string => typeof t === 'string')
@@ -177,7 +178,6 @@ function parseEvent(raw: unknown): TimelineEvent | null {
     placeName: optionalText(raw.placeName),
     lat: optionalNumber(raw.lat),
     lng: optionalNumber(raw.lng),
-    keywords,
     createdAt: typeof raw.createdAt === 'string' ? raw.createdAt : '',
     updatedAt: typeof raw.updatedAt === 'string' ? raw.updatedAt : '',
   };

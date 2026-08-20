@@ -1,9 +1,9 @@
 /**
- * Správa období: vytvoření, přejmenování, barva (paleta i vlastní hex),
- * pořadí a smazání.
+ * Sekce s obdobími uvnitř modálu Data: vytvoření, přejmenování, barva
+ * (paleta i vlastní hex), pořadí a smazání.
  *
  * Období barví centrální čáru a dráhu minimapy podle toho, KDY se něco stalo.
- * Barvu jednotlivých záznamů neurčují – tu nese štítek (viz TagManager).
+ * Barvu jednotlivých záznamů neurčují – tu nese štítek (viz TagSection).
  * Vazba na záznamy proto neexistuje a smazání období se jich nedotkne.
  */
 
@@ -12,7 +12,7 @@ import { cs } from '../i18n/cs';
 import { formatYear } from '../lib/format';
 import { isValidHexColor, validateCategoryForm } from '../lib/validation';
 import type { Category, CategoryDraft } from '../data/types';
-import { ConfirmDialog, Modal } from './ui';
+import { ConfirmDialog } from './ui';
 import { COLOR_PALETTE, ColorPicker } from './ColorPicker';
 
 interface Props {
@@ -21,17 +21,9 @@ interface Props {
   onSave: (id: string | null, draft: CategoryDraft) => Promise<void>;
   onDelete: (id: string) => Promise<void>;
   onReorder: (ordered: Category[]) => Promise<void>;
-  onClose: () => void;
 }
 
-export function CategoryManager({
-  categories,
-  canEdit,
-  onSave,
-  onDelete,
-  onReorder,
-  onClose,
-}: Props) {
+export function PeriodSection({ categories, canEdit, onSave, onDelete, onReorder }: Props) {
   const [newName, setNewName] = useState('');
   const [newColor, setNewColor] = useState(COLOR_PALETTE[0]);
   const [error, setError] = useState<string | null>(null);
@@ -84,18 +76,9 @@ export function CategoryManager({
   };
 
   return (
-    <>
-      <Modal
-        title={cs.categories.title}
-        onClose={onClose}
-        wide
-        footer={
-          <button type="button" className="button" onClick={onClose}>
-            {cs.app.close}
-          </button>
-        }
-      >
-        <p className="muted manager-intro">{cs.categories.intro}</p>
+    <section className="data-section">
+      <h3>{cs.categories.title}</h3>
+      <p className="muted manager-intro">{cs.categories.intro}</p>
 
         {error ? <p className="form-error">{error}</p> : null}
 
@@ -134,62 +117,65 @@ export function CategoryManager({
                       )
                     : cs.categories.spanNone}
                 </span>
-                <div className="category-actions" hidden={!canEdit}>
-                  <button
-                    type="button"
-                    className="icon-button"
-                    aria-label={cs.categories.moveUp}
-                    disabled={index === 0}
-                    onClick={() => void move(index, -1)}
-                  >
-                    ↑
-                  </button>
-                  <button
-                    type="button"
-                    className="icon-button"
-                    aria-label={cs.categories.moveDown}
-                    disabled={index === categories.length - 1}
-                    onClick={() => void move(index, 1)}
-                  >
-                    ↓
-                  </button>
-                  <button
-                    type="button"
-                    className="icon-button icon-danger"
-                    aria-label={cs.app.delete}
-                    onClick={() => setPendingDelete(category)}
-                  >
-                    ×
-                  </button>
-                </div>
+                {canEdit ? (
+                  <div className="category-actions">
+                    <button
+                      type="button"
+                      className="icon-button"
+                      aria-label={cs.categories.moveUp}
+                      disabled={index === 0}
+                      onClick={() => void move(index, -1)}
+                    >
+                      ↑
+                    </button>
+                    <button
+                      type="button"
+                      className="icon-button"
+                      aria-label={cs.categories.moveDown}
+                      disabled={index === categories.length - 1}
+                      onClick={() => void move(index, 1)}
+                    >
+                      ↓
+                    </button>
+                    <button
+                      type="button"
+                      className="icon-button icon-danger"
+                      aria-label={cs.app.delete}
+                      onClick={() => setPendingDelete(category)}
+                    >
+                      ×
+                    </button>
+                  </div>
+                ) : null}
               </li>
             ))}
           </ul>
         )}
 
-        <div className="category-new" hidden={!canEdit}>
-          <h3>{cs.categories.newCategory}</h3>
-          <div className="category-row">
-            <ColorPicker value={newColor} onChange={setNewColor} />
-            <input
-              className="input category-name"
-              value={newName}
-              placeholder={cs.categories.name}
-              aria-label={cs.categories.name}
-              onChange={(e) => setNewName(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault();
-                  void handleAdd();
-                }
-              }}
-            />
-            <button type="button" className="button button-primary" onClick={() => void handleAdd()}>
-              {cs.app.add}
-            </button>
+        {canEdit ? (
+        <div className="category-new">
+            <h3>{cs.categories.newCategory}</h3>
+            <div className="category-row">
+              <ColorPicker value={newColor} onChange={setNewColor} />
+              <input
+                className="input category-name"
+                value={newName}
+                placeholder={cs.categories.name}
+                aria-label={cs.categories.name}
+                onChange={(e) => setNewName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    void handleAdd();
+                  }
+                }}
+              />
+              <button type="button" className="button button-primary" onClick={() => void handleAdd()}>
+                {cs.app.add}
+              </button>
+            </div>
           </div>
-        </div>
-      </Modal>
+        ) : null}
 
       {pendingDelete ? (
         <ConfirmDialog
@@ -205,7 +191,7 @@ export function CategoryManager({
           }}
         />
       ) : null}
-    </>
+    </section>
   );
 }
 

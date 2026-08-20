@@ -92,12 +92,6 @@ export function DetailPanel({ event, tag, canEdit, anchor, onEdit, onDelete, onC
           </>
         ) : null}
 
-        <dt>{cs.detail.tag}</dt>
-        <dd>{tag?.name ?? cs.timeline.withoutTag}</dd>
-
-        <dt>{cs.detail.placement}</dt>
-        <dd>{cs.timeline.bands[event.placement]}</dd>
-
         {event.source ? (
           <>
             <dt>{cs.detail.source}</dt>
@@ -127,18 +121,8 @@ export function DetailPanel({ event, tag, canEdit, anchor, onEdit, onDelete, onC
           </>
         ) : null}
 
-        {event.keywords.length > 0 ? (
-          <>
-            <dt>{cs.detail.keywords}</dt>
-            <dd className="tag-list">
-              {event.keywords.map((keyword) => (
-                <span key={keyword} className="tag">
-                  {keyword}
-                </span>
-              ))}
-            </dd>
-          </>
-        ) : null}
+        <dt>{cs.detail.tag}</dt>
+        <dd>{tag?.name ?? cs.timeline.withoutTag}</dd>
       </dl>
 
       {canEdit ? (

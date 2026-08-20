@@ -479,7 +479,7 @@ function drawPoints(input: RenderInput): void {
 
     // stopka od uzlu k pilulce (jen u pásma, které na čáře stojí)
     if (item.stem) {
-      ctx.strokeStyle = rgba(item.color, 0.35);
+      ctx.strokeStyle = rgba(item.color, 0.45);
       ctx.lineWidth = 1.5;
       ctx.beginPath();
       ctx.moveTo(Math.round(item.centerX) + 0.5, axisY);
@@ -487,26 +487,28 @@ function drawPoints(input: RenderInput): void {
       ctx.stroke();
     }
 
-    // pilulka
+    // Pilulka v barvě štítku. Nejde o plnou výplň jako u pruhů — pilulka stojí
+    // na pozadí a musí zůstat čitelnou kartičkou. Barvu proto nese jen náznak
+    // výplně, obrys, stín a jméno; roky zůstávají tlumené, ať to není přeplácané.
     const x = item.x1;
     const y = centerY - PILL_HEIGHT / 2 - lift;
-    withShadow(ctx, theme.shadow, hovered ? 22 : 14, hovered ? 8 : 5, () => {
+    withShadow(ctx, rgba(item.color, hovered ? 0.4 : 0.26), hovered ? 22 : 14, hovered ? 8 : 5, () => {
       roundRectPath(ctx, x, y, item.x2 - item.x1, PILL_HEIGHT, PILL_HEIGHT / 2);
-      ctx.fillStyle = theme.card;
+      ctx.fillStyle = mixWithWhite(item.color, 0.07);
       ctx.fill();
     });
     roundRectPath(ctx, x + 0.5, y + 0.5, item.x2 - item.x1 - 1, PILL_HEIGHT - 1, PILL_HEIGHT / 2);
-    ctx.strokeStyle = selected ? theme.selection : theme.border;
+    ctx.strokeStyle = selected ? theme.selection : rgba(item.color, 0.55);
     ctx.lineWidth = selected ? 2 : 1;
     ctx.stroke();
 
     ctx.textBaseline = 'middle';
     ctx.font = input.nameFont;
-    ctx.fillStyle = theme.text;
+    ctx.fillStyle = darken(item.color, 0.42);
     ctx.fillText(item.name, x + PILL_PADDING_X, centerY - lift);
     if (item.years) {
       ctx.font = input.yearFont;
-      ctx.fillStyle = theme.tertiary;
+      ctx.fillStyle = rgba(item.color, 0.7);
       ctx.fillText(item.years, x + PILL_PADDING_X + item.nameWidth + PILL_GAP, centerY - lift + 0.5);
     }
 

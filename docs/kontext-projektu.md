@@ -31,11 +31,12 @@ Postup nastavení od nuly (migrace, RLS, účty, proměnné, deploy) je v `READM
 ## Stav
 
 Aplikace je hotová a nasazená. Funguje osa s plynulým zoomem, formulářová
-editace, správa štítků i období, tabulkový přehled, export/import a přihlášení.
-V databázi je **552 záznamů**: tři časové osy z knihy *Odvážně choď s Bohem*
-(str. 14–15, 104–105, 186–187), chronologie králů, knih a událostí z hesla
-„Chronologie" a z dodatku nwt A6, přehled biblických knih a dávka událostí
-z tabulky zadavatele. Testů 164, všechny procházejí.
+editace, správa štítků i období (v modálu Data), filtr pásem, tabulkový
+přehled, export/import a přihlášení. V databázi je **546 záznamů**: tři časové
+osy z knihy *Odvážně choď s Bohem* (str. 14–15, 104–105, 186–187), chronologie
+králů, knih a událostí z hesla „Chronologie" a z dodatku nwt A6, přehled
+biblických knih a dávka událostí z tabulky zadavatele. Testů 165, všechny
+procházejí.
 
 Ověřeno měřením, ne odhadem: 60 fps (medián 16,6 ms na snímek) při zoomu
 a posunu s 3000 záznamy; RLS testována chováním pod rolemi `anon`
@@ -48,12 +49,14 @@ i `authenticated`, ne jen existencí politik.
   jsou odvozené z událostí v datech a dají se změnit ve správě období.
   Barví jen osu a minimapu, na záznamy nesahají. Zadavatel si se systémem
   období chce do budoucna ještě pohrát.
-- **Sada štítků.** Osm štítků: `život`, `událost`, `kniha dopsáno`,
+- **Sada štítků.** Osm štítků: `život`, `událost`, `kniha dokončeno`,
   `kniha zahrnuto`, `velmoc`, `vláda Judsko`, `vláda Izrael`, `období`.
   Prvních sedm zadal zadavatel, `období` vzniklo při importu pro záznamy,
   které nejsou ani událost, ani život — dá se sloučit do `událost`.
-- **Filtrování.** Čipy pásem jsou zatím schované pod tlačítkem „Zobrazit
-  pásma". Zadavatel chce filtry ladit později; teď nejsou priorita.
+- **Filtrování.** Bublina pod tlačítkem „Filtr" zapíná a vypíná pásma.
+  Zadavatel chce filtry ladit později; teď nejsou priorita.
+- **Zdroje s `xxx`.** Pár záznamů z dávky zadavatele má ve zdroji jen `xxx` —
+  zástupný text, který se v datech nechal.
 - **Priorita postav.** Do budoucna má jít postavy seřadit podle důležitosti,
   aby výš byly výraznější. Zatím řádkuje jen greedy packing podle místa.
 
@@ -93,14 +96,20 @@ a další jde přidat kdykoli. Aplikace si u záznamů nepamatuje autora.
 tam nejsou — pinch a tažení to zvládnou rychleji a lišta jen ubírala místo.
 Hledání se přesunulo do hlavičky, přihlášení je jen ikona zámku.
 
-**Události nahoře, životy dole.** Bodové události mají vlastní pásmo nahoře
-a kreslí se jako svislé značky. Rozházené mezi pruhy se ztrácely a kolečka se
-s pruhy pletla.
+**Body nahoře, rozsahy dole.** Bodové záznamy mají vlastní pásmo nahoře
+a kreslí se jako svislé značky s pilulkou. Rozházené mezi pruhy se ztrácely
+a kolečka se s pruhy pletla.
+
+**Pásmo knih navazuje na to, co je vidět.** Rozsahy se řádkují přes celé
+dějiny, takže pásmo knih leželo o desítky řádků pod posledním pruhem ve
+výřezu. Následující pásmo se proto skládá za řádky obsazené **ve výřezu**.
+Svislá poloha čáry se ale pořád počítá z nejhoršího případu — kdyby se
+odvíjela od viditelných řádků, čára by při posunu poskakovala.
 
 **Pásma podle umístění, ne dvě pevná pásma.** Osa je rozdělená na pásma
-(`BANDS` v `layout.ts`), shora dolů: světové velmoci,
-události, čára, životy, zahrnutá období knih, ostatní, severní izraelské
-království, jižní judské království. Judské
+(`BANDS` v `layout.ts`), shora dolů: světové velmoci, body nad osou, čára,
+rozsahy pod osou, zahrnutá období knih, severní izraelské království, jižní
+judské království. Judské
 a izraelské království vládly současně — v jednom pásmu by je řádkování
 promíchalo a nešlo by odečíst, kdo vládl souběžně s kým. Pásmo bez záznamů
 nebo skryté nezabírá žádné svislé místo.
@@ -164,15 +173,15 @@ Konvence v datech:
 - **poznámka** — text ze zdroje, u sloučených životů vysvětlení, u duplicit
   informace o dvojím výskytu.
 - **umístění** (`placement`) — pásmo na ose. Pevný seznam v kódu:
-  `velmoci`, `udalosti`, `zivoty`, `knihy`, `izrael`, `juda`, `ostatni`.
+  `velmoci`, `udalosti`, `zivoty`, `knihy`, `izrael`, `juda`.
 - **štítek** (`tagId`) — druh záznamu a jeho barva. Nejvýš jeden na záznam,
   zakládá se v aplikaci.
-- **klíčová slova** (`keywords`, dřív se jmenovala `tags`) — `kral`,
-  `narozeni`, `predpotopni`, `popotopni`, `kr` … Čistě popisné, hledá se v nich
-  v tabulce, na vykreslení nemají vliv.
 
-Nový záznam potřebuje obojí: bez umístění spadne do pásma „Ostatní", bez štítku
-bude šedivý.
+Klíčová slova (`keywords`, dřív `events.tags`) padla — nic neřídila a plnila
+formulář i vyhledávání balastem. Import je u starších souborů pořád umí přečíst
+a odvodit z nich umístění.
+
+Neznámé umístění spadne mezi rozsahy pod osou, bez štítku bude záznam šedivý.
 
 ## Co se záměrně nestaví
 

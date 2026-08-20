@@ -1,11 +1,7 @@
 /**
- * Hlavní pohled: plátno osy, plovoucí minimapa a schovaná legenda pásem.
- * Nástrojová lišta tu není — gesta ji nahradila.
- *
- * Čipy filtrují po pásmech (velmoci, události, životy, vlády), ne po
- * štítcích — štítek nese barvu, ne polohu. Ve výchozím stavu jsou složené
- * pod tlačítkem, aby osa dostala co nejvíc místa; filtrování je zatím
- * okrajová funkce.
+ * Hlavní pohled: plátno osy a plovoucí minimapa. Nástrojová lišta tu není —
+ * gesta ji nahradila a filtr pásem sedí v bublině u tlačítka v hlavičce,
+ * takže osa dostane celou plochu.
  */
 
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -20,7 +16,7 @@ import {
   type Viewport,
 } from '../lib/viewport';
 import type { Category, Tag, TimelineEvent } from '../data/types';
-import { BANDS, bandOf, eventExtent } from './timeline/layout';
+import { bandOf, eventExtent } from './timeline/layout';
 import { Minimap } from './timeline/Minimap';
 import type { PeriodSpan } from './timeline/renderer';
 import { TimelineCanvas, type FocusRequest } from './timeline/TimelineCanvas';
@@ -39,6 +35,8 @@ interface Props {
   events: TimelineEvent[];
   categories: Category[];
   tagMap: Map<string, Tag>;
+  /** pásma vypnutá ve filtru; stav drží App, protože filtr je v hlavičce */
+  hiddenBands: Set<string>;
   selectedId: string | null;
   onSelect: (event: TimelineEvent | null, anchor: SelectionAnchor | null) => void;
   externalFocus: ExternalFocus | null;
@@ -73,13 +71,12 @@ export function TimelineView({
   events,
   categories,
   tagMap,
+  hiddenBands,
   selectedId,
   onSelect,
   externalFocus,
   onRangeChange,
 }: Props) {
-  const [hiddenBands, setHiddenBands] = useState<Set<string>>(new Set());
-  const [legendOpen, setLegendOpen] = useState(false);
   const [view, setView] = useState<Viewport>({ t0: DEFAULT_DOMAIN.min, pxPerYear: 0.2, width: 0 });
   const [focusRequest, setFocusRequest] = useState<FocusRequest | null>(null);
   const nonce = useRef(0);
@@ -93,25 +90,6 @@ export function TimelineView({
     () => events.filter((event) => !hiddenBands.has(bandOf(event).id)),
     [events, hiddenBands],
   );
-
-  /** Pásma, která vůbec mají záznam – prázdná se v legendě neukazují. */
-  const populatedBands = useMemo(() => {
-    const set = new Set<string>();
-    for (const event of events) set.add(bandOf(event).id);
-    return set;
-  }, [events]);
-
-  /** Která pásma mají záznam ve výřezu – ostatní se v čipech ztlumí. */
-  const inViewport = useMemo(() => {
-    const from = tOf(view, 0);
-    const to = viewEnd(view);
-    const set = new Set<string>();
-    for (const event of events) {
-      const extent = eventExtent(event);
-      if (extent.to >= from && extent.from <= to) set.add(bandOf(event).id);
-    }
-    return set;
-  }, [events, view]);
 
   useEffect(() => {
     const element = containerRef.current;
@@ -164,52 +142,8 @@ export function TimelineView({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [externalFocus]);
 
-  const toggleBand = (id: string) => {
-    setHiddenBands((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  };
-
-  const visibleBands = BANDS.filter((band) => populatedBands.has(band.id));
-
   return (
     <div className="timeline-view">
-      {visibleBands.length > 1 ? (
-        <div className="legend">
-          <button
-            type="button"
-            className={`chip chip-toggle${hiddenBands.size > 0 ? ' chip-toggle-active' : ''}`}
-            onClick={() => setLegendOpen((prev) => !prev)}
-            aria-expanded={legendOpen}
-          >
-            {legendOpen ? cs.timeline.legendHide : cs.timeline.legendShow}
-            {hiddenBands.size > 0 ? ` (${visibleBands.length - hiddenBands.size}/${visibleBands.length})` : ''}
-          </button>
-          {legendOpen ? (
-            <div className="chips" role="group" aria-label={cs.timeline.legend}>
-              {visibleBands.map((band) => {
-                const hidden = hiddenBands.has(band.id);
-                const dimmed = !inViewport.has(band.id);
-                return (
-                  <button
-                    key={band.id}
-                    type="button"
-                    className={`chip${hidden ? ' chip-off' : ''}${dimmed ? ' chip-dim' : ''}`}
-                    onClick={() => toggleBand(band.id)}
-                    aria-pressed={!hidden}
-                  >
-                    {cs.timeline.bands[band.id] ?? band.id}
-                  </button>
-                );
-              })}
-            </div>
-          ) : null}
-        </div>
-      ) : null}
-
       <div className="timeline-body" ref={containerRef}>
         {events.length === 0 ? (
           <div className="timeline-empty">

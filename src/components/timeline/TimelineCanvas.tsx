@@ -35,6 +35,13 @@ const BAND_FONT = '600 10.5px -apple-system, BlinkMacSystemFont, "Segoe UI", sys
 const CLICK_SLOP = 6;
 /** Volné místo nad nejvyšší pilulkou a pod nejnižším pruhem. */
 const VERTICAL_PADDING = 28;
+
+/**
+ * Kolik z volné plochy smí zabrat obsah nad čárou, když se všechno nevejde.
+ * Bez stropu dostal prostor nad čárou vždycky přednost a sedm řad pilulek
+ * vytlačilo rozsahy pod čárou skoro z obrazovky.
+ */
+const ABOVE_SHARE = 0.45;
 /** Minimapa plave nad plátnem; obsah se pod ni nesmí schovat. */
 const MINIMAP_CLEARANCE = 68;
 
@@ -157,8 +164,13 @@ export function TimelineCanvas({
     const above = layout.heightAbove;
     const below = layout.heightBelow;
     const usable = volnyDo - volnyOd;
+    // Vejde-li se obsah, vycentruje se. Když ne, dostane každá strana svůj díl:
+    // nad čárou jen tolik, aby pod ní zbylo místo na rozsahy. Zbytek se doladí
+    // svislým posunem osy.
     const ideal =
-      usable >= above + below ? volnyOd + above + (usable - above - below) / 2 : volnyOd + above;
+      usable >= above + below
+        ? volnyOd + above + (usable - above - below) / 2
+        : volnyOd + Math.min(above, Math.max(usable - below, usable * ABOVE_SHARE));
     const min = Math.min(volnyDo - below, ideal);
     const max = Math.max(volnyOd + above, ideal);
     return { axisY: ideal, top, bottom, shiftRange: { min: min - ideal, max: max - ideal } };
@@ -262,8 +274,13 @@ export function TimelineCanvas({
   const lastZoomAt = useRef(0);
 
   /**
-   * Ořízne požadovaný násobek měřítka na povolenou rychlost. Volá se u každé
-   * cesty, kterou zoom přichází (kolečko, gesto Safari, pinch přes ukazatele).
+   * Ořízne požadovaný násobek měřítka na povolenou rychlost.
+   *
+   * Platí **jen pro trackpad** – tam OS po dojetí prstů ještě chvíli posílá
+   * setrvačné události a exponenciální zoom je složil dohromady tak, že
+   * měřítko přeletělo půlku rozsahu. Dotykový pinch se takhle omezovat nesmí:
+   * vzdálenost prstů JE požadované měřítko, žádná setrvačnost tam není a
+   * strop ho jen držel zpátky — zoom se za prsty opožďoval a trhal.
    */
   const omezenyNasobek = useCallback((factor: number) => {
     const now = performance.now();
@@ -358,11 +375,18 @@ export function TimelineCanvas({
 
     // Safari (Mac i iPad) neposílá za pinch na trackpadu wheel s ctrlKey jako
     // Chrome, ale vlastní gesture* události.
+    //
+    // Na iPadu chodí gesta SOUBĚŽNĚ s dotyky, které řeší pinch přes ukazatele,
+    // a nedá se spolehnout na pořadí — `gesturestart` umí přijít dřív než druhý
+    // `pointerdown`. Kdyby se hlídaly až dva ukazatele, tahle skulina by zoom
+    // sečetla dvakrát. Stačí proto jediný ukazatel na plátně: na trackpadu
+    // Macu žádný není, protože se do mapy zapisuje až při `pointerdown`.
     let lastScale = 1;
-    const dotykovyPinch = () => pointers.current.size >= 2;
+    const dotykovyPinch = () => pointers.current.size >= 1;
 
     const onGestureStart = (event: GestureLikeEvent) => {
       event.preventDefault();
+      if (dotykovyPinch()) return;
       stopInertia();
       lastScale = event.scale || 1;
     };
@@ -452,7 +476,9 @@ export function TimelineCanvas({
       const centerX = (a.x + b.x) / 2;
       const previous = pinchState.current;
       if (previous.distance > 0 && distance > 0) {
-        const factor = omezenyNasobek(distance / previous.distance);
+        // Bez stropu na rychlost: poměr vzdáleností prstů je přesně to, co
+        // uživatel chce vidět, a omezovat ho znamená utíkat mu pod rukama.
+        const factor = distance / previous.distance;
         let next = zoomAt(viewRef.current, centerX, factor, domainRef.current);
         next = panBy(next, centerX - previous.centerX, domainRef.current);
         onViewChange(next);

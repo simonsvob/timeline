@@ -275,14 +275,6 @@ describe('nepovinná pole', () => {
     }
   });
 
-  it('klíčová slova ořezává a odstraňuje duplicity a prázdné', () => {
-    const res = validateEventForm(
-      form({ start: startInput(), keywords: [' patriarchové ', 'patriarchové', '', 'potopa'] }),
-    );
-    expect(res.ok).toBe(true);
-    if (res.ok) expect(res.value.keywords).toEqual(['patriarchové', 'potopa']);
-  });
-
   it('umístění a štítek projdou beze změny', () => {
     const res = validateEventForm(form({ start: startInput(), placement: 'velmoci', tagId: 't1' }));
     expect(res.ok).toBe(true);

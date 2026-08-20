@@ -1,26 +1,29 @@
 /**
  * Kostra aplikace: přepínání pohledů (osa / tabulka), přihlášení,
- * modály (formulář, štítky, období, data) a detail vybraného záznamu.
+ * modály (formulář, data) a detail vybraného záznamu.
+ *
+ * Filtr pásem drží stav tady, protože jeho tlačítko sedí v hlavičce, ale
+ * filtruje se obsah osy. Správa štítků i období bydlí v modálu Data —
+ * sahá se na ně zřídka a v hlavičce by jen ubíraly místo.
  */
 
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { cs } from './i18n/cs';
 import { useAppState } from './state/store';
 import { AuthPanel } from './components/AuthPanel';
-import { CategoryManager } from './components/CategoryManager';
+import { BandFilter } from './components/BandFilter';
 import { DataPanel } from './components/DataPanel';
 import { DetailPanel } from './components/DetailPanel';
 import { EventForm } from './components/EventForm';
 import { SearchBox, LockButton } from './components/SearchBox';
 import { TableView } from './components/TableView';
-import { TagManager } from './components/TagManager';
-import { periodsOf, TimelineView, type ExternalFocus, type SelectionAnchor } from './components/TimelineView';
+import { TimelineView, type ExternalFocus, type SelectionAnchor } from './components/TimelineView';
 import { formatYear } from './lib/format';
 import { ConfirmDialog, Spinner } from './components/ui';
-import type { EventDraft, TimelineEvent } from './data/types';
+import type { EventDraft, Placement, TimelineEvent } from './data/types';
 
 type ViewMode = 'timeline' | 'table';
-type ModalKind = 'none' | 'event' | 'tags' | 'categories' | 'data' | 'auth';
+type ModalKind = 'none' | 'event' | 'data' | 'auth';
 
 export function App() {
   const state = useAppState();
@@ -34,6 +37,8 @@ export function App() {
   const focusNonce = useRef(0);
   const [pendingDelete, setPendingDelete] = useState<TimelineEvent | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [hiddenBands, setHiddenBands] = useState<Set<Placement>>(new Set());
+  const [filterOpen, setFilterOpen] = useState(false);
 
   const selected = useMemo(
     () => state.events.find((event) => event.id === selectedId) ?? null,
@@ -53,27 +58,30 @@ export function App() {
     setRange((prev) => (prev && prev.from === from && prev.to === to ? prev : { from, to }));
   }, []);
 
-  /**
-   * Podtitul hlavičky: která období jsou vidět a v jakém rozsahu let.
-   * Bez definovaných období zůstane jen rozsah.
-   */
-  const context = useMemo(() => {
-    if (!range) return '';
-    const periods = periodsOf(state.categories).filter(
-      (p) => p.to >= range.from && p.from <= range.to,
-    );
-    const names = state.categories.filter((c) =>
-      periods.some((p) => p.color === c.color && p.from === c.fromYear),
-    );
-    const label =
-      names.length === 0
-        ? ''
-        : names.length === 1
-          ? names[0].name
-          : `${names[0].name} – ${names[names.length - 1].name}`;
-    const roky = `${formatYear(Math.round(range.from))} – ${formatYear(Math.round(range.to))}`;
-    return label ? `${label} · ${roky}` : roky;
-  }, [range, state.categories]);
+  /** Podtitul hlavičky: rozsah let, který je zrovna vidět. */
+  const context = useMemo(
+    () =>
+      range
+        ? `${formatYear(Math.round(range.from))} – ${formatYear(Math.round(range.to))}`
+        : '',
+    [range],
+  );
+
+  /** Pásma, která mají aspoň jeden záznam – prázdná se ve filtru nenabízejí. */
+  const populatedBands = useMemo(() => {
+    const set = new Set<Placement>();
+    for (const event of state.events) set.add(event.placement);
+    return set;
+  }, [state.events]);
+
+  const toggleBand = useCallback((id: Placement) => {
+    setHiddenBands((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
 
   const openNew = useCallback(() => {
     setEditing(null);
@@ -148,12 +156,30 @@ export function App() {
               {cs.table.newEvent}
             </button>
           ) : null}
-          <button type="button" className="pill" onClick={() => setModal('tags')}>
-            {cs.nav.tags}
-          </button>
-          <button type="button" className="pill" onClick={() => setModal('categories')}>
-            {cs.nav.periods}
-          </button>
+          {mode === 'timeline' && populatedBands.size > 1 ? (
+            <div className="filter-anchor">
+              <button
+                type="button"
+                className={`pill${hiddenBands.size > 0 ? ' pill-active' : ''}`}
+                onClick={() => setFilterOpen((prev) => !prev)}
+                aria-expanded={filterOpen}
+              >
+                {cs.nav.filter}
+                {hiddenBands.size > 0
+                  ? ` (${populatedBands.size - hiddenBands.size}/${populatedBands.size})`
+                  : ''}
+              </button>
+              {filterOpen ? (
+                <BandFilter
+                  populated={populatedBands}
+                  hidden={hiddenBands}
+                  onToggle={toggleBand}
+                  onShowAll={() => setHiddenBands(new Set())}
+                  onClose={() => setFilterOpen(false)}
+                />
+              ) : null}
+            </div>
+          ) : null}
           <button type="button" className="pill" onClick={() => setModal('data')}>
             {cs.nav.data}
           </button>
@@ -195,6 +221,7 @@ export function App() {
                   events={state.events}
                   categories={state.categories}
                   tagMap={state.tagMap}
+                  hiddenBands={hiddenBands}
                   selectedId={selectedId}
                   onSelect={(event, at) => {
                     setSelectedId(event?.id ?? null);
@@ -237,37 +264,6 @@ export function App() {
           tags={state.tags}
           onSubmit={handleSubmit}
           onClose={() => setModal('none')}
-          onManageTags={() => setModal('tags')}
-        />
-      ) : null}
-
-      {modal === 'tags' ? (
-        <TagManager
-          tags={state.tags}
-          events={state.events}
-          canEdit={state.canEdit}
-          onSave={async (id, draft) => {
-            await state.saveTag(id, draft);
-          }}
-          onDelete={async (id) => {
-            await state.removeTag(id);
-          }}
-          onClose={() => setModal('none')}
-        />
-      ) : null}
-
-      {modal === 'categories' ? (
-        <CategoryManager
-          categories={state.categories}
-          canEdit={state.canEdit}
-          onSave={async (id, draft) => {
-            await state.saveCategory(id, draft);
-          }}
-          onDelete={async (id) => {
-            await state.removeCategory(id);
-          }}
-          onReorder={state.reorderCategories}
-          onClose={() => setModal('none')}
         />
       ) : null}
 
@@ -276,6 +272,11 @@ export function App() {
           dataset={{ categories: state.categories, tags: state.tags, events: state.events }}
           canEdit={state.canEdit}
           onImport={state.importDataset}
+          onSaveTag={state.saveTag}
+          onDeleteTag={state.removeTag}
+          onSaveCategory={state.saveCategory}
+          onDeleteCategory={state.removeCategory}
+          onReorderCategories={state.reorderCategories}
           onClose={() => setModal('none')}
         />
       ) : null}

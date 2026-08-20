@@ -1,22 +1,43 @@
 /**
- * Export a import dat. Export je dostupný komukoli (data jsou veřejná ke čtení),
- * import jen přihlášeným.
+ * Číselníky a přenos dat na jednom místě: štítky, období, export a import.
+ * Export je dostupný komukoli (data jsou veřejná ke čtení), úpravy jen
+ * přihlášeným.
+ *
+ * Štítky ani období nemají vlastní tlačítko v hlavičce – sahá se na ně zřídka
+ * a hlavička má nechat co nejvíc místa ose.
  */
 
 import { useRef, useState } from 'react';
 import { cs } from '../i18n/cs';
 import { exportFileName, parseImport, serializeExport } from '../data/transfer';
-import type { Dataset } from '../data/types';
+import type { Category, CategoryDraft, Dataset, Tag, TagDraft } from '../data/types';
 import { ConfirmDialog, Modal } from './ui';
+import { TagSection } from './TagSection';
+import { PeriodSection } from './PeriodSection';
 
 interface Props {
   dataset: Dataset;
   canEdit: boolean;
   onImport: (dataset: Dataset, mode: 'merge' | 'replace') => Promise<void>;
+  onSaveTag: (id: string | null, draft: TagDraft) => Promise<Tag>;
+  onDeleteTag: (id: string) => Promise<void>;
+  onSaveCategory: (id: string | null, draft: CategoryDraft) => Promise<Category>;
+  onDeleteCategory: (id: string) => Promise<void>;
+  onReorderCategories: (ordered: Category[]) => Promise<void>;
   onClose: () => void;
 }
 
-export function DataPanel({ dataset, canEdit, onImport, onClose }: Props) {
+export function DataPanel({
+  dataset,
+  canEdit,
+  onImport,
+  onSaveTag,
+  onDeleteTag,
+  onSaveCategory,
+  onDeleteCategory,
+  onReorderCategories,
+  onClose,
+}: Props) {
   const [pending, setPending] = useState<Dataset | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
   const [mode, setMode] = useState<'merge' | 'replace'>('merge');
@@ -90,6 +111,26 @@ export function DataPanel({ dataset, canEdit, onImport, onClose }: Props) {
             {cs.dataIO.counts(dataset.categories.length, dataset.tags.length, dataset.events.length)}
           </p>
         </section>
+
+        <TagSection
+          tags={dataset.tags}
+          events={dataset.events}
+          canEdit={canEdit}
+          onSave={async (id, draft) => {
+            await onSaveTag(id, draft);
+          }}
+          onDelete={onDeleteTag}
+        />
+
+        <PeriodSection
+          categories={dataset.categories}
+          canEdit={canEdit}
+          onSave={async (id, draft) => {
+            await onSaveCategory(id, draft);
+          }}
+          onDelete={onDeleteCategory}
+          onReorder={onReorderCategories}
+        />
 
         <section className="data-section">
           <h3>{cs.dataIO.export}</h3>
