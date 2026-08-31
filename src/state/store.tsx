@@ -108,7 +108,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     try {
       const dataset = await withTimeout(
         repo.fetchDataset(),
-        repo.READ_TIMEOUT_MS + 2_000,
+        repo.READ_TOTAL_BUDGET_MS + 2_000,
         cs.app.loadTimeout,
       );
       setCategories(sortCategories(dataset.categories));
@@ -121,18 +121,40 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  /**
+   * Nejdřív obnovit přihlášení, teprve pak číst data.
+   *
+   * Supabase klient načítá uloženou relaci z localStorage asynchronně. Když
+   * se četlo hned při připojení komponenty, první dávka dotazů odešla ještě
+   * anonymně a po obnovení relace se všechno stáhlo znovu jako přihlášený —
+   * dvě kola tří dotazů čtyřicet milisekund po sobě, jak bylo vidět v logu.
+   * Kromě zbytečné práce to zvětšovalo okno, ve kterém se dá trefit čerstvě
+   * podepsaný token a narazit na rozejité hodiny.
+   */
   useEffect(() => {
-    void reload();
-  }, [reload]);
-
-  useEffect(() => {
-    if (!supabase) return;
-    void supabase.auth.getSession().then(({ data }) => setSession(data.session));
+    if (!supabase) {
+      void reload();
+      return;
+    }
+    let zruseno = false;
+    supabase.auth
+      .getSession()
+      .then(({ data }) => {
+        if (!zruseno) setSession(data.session);
+      })
+      // Nepovedené obnovení relace nesmí zabránit čtení — data jsou veřejná.
+      .catch(() => undefined)
+      .finally(() => {
+        if (!zruseno) void reload();
+      });
     const { data: listener } = supabase.auth.onAuthStateChange((_event, next) => {
       setSession(next);
     });
-    return () => listener.subscription.unsubscribe();
-  }, []);
+    return () => {
+      zruseno = true;
+      listener.subscription.unsubscribe();
+    };
+  }, [reload]);
 
   const signIn = useCallback(async (email: string, password: string) => {
     if (!supabase) throw new Error('Supabase není nakonfigurováno.');

@@ -3,7 +3,7 @@
 Shrnutí pro konverzaci, která na projektu pokračuje bez historie. Popisuje, co
 aplikace je, jak je zapojená, co už se rozhodlo a proč, a co zbývá.
 
-Poslední aktualizace: 9. srpna 2026.
+Poslední aktualizace: 31. srpna 2026.
 
 **Vzhled** prošel přestavbou na návrh „Řeka" (centrální čára, události nad ní,
 životy pod ní). Předchozí vzhled je zazálohovaný na větvi `zaloha/design-v1`.
@@ -27,6 +27,31 @@ Rozhraní je kompletně česky, včetně kódu a dokumentace.
 | Účty | 1 sdílený účet editora, potvrzený, funkční |
 
 Postup nastavení od nuly (migrace, RLS, účty, proměnné, deploy) je v `README.md`.
+
+## Jak navázat v nové konverzaci
+
+Konverzace se mezi účty nepřenášejí, ale **nic podstatného v konverzaci
+nebydlí** — kontext je schválně v repozitáři. Nová session potřebuje jen tohle:
+
+1. **Přístup k repozitáři `simonsvob/timeline`.** Tím se samo načte `CLAUDE.md`
+   (jak se v projektu pracuje, časový model, architektura) a tenhle soubor
+   (stav, rozhodnutí, co je rozdělané). Víc kontextu k nastartování netřeba.
+2. **Konektor Supabase**, aby šlo sahat na databázi (migrace, dávkové importy,
+   kontrola dat). Bez něj jde vyvíjet kód, ale ne měnit data ani schéma.
+3. **Konektor Netlify** je volitelný — nasazení se pustí samo po pushnutí do
+   `main`. Hodí se jen na čtení logů a proměnných.
+
+Dobrý první příkaz do nové session: *„Přečti si `CLAUDE.md` a
+`docs/kontext-projektu.md` a shrň mi, v jakém stavu projekt je a co je
+rozdělané."* Odpověď rovnou ukáže, jestli kontext dosedl.
+
+Co v nové session **nebude** a je potřeba počítat s tím:
+
+- historie, proč se něco dělalo — proto se rozhodnutí zapisují sem a do
+  commit messages, ne jen do chatu;
+- prostředí nemá přístup na `*.supabase.co` ani `*.netlify.app` (síťová
+  politika), takže se aplikace neověřuje proti ostrým datům, ale dočasným
+  lokálním náhledem nad exportem dat.
 
 ## Stav
 
@@ -57,6 +82,10 @@ i `authenticated`, ne jen existencí politik.
   Zadavatel chce filtry ladit později; teď nejsou priorita.
 - **Zdroje s `xxx`.** Pár záznamů z dávky zadavatele má ve zdroji jen `xxx` —
   zástupný text, který se v datech nechal.
+- **„JWT issued at future".** Supabase občas odmítne čerstvě obnovený token,
+  protože se hodiny služeb `auth` a `rest` o zlomek vteřiny rozcházejí.
+  Aplikace to teď sama zopakuje, takže se to navenek neprojeví. Kdyby to
+  začalo být časté, je to na podporu Supabase — v aplikaci se to spravit nedá.
 - **Priorita postav.** Do budoucna má jít postavy seřadit podle důležitosti,
   aby výš byly výraznější. Zatím řádkuje jen greedy packing podle místa.
 

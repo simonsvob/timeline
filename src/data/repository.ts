@@ -24,6 +24,27 @@ import type {
  */
 export const READ_TIMEOUT_MS = 20_000;
 
+/**
+ * Prodlevy mezi opakovanými pokusy o načtení dat (ms). Délka pole je zároveň
+ * počet opakování.
+ *
+ * Supabase občas odmítne čerstvě obnovený token hláškou „JWT issued at
+ * future“: podepisuje ho `auth`, ověřuje `rest` a hodiny obou služeb se
+ * o zlomek vteřiny rozcházejí. Je to vidět v logu — ze tří souběžných dotazů
+ * se stejným tokenem projdou dva a třetí spadne na 401. Za okamžik už to
+ * projde, takže nemá smysl s tím obtěžovat uživatele; tlačítko „Zkusit znovu“
+ * zůstává pro chyby, které samy nezmizí.
+ */
+const RETRY_DELAYS_MS = [400, 1_200];
+
+/**
+ * Nejdelší možná doba celého načtení včetně opakování. Pojistka v aplikaci
+ * musí být delší než tohle, jinak by čtení uťala uprostřed druhého pokusu.
+ */
+export const READ_TOTAL_BUDGET_MS =
+  READ_TIMEOUT_MS * (RETRY_DELAYS_MS.length + 1) +
+  RETRY_DELAYS_MS.reduce((sum, ms) => sum + ms, 0);
+
 // ---------------------------------------------------------------------------
 // Řádky databáze
 // ---------------------------------------------------------------------------
@@ -173,8 +194,34 @@ export function eventToRow(draft: EventDraft): Omit<EventRow, 'id' | 'created_at
 // Čtení
 // ---------------------------------------------------------------------------
 
-/** Načte kategorie i záznamy najednou (čtení je veřejné). */
+/**
+ * Chyby, které za okamžik samy zmizí: rozejité hodiny u ověření tokenu
+ * a výpadky spojení. Zbytek (chybějící tabulka, porušené RLS) opakováním
+ * nespravíme, takže se ukáže hned.
+ */
+function jePrechodna(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error ?? '');
+  return /jwt|issued at|failed to fetch|networkerror|load failed/i.test(message);
+}
+
+const pockej = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+/**
+ * Načte období, štítky i záznamy najednou (čtení je veřejné).
+ * Přechodné selhání zkusí ještě jednou nebo dvakrát, viz `RETRY_DELAYS_MS`.
+ */
 export async function fetchDataset(timeoutMs = READ_TIMEOUT_MS): Promise<Dataset> {
+  for (let pokus = 0; ; pokus++) {
+    try {
+      return await fetchDatasetOnce(timeoutMs);
+    } catch (error) {
+      if (pokus >= RETRY_DELAYS_MS.length || !jePrechodna(error)) throw error;
+      await pockej(RETRY_DELAYS_MS[pokus]);
+    }
+  }
+}
+
+async function fetchDatasetOnce(timeoutMs: number): Promise<Dataset> {
   const client = requireSupabase();
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);

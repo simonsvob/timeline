@@ -22,7 +22,8 @@ node scripts/prevod-wcg.mjs --sql # vypíše SQL s upsertem podle id
 
 Testy běží v prostředí `node`, ne v jsdom — testuje se jen čistá logika
 (`src/**/*.test.ts`). Komponenty testy nemají; vizuální chování se ověřuje
-spuštěním aplikace.
+spuštěním aplikace. Výjimka je `src/data/repository.test.ts`, který si
+podstrčí falešného Supabase klienta kvůli opakování čtení.
 
 ## Časový model — čti dřív, než sáhneš na cokoli s daty
 
@@ -260,6 +261,19 @@ a zarovnává se na kulaté roky letopočtu, ne na kulaté astronomické hodnoty
 uživatel čeká „4000 př. n. l.", ne „4001 př. n. l.".
 
 ## Data a Supabase
+
+**Čtení se při přechodné chybě samo zopakuje** (`RETRY_DELAYS_MS`
+v `repository.ts`). Supabase občas odmítne čerstvě obnovený token hláškou
+„JWT issued at future“: token podepisuje služba `auth`, ověřuje `rest`
+a hodiny obou se o zlomek vteřiny rozcházejí. V logu je vidět, že ze tří
+souběžných dotazů se stejným tokenem projdou dva a třetí spadne na 401. Chyby,
+které se samy nespraví (chybějící tabulka, RLS), se opakováním nezdržují a
+ukážou se hned.
+
+**Data se čtou až po obnovení přihlášení.** Supabase klient načítá uloženou
+relaci z localStorage asynchronně; když se četlo hned při připojení
+komponenty, první dávka dotazů odešla anonymně a po obnovení relace se
+všechno stáhlo znovu — dvě kola tří dotazů čtyřicet milisekund po sobě.
 
 Přístup jde přímo z prohlížeče přes `@supabase/supabase-js`, vlastní server
 neexistuje. Zápisy hlídá RLS: `SELECT` pro `anon` i `authenticated`, zápis jen
