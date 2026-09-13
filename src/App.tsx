@@ -17,7 +17,12 @@ import { DetailPanel } from './components/DetailPanel';
 import { EventForm } from './components/EventForm';
 import { SearchBox, LockButton } from './components/SearchBox';
 import { TableView } from './components/TableView';
-import { TimelineView, type ExternalFocus, type SelectionAnchor } from './components/TimelineView';
+import {
+  TimelineView,
+  type ExternalFocus,
+  type SelectionAnchor,
+  type TimelineViewState,
+} from './components/TimelineView';
 import { formatYear } from './lib/format';
 import { ConfirmDialog, Spinner } from './components/ui';
 import type { EventDraft, Placement, TimelineEvent } from './data/types';
@@ -35,6 +40,14 @@ export function App() {
   const [anchor, setAnchor] = useState<SelectionAnchor | null>(null);
   const [range, setRange] = useState<{ from: number; to: number } | null>(null);
   const focusNonce = useRef(0);
+  /**
+   * Poloha na ose (výřez a svislý posun). Drží ji App, protože přepnutí do
+   * tabulky pohled osy odpojí — bez téhle paměti by se návrat pokaždé oddálil
+   * na celý rozsah a místo by se muselo hledat znovu. Je to ref, ne stav:
+   * mění se při každém snímku posunu a překreslovat kvůli tomu hlavičku
+   * nemá smysl.
+   */
+  const timelineState = useRef<TimelineViewState | null>(null);
   const [pendingDelete, setPendingDelete] = useState<TimelineEvent | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [hiddenBands, setHiddenBands] = useState<Set<Placement>>(new Set());
@@ -53,6 +66,13 @@ export function App() {
     setAnchor(null);
     setMode('timeline');
   }, []);
+
+  const rememberTimeline = useCallback((next: TimelineViewState) => {
+    timelineState.current = next;
+  }, []);
+
+  /** Skok na záznam je jednorázový; jinak by ho návrat z tabulky zopakoval. */
+  const clearFocus = useCallback(() => setTimelineFocus(null), []);
 
   const onRangeChange = useCallback((from: number, to: number) => {
     setRange((prev) => (prev && prev.from === from && prev.to === to ? prev : { from, to }));
@@ -228,6 +248,9 @@ export function App() {
                     setAnchor(at);
                   }}
                   externalFocus={timelineFocus}
+                  onFocusApplied={clearFocus}
+                  saved={timelineState.current}
+                  onRemember={rememberTimeline}
                   onRangeChange={onRangeChange}
                 />
               ) : (

@@ -2,9 +2,14 @@
  * Hlavní pohled: plátno osy a plovoucí minimapa. Nástrojová lišta tu není —
  * gesta ji nahradila a filtr pásem sedí v bublině u tlačítka v hlavičce,
  * takže osa dostane celou plochu.
+ *
+ * Kam se uživatel na ose podíval, si **nepamatuje tenhle komponent**, ale App
+ * (`saved` / `onRemember`). Přepnutí do tabulky pohled odpojí a s ním by
+ * zmizel i výřez — návrat na osu by pokaždé skončil na celém rozsahu a místo
+ * by se muselo hledat znovu.
  */
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { cs } from '../i18n/cs';
 import {
   clampViewport,
@@ -31,6 +36,12 @@ export interface SelectionAnchor {
   y: number;
 }
 
+/** Kde uživatel na ose stojí: výřez (kam a jak blízko) a svislý posun čáry. */
+export interface TimelineViewState {
+  view: Viewport;
+  axisShift: number;
+}
+
 interface Props {
   events: TimelineEvent[];
   categories: Category[];
@@ -40,6 +51,12 @@ interface Props {
   selectedId: string | null;
   onSelect: (event: TimelineEvent | null, anchor: SelectionAnchor | null) => void;
   externalFocus: ExternalFocus | null;
+  /** hlásí, že se na požadovaný záznam už skočilo – App focus zahodí */
+  onFocusApplied: () => void;
+  /** poloha z minulého zobrazení osy; čte se jen při připojení */
+  saved: TimelineViewState | null;
+  /** hlásí polohu nahoru, aby přežila přepnutí pohledu */
+  onRemember: (state: TimelineViewState) => void;
   /** hlásí viditelný rozsah, aby ho hlavička mohla pojmenovat */
   onRangeChange: (from: number, to: number) => void;
 }
@@ -75,16 +92,28 @@ export function TimelineView({
   selectedId,
   onSelect,
   externalFocus,
+  onFocusApplied,
+  saved,
+  onRemember,
   onRangeChange,
 }: Props) {
-  const [view, setView] = useState<Viewport>({ t0: DEFAULT_DOMAIN.min, pxPerYear: 0.2, width: 0 });
+  const domain = useMemo(() => domainOf(events), [events]);
+  const periods = useMemo(() => periodsOf(categories), [categories]);
+
+  // Obnovený výřez se ořízne na aktuální rozsah dat: mezitím mohl někdo
+  // v tabulce záznam smazat nebo přidat a hranice osy se posunout.
+  const [view, setView] = useState<Viewport>(() =>
+    saved ? clampViewport(saved.view, domain) : { t0: DEFAULT_DOMAIN.min, pxPerYear: 0.2, width: 0 },
+  );
   const [focusRequest, setFocusRequest] = useState<FocusRequest | null>(null);
   const nonce = useRef(0);
   const containerRef = useRef<HTMLDivElement>(null);
-  const initialized = useRef(false);
-
-  const domain = useMemo(() => domainOf(events), [events]);
-  const periods = useMemo(() => periodsOf(categories), [categories]);
+  /**
+   * Výchozí výřez (celý rozsah) se dopočítá jen jednou. S obnovenou polohou
+   * se nedopočítává vůbec — jinak by návrat z tabulky osu zase oddálil.
+   * Výjimka je osa bez záznamů: tam se výřez teprve hledá, až data dorazí.
+   */
+  const initialized = useRef(saved !== null && events.length > 0);
 
   const visibleEvents = useMemo(
     () => events.filter((event) => !hiddenBands.has(bandOf(event).id)),
@@ -121,26 +150,48 @@ export function TimelineView({
     if (view.width > 0) onRangeChange(tOf(view, 0), viewEnd(view));
   }, [view, onRangeChange]);
 
+  // --- zapamatovaná poloha --------------------------------------------------
+
+  const viewRef = useRef(view);
+  viewRef.current = view;
+  /** svislý posun drží plátno; tady se jen pamatuje pro příští připojení */
+  const axisShift = useRef(saved?.axisShift ?? 0);
+
+  useEffect(() => {
+    if (view.width > 0) onRemember({ view, axisShift: axisShift.current });
+  }, [view, onRemember]);
+
+  const handleAxisShift = useCallback(
+    (value: number) => {
+      axisShift.current = value;
+      if (viewRef.current.width > 0) onRemember({ view: viewRef.current, axisShift: value });
+    },
+    [onRemember],
+  );
+
+  // --- skok na záznam z hledání a z tabulky ---------------------------------
+
   const lastNonce = useRef(-1);
   useEffect(() => {
     if (!externalFocus || externalFocus.nonce === lastNonce.current) return;
+    // Dokud se plátno nezměřilo, není kam skákat; zkusí se po změření znovu.
+    if (view.width === 0) return;
     lastNonce.current = externalFocus.nonce;
     const extent = eventExtent(externalFocus.event);
-    if (view.width > 0) {
-      const isPoint = extent.from === extent.to;
-      setView(
-        viewportForRange(
-          isPoint ? extent.from - 25 : extent.from,
-          isPoint ? extent.to + 25 : extent.to,
-          view.width,
-          domain,
-        ),
-      );
-    }
+    const isPoint = extent.from === extent.to;
+    setView(
+      viewportForRange(
+        isPoint ? extent.from - 25 : extent.from,
+        isPoint ? extent.to + 25 : extent.to,
+        view.width,
+        domain,
+      ),
+    );
     nonce.current += 1;
     setFocusRequest({ id: externalFocus.event.id, nonce: nonce.current });
+    onFocusApplied();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [externalFocus]);
+  }, [externalFocus, view.width]);
 
   return (
     <div className="timeline-view">
@@ -161,6 +212,8 @@ export function TimelineView({
           onSelect={onSelect}
           focusRequest={focusRequest}
           hiddenBands={hiddenBands}
+          initialAxisShift={axisShift.current}
+          onAxisShiftChange={handleAxisShift}
         />
         <Minimap
           events={visibleEvents}

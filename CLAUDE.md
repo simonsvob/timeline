@@ -172,6 +172,16 @@ jen po přihlášení (`canEdit`). Filtrování na štítcích nestojí: tlačí
 **pásma**. Stav filtru drží `App`, protože tlačítko je v hlavičce, ale filtruje
 obsah osy.
 
+**Poloha na ose přežívá přepnutí do tabulky.** Výřez i svislý posun čáry drží
+`App` (`TimelineViewState`), ne `TimelineView` — přepnutí pohledu osu odpojí a
+s ní by zmizel i výřez, takže návrat by pokaždé skončil na celém rozsahu.
+Je to `ref`, ne stav: mění se při každém snímku posunu a překreslovat kvůli
+tomu hlavičku nemá smysl. `TimelineView` si polohu přečte jen při připojení a
+ořízne ji na aktuální rozsah dat (mezitím mohl někdo záznam smazat). Ze stejného
+důvodu je skok na záznam z hledání a z tabulky **jednorázový** — `App` ho po
+provedení zahodí, jinak by ho návrat z tabulky zopakoval a odnesl uživatele
+pryč z místa, kde byl.
+
 Barva štítku se na ose projeví u pruhů výplní a obrysem, u pilulek nad osou
 náznakem výplně, obrysem, stínem a jménem — plná výplň by z pilulky udělala
 skvrnu, roky proto zůstávají tlumené.

@@ -112,6 +112,10 @@ interface Props {
   onSelect: (event: TimelineEvent | null, anchor: { x: number; y: number } | null) => void;
   focusRequest: FocusRequest | null;
   hiddenBands: ReadonlySet<string>;
+  /** svislý posun z minulého připojení; čte se jen při prvním vykreslení */
+  initialAxisShift: number;
+  /** hlásí posun ven, aby ho šlo obnovit po návratu z jiného pohledu */
+  onAxisShiftChange: (value: number) => void;
 }
 
 export function TimelineCanvas({
@@ -125,12 +129,14 @@ export function TimelineCanvas({
   onSelect,
   focusRequest,
   hiddenBands,
+  initialAxisShift,
+  onAxisShiftChange,
 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
   /** posun centrální čáry oproti vystředěné poloze */
-  const [axisShift, setAxisShift] = useState(0);
+  const [axisShift, setAxisShift] = useState(initialAxisShift);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -184,6 +190,10 @@ export function TimelineCanvas({
   useEffect(() => {
     setAxisShift((prev) => clampShift(prev));
   }, [clampShift]);
+
+  useEffect(() => {
+    onAxisShiftChange(axisShift);
+  }, [axisShift, onAxisShiftChange]);
 
   const frame: Frame = useMemo(
     () => ({ axisY: axisY + axisShift, top, bottom }),

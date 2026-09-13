@@ -3,7 +3,7 @@
 Shrnutí pro konverzaci, která na projektu pokračuje bez historie. Popisuje, co
 aplikace je, jak je zapojená, co už se rozhodlo a proč, a co zbývá.
 
-Poslední aktualizace: 31. srpna 2026.
+Poslední aktualizace: 13. září 2026.
 
 **Vzhled** prošel přestavbou na návrh „Řeka" (centrální čára, události nad ní,
 životy pod ní). Předchozí vzhled je zazálohovaný na větvi `zaloha/design-v1`.
@@ -60,7 +60,7 @@ editace, správa štítků i období (v modálu Data), filtr pásem, tabulkový
 přehled, export/import a přihlášení. V databázi je **546 záznamů**: tři časové
 osy z knihy *Odvážně choď s Bohem* (str. 14–15, 104–105, 186–187), chronologie
 králů, knih a událostí z hesla „Chronologie" a z dodatku nwt A6, přehled
-biblických knih a dávka událostí z tabulky zadavatele. Testů 165, všechny
+biblických knih a dávka událostí z tabulky zadavatele. Testů 168, všechny
 procházejí.
 
 Ověřeno měřením, ne odhadem: 60 fps (medián 16,6 ms na snímek) při zoomu
@@ -120,6 +120,13 @@ roli `authenticated`, ne na vlastnictví záznamů, takže na počtu účtů nez
 a další jde přidat kdykoli. Aplikace si u záznamů nepamatuje autora.
 
 **Editace jen formulářem.** Na ose se záměrně nic nepřetahuje.
+
+**Osa si pamatuje, kde uživatel byl.** Výřez a svislý posun čáry drží `App`,
+takže přepnutí na tabulku a zpátky vrátí stejné místo a stejné přiblížení —
+jinak by se osa pokaždé oddálila na celý rozsah a místo by se muselo hledat
+znovu. Skok na záznam z hledání a z tabulky se proto provede jen jednou; kdyby
+zůstal viset, návrat z tabulky by uživatele pokaždé odnesl zpátky na naposledy
+hledaný záznam.
 
 **Osa nemá nástrojovou lištu.** Skok na rok, tlačítka zoomu ani „celý rozsah"
 tam nejsou — pinch a tažení to zvládnou rychleji a lišta jen ubírala místo.
