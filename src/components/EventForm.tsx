@@ -287,7 +287,7 @@ export function EventForm({ event, tags, onSubmit, onClose }: Props) {
         {timeGroup('start', input.type === 'range' ? cs.form.start : cs.detail.when)}
         {input.type === 'range' ? timeGroup('end', cs.form.end) : null}
 
-        <Field label={cs.form.source} htmlFor="event-source" optional>
+        <Field label={cs.form.source} htmlFor="event-source" hint={cs.form.linkHint} optional>
           <input
             id="event-source"
             className="input"
@@ -297,7 +297,7 @@ export function EventForm({ event, tags, onSubmit, onClose }: Props) {
           />
         </Field>
 
-        <Field label={cs.form.note} htmlFor="event-note" optional>
+        <Field label={cs.form.note} htmlFor="event-note" hint={cs.form.linkHint} optional>
           <textarea
             id="event-note"
             className="input textarea"

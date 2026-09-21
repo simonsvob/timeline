@@ -22,23 +22,28 @@ export const AXIS_LINE_HEIGHT = 3;
 /** Kolik místa pod čárou zabírají popisky let. */
 export const AXIS_LABEL_SPACE = 30;
 
-/** Výška řádku pilulek. */
-export const POINT_LANE_HEIGHT = 56;
-export const PILL_HEIGHT = 34;
+/**
+ * Výška řádku pilulek — tvar plus mezera pod ním. V hustých obdobích se řádky
+ * sčítají do desítek, takže každý ušetřený pixel je vidět na tom, kolik toho
+ * projde na obrazovku. Mezera (řádek minus tvar) nesmí klesnout pod zhruba
+ * polovinu výšky textu, jinak se sousední řádky slijí v jednu skvrnu.
+ */
+export const POINT_LANE_HEIGHT = 44;
+export const PILL_HEIGHT = 28;
 export const PILL_PADDING_X = 14;
 /** Mezera mezi jménem a rokem v pilulce. */
 export const PILL_GAP = 7;
 export const NODE_RADIUS = 6.5;
 
-/** Výška řádku pruhů. */
-export const RANGE_LANE_HEIGHT = 44;
-export const BAR_HEIGHT = 28;
+/** Výška řádku pruhů — stejná úvaha jako u pilulek. */
+export const RANGE_LANE_HEIGHT = 34;
+export const BAR_HEIGHT = 23;
 /**
  * Zaoblení rohů pruhu. Menší než polovina výšky, takže pruh je spíš obdélník
  * s kulatými rohy — díky tomu se u krátkých pruhů nemusí poloměr srážet
  * a nevzniknou z nich kroužky.
  */
-export const BAR_RADIUS = 10;
+export const BAR_RADIUS = 8;
 /**
  * Nejmenší šířka pruhu. Při velkém oddálení by z krátkých životů zbyly
  * nitky; místo toho zůstanou čitelným tvarem přes celou výšku řádku.
@@ -64,9 +69,9 @@ export const OPEN_END_WIDTH = 13;
 export const NO_TAG_COLOR = '#9a9384';
 
 /** Svislá mezera mezi dvěma pásmy; vejde se do ní popisek pásma. */
-export const BAND_GAP = 26;
+export const BAND_GAP = 22;
 /** Odstup pilulkového pásma od čáry — místo pro stopku k uzlu. */
-export const POINT_BAND_AXIS_GAP = 73;
+export const POINT_BAND_AXIS_GAP = 62;
 /** Odstup pruhového pásma od čáry nad ní. */
 export const BAR_BAND_AXIS_GAP_ABOVE = 26;
 /** Odstup pruhového pásma od čáry pod ní — musí se vejít popisky let. */

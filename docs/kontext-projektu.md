@@ -3,7 +3,7 @@
 Shrnutí pro konverzaci, která na projektu pokračuje bez historie. Popisuje, co
 aplikace je, jak je zapojená, co už se rozhodlo a proč, a co zbývá.
 
-Poslední aktualizace: 13. září 2026.
+Poslední aktualizace: 21. září 2026.
 
 **Vzhled** prošel přestavbou na návrh „Řeka" (centrální čára, události nad ní,
 životy pod ní). Předchozí vzhled je zazálohovaný na větvi `zaloha/design-v1`.
@@ -57,10 +57,10 @@ Co v nové session **nebude** a je potřeba počítat s tím:
 
 Aplikace je hotová a nasazená. Funguje osa s plynulým zoomem, formulářová
 editace, správa štítků i období (v modálu Data), filtr pásem, tabulkový
-přehled, export/import a přihlášení. V databázi je **546 záznamů**: tři časové
+přehled, export/import a přihlášení. V databázi je **552 záznamů**: tři časové
 osy z knihy *Odvážně choď s Bohem* (str. 14–15, 104–105, 186–187), chronologie
 králů, knih a událostí z hesla „Chronologie" a z dodatku nwt A6, přehled
-biblických knih a dávka událostí z tabulky zadavatele. Testů 168, všechny
+biblických knih a dávka událostí z tabulky zadavatele. Testů 179, všechny
 procházejí.
 
 Ověřeno měřením, ne odhadem: 60 fps (medián 16,6 ms na snímek) při zoomu
@@ -120,6 +120,20 @@ roli `authenticated`, ne na vlastnictví záznamů, takže na počtu účtů nez
 a další jde přidat kdykoli. Aplikace si u záznamů nepamatuje autora.
 
 **Editace jen formulářem.** Na ose se záměrně nic nepřetahuje.
+
+**Zdroj a poznámka nesou odkazy, jméno ne.** Do obou polí se dá napsat
+`[wcg](https://…)` a v detailu i v tabulce z toho bude klikací „wcg" — text
+odkazu je schválně nezávislý na adrese, protože zdroje se citují zkratkou.
+Pouští se jen `http` a `https`. Na plátno osy se odkazy nekreslí: tam se
+zobrazují jen jména a roky, a klikací text uvnitř Canvasu by znamenal vlastní
+obsluhu kliknutí bez jakéhokoli zisku.
+
+**Knihy v datech nesou zkratky.** 96 záznamů biblických knih se v srpnu
+importovalo s plnými názvy (`📖 1. Mojžíšova – psaní dokončeno`). Na ose se
+takový popisek do pruhu nevešel, takže se přejmenovaly na `📖 1Mo – dokončeno`
+a `📖 1Mo – zahrnuté období` podle běžné české sady zkratek. Přípona zůstala,
+aby se dvojice záznamů (dokončení psaní × zahrnuté období) rozeznala i
+v tabulce, kde chybí pásmo.
 
 **Osa si pamatuje, kde uživatel byl.** Výřez a svislý posun čáry drží `App`,
 takže přepnutí na tabulku a zpátky vrátí stejné místo a stejné přiblížení —

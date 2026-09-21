@@ -825,6 +825,29 @@ h4 {
   white-space: pre-wrap;
 }
 
+/* Odkaz uvnitř textu (zdroj, poznámka). Paleta je teplá a bez modré, takže
+   odkaz pozná podtržení, ne barva – stejně jako u tlačítek ve tvaru odkazu.
+   Barva se rozsvítí až pod myší, jinak by tlumený text tabulky překřičel. */
+.text-link {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--text-tertiary);
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.text-link:hover,
+.text-link:focus-visible {
+  color: var(--focus);
+  text-decoration-color: var(--focus);
+}
+
+.text-link:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 1px;
+  border-radius: 2px;
+}
+
 .popover-muted {
   color: var(--text-tertiary);
 }

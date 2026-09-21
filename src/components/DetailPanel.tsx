@@ -9,6 +9,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { cs, formatNumber, plural } from '../i18n/cs';
 import { formatRange, rangeLengthYears } from '../lib/format';
 import type { Tag, TimelineEvent } from '../data/types';
+import { RichText } from './RichText';
 import { NO_TAG_COLOR } from './timeline/layout';
 
 const CARD_WIDTH = 300;
@@ -95,7 +96,9 @@ export function DetailPanel({ event, tag, canEdit, anchor, onEdit, onDelete, onC
         {event.source ? (
           <>
             <dt>{cs.detail.source}</dt>
-            <dd>{event.source}</dd>
+            <dd>
+              <RichText text={event.source} />
+            </dd>
           </>
         ) : null}
 
@@ -117,7 +120,9 @@ export function DetailPanel({ event, tag, canEdit, anchor, onEdit, onDelete, onC
         {event.note ? (
           <>
             <dt>{cs.detail.note}</dt>
-            <dd className="popover-note">{event.note}</dd>
+            <dd className="popover-note">
+              <RichText text={event.note} />
+            </dd>
           </>
         ) : null}
 

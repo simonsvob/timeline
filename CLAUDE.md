@@ -182,6 +182,16 @@ důvodu je skok na záznam z hledání a z tabulky **jednorázový** — `App` h
 provedení zahodí, jinak by ho návrat z tabulky zopakoval a odnesl uživatele
 pryč z místa, kde byl.
 
+**Zdroj a poznámka umí odkazy.** Zápis je markdownový — `[wcg](https://…)`
+udělá z „wcg" klikací text, samotná adresa v textu se zaktivní taky. Rozpoznání
+je v `src/lib/links.ts` (čistá funkce, testy), vykreslení v `components/RichText.tsx`;
+používá ho detail záznamu i sloupec zdroje v tabulce. **Pouští se jen `http`
+a `https`** — `javascript:` a `data:` zůstanou obyčejným textem. Text sice píše
+přihlášený uživatel, ale čte ho kdokoli, takže se s ním nakládá jako s cizím
+vstupem. Na plátno se zdroj ani poznámka nekreslí, proto tam odkazy nejsou.
+V tabulce klik na odkaz nesmí probublat na řádek, který otevírá formulář
+(`stopPropagation`).
+
 Barva štítku se na ose projeví u pruhů výplní a obrysem, u pilulek nad osou
 náznakem výplně, obrysem, stínem a jménem — plná výplň by z pilulky udělala
 skvrnu, roky proto zůstávají tlumené.

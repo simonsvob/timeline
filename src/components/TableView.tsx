@@ -9,6 +9,8 @@ import { cs } from '../i18n/cs';
 import { formatTimePoint } from '../lib/format';
 import { compareTimePoints } from '../lib/time';
 import { PLACEMENTS, type Placement, type Tag, type TimelineEvent } from '../data/types';
+import { stripLinks } from '../lib/links';
+import { RichText } from './RichText';
 import { tagColor } from './timeline/layout';
 
 type SortKey = 'name' | 'tag' | 'placement' | 'start' | 'end' | 'type';
@@ -48,7 +50,12 @@ export function TableView({
       if (tagFilter !== '' && tagFilter !== NO_TAG_FILTER && event.tagId !== tagFilter) return false;
       if (placementFilter !== '' && event.placement !== placementFilter) return false;
       if (needle === '') return true;
-      const haystack = [event.name, event.source ?? '', event.note ?? '', event.placeName ?? '']
+      const haystack = [
+        event.name,
+        stripLinks(event.source ?? ''),
+        stripLinks(event.note ?? ''),
+        event.placeName ?? '',
+      ]
         .join(' ')
         .toLocaleLowerCase('cs');
       return haystack.includes(needle);
@@ -214,7 +221,9 @@ export function TableView({
                     <td className="table-date">{formatTimePoint(event.start)}</td>
                     <td className="table-date">{event.end ? formatTimePoint(event.end) : ''}</td>
                     <td>{event.type === 'range' ? cs.form.typeRange : cs.form.typePoint}</td>
-                    <td className="table-source">{event.source ?? ''}</td>
+                    <td className="table-source">
+                      <RichText text={event.source ?? ''} />
+                    </td>
                     <td className="table-actions">
                       <button
                         type="button"
