@@ -219,9 +219,16 @@ kopie. Soubor jde nahrát přes **Data → Importovat**.
 Konvence v datech:
 
 - **zdroj** — jen zkratka: `wcg` (Odvážně choď s Bohem), `it "Chronologie"`,
-  `nwt A6`, `ia`. Bez názvu a stran.
+  `nwt A6`, `ia`. Bez názvu a stran. Tři zkratky jsou zároveň **odkazem**
+  zapsaným jako `[wcg](https://…)`: `wcg` míří na tu ze tří os v knize, na
+  které postava nebo událost stojí (části 1–3 v `data/zdroj-odvazne-chod-s-bohem.json`,
+  docid `1102025962` / `1102025964` / `1102025966`), `it „Chronologie“` na
+  docid `1200000970` a `nwt „Přehled biblických knih“` na `1001061171`.
+  Ostatní zkratky v témže poli zůstávají obyčejným textem.
 - **poznámka** — text ze zdroje, u sloučených životů vysvětlení, u duplicit
-  informace o dvojím výskytu.
+  informace o dvojím výskytu. U knižních záznamů je to odrážkový seznam
+  (`• Pisatel: …`, `• Místo psaní: …`), řádky bez tečky na konci; výjimka je
+  zkratka `n. l.`, která si tečku nese sama.
 - **umístění** (`placement`) — pásmo na ose. Pevný seznam v kódu:
   `velmoci`, `udalosti`, `zivoty`, `knihy`, `izrael`, `juda`.
 - **štítek** (`tagId`) — druh záznamu a jeho barva. Nejvýš jeden na záznam,
