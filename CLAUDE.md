@@ -301,6 +301,17 @@ pro `authenticated`. Migrace jsou v `supabase/migrations/`; při změně schéma
 přidej migraci **a** promítni ji do `src/data/repository.ts` (seznam sloupců
 `EVENT_COLUMNS` je ruční).
 
+**Nová tabulka potřebuje `GRANT` ve stejné migraci.** Od 30. 10. 2026 Supabase
+nově vzniklým tabulkám v `public` nepřiděluje práva pro Data API sám — bez
+`grant` aplikace do tabulky nevidí a dostane `permission denied`. Týká se to
+i zakládání od nuly (nový projekt, preview větev, `supabase db reset`), proto
+`20250111000000_granty_data_api.sql` práva doplňuje i třem stávajícím tabulkám.
+Vzor: `anon` jen `select`, `authenticated` a `service_role` `select, insert,
+update, delete`. Práva jen otevírají dveře, o tom, kdo smí co, dál rozhoduje RLS.
+
+Migrace se do ostré databáze pouštějí přes `apply_migration` se jménem souboru
+bez data (`granty_data_api`); databáze si je eviduje pod vlastním časem.
+
 Validační pravidla se drží na dvou místech zároveň — v `src/lib/validation.ts`
 i jako CHECK constraints v migraci. Když měníš jedno, změň druhé.
 

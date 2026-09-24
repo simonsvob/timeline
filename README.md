@@ -43,30 +43,36 @@ obrazovku s nápovědou, co doplnit.
 
 ### 1. Projekt a migrace
 
-Vytvořte projekt na [supabase.com](https://supabase.com) a spusťte migraci
-`supabase/migrations/20250101000000_init.sql`. Buď přes **SQL Editor**
-(zkopírovat obsah souboru a spustit), nebo přes CLI:
+Vytvořte projekt na [supabase.com](https://supabase.com) a spusťte **všechny**
+migrace ze složky `supabase/migrations/`, v pořadí podle jména souboru. Nejjednodušší
+je CLI, které je pustí samo:
 
 ```bash
 supabase link --project-ref <ref-projektu>
 supabase db push
 ```
 
-Migrace založí tabulky `categories` a `events`, kontrolní constraints
+Přes **SQL Editor** to jde taky — obsah každého souboru zkopírovat a spustit,
+jeden po druhém. Vynechat žádný nejde: pozdější migrace přidávají štítky,
+umístění na ose i otevřené hranice údajů.
+
+Migrace založí tabulky `categories`, `events` a `tags`, kontrolní constraints
 (den vyžaduje měsíc, u rozsahu konec >= začátek, bod nemá koncová pole),
-triggery na `updated_at` a RLS politiky.
+triggery na `updated_at`, RLS politiky a práva pro Data API. Poslední bod je
+důležitý od 30. 10. 2026 — Supabase od té doby novým tabulkám práva nepřiděluje
+sám, a bez migrace `…_granty_data_api.sql` by aplikace do databáze neviděla.
 
 ### 2. RLS
 
-Migrace zapíná RLS na obou tabulkách a nastavuje:
+Migrace zapínají RLS na všech třech tabulkách a nastavují:
 
 | Operace | Kdo |
 | --- | --- |
 | `SELECT` | `anon` i `authenticated` |
 | `INSERT`, `UPDATE`, `DELETE` | jen `authenticated` |
 
-Po spuštění migrace si v **Table Editor → RLS** ověřte, že je u obou tabulek
-RLS aktivní. Anonymní klíč tak nikdy nedokáže data měnit.
+Po spuštění migrací si v **Table Editor → RLS** ověřte, že je u všech tří
+tabulek RLS aktivní. Anonymní klíč tak nikdy nedokáže data měnit.
 
 ### 3. Účet editora
 
