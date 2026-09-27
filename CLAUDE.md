@@ -172,6 +172,17 @@ jen po přihlášení (`canEdit`). Filtrování na štítcích nestojí: tlačí
 **pásma**. Stav filtru drží `App`, protože tlačítko je v hlavičce, ale filtruje
 obsah osy.
 
+**Hlavička drží na každé šířce jeden řádek** — co si vezme na výšku, chybí
+ose. Ovládací prvky mají jednotnou výšku `--touch`, takže výšku hlavičky určuje
+jen ona a svislý okraj (na telefonu 54 px, na počítači 59 px). Hledání, filtr,
+nápověda (modál Data) a zámek jsou kulatá tlačítka s ikonou (`.icon-button`,
+ikony v `components/icons.tsx`). Pod 900 px se pole hledání schová do tlačítka
+a po klepnutí se rozbalí přes celý řádek — `flushSync` v `SearchBox` je tam
+proto, že Safari na iOS ukáže klávesnici jen pro focus přímo z klepnutí. Pod
+640 px zmizí název aplikace a rozsah let a bublina filtru se ukotví k hlavičce,
+ne k tlačítku: od tlačítka vpravo by vyjela z displeje. Zapnutý filtr ukazuje
+tečka v rohu tlačítka.
+
 **Poloha na ose přežívá přepnutí do tabulky.** Výřez i svislý posun čáry drží
 `App` (`TimelineViewState`), ne `TimelineView` — přepnutí pohledu osu odpojí a
 s ní by zmizel i výřez, takže návrat by pokaždé skončil na celém rozsahu.
@@ -240,6 +251,21 @@ pinch přes pointery — proto se obsluha gest přeskakuje, jakmile je na plátn
 dřív než druhý `pointerdown` a v té skulině se zoom sčítal dvakrát. Na trackpadu
 Macu žádný ukazatel není, do mapy se zapisuje až při `pointerdown`. Osa nemá
 nástrojovou lištu ani skok na rok, gesta je nahradila.
+
+**Pinch i odkládání gest počítají jen prsty**, ne myš (`touch` v mapě
+ukazatelů). Na iPadu s Magic Keyboard je kurzor trackpadu na plátně současně
+s prsty; kdyby se počítal, spároval by se s prstem do pinche. Ukazatel, kterému
+nepřišel `pointerup`, uklidí `onLostPointerCapture`.
+
+**Sevření prstů na trackpadu iPadu se chytit nedá.** Safari ho stránce nepředá —
+žádný `wheel`, `gesture*` ani pointer — a místo toho přiblíží celou stránku
+navzdory `user-scalable=no`. Hlášené od roku 2020, stejně na tom jsou Miro a
+spol. Proto existuje **ovládání klávesnicí**: `+`/`−` zoom, šipky posun
+(`keyNudge` ve `viewport.ts`, testy). Bere se `event.key`, ne `event.code`,
+kvůli české klávesnici. Stisk se nesčítá skokem, ale přičte se ke zbývajícímu
+pohybu, který dojíždí s `KEY_EASE_MS` — podržená klávesa tak jede plynule.
+Klávesy se ignorují v polích formuláře, při otevřeném modálu a s ⌘/Ctrl/Alt
+(to je zoom prohlížeče). Nápověda k ovládání je první sekcí modálu Data.
 
 **Setrvačnost.** Po švihnutí prstem posun plynule dojede (`INERTIA_TAU`,
 exponenciální útlum, zastaví se pod `INERTIA_MIN_SPEED`). Rychlost se počítá

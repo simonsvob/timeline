@@ -29,8 +29,56 @@ export const cs = {
   nav: {
     timeline: 'Osa',
     table: 'Tabulka',
-    filter: 'Filtr',
-    data: 'Data',
+    filter: 'Filtr pásem',
+    filterActive: (shown: number, total: number) => `Filtr pásem – zobrazeno ${shown} z ${total}`,
+    help: 'Nápověda a data',
+    search: 'Hledat',
+  },
+
+  /** Nápověda k ovládání osy – první sekce modálu „Nápověda a data". */
+  help: {
+    title: 'Ovládání osy',
+    rows: [
+      {
+        what: 'Přiblížit a oddálit',
+        how: [
+          'sevření dvěma prsty na trackpadu nebo displeji',
+          'Ctrl + kolečko myši (na Macu i ⌘ + kolečko)',
+          'klávesy + a −',
+          'dvojklik přiblíží, Shift + dvojklik oddálí',
+        ],
+      },
+      {
+        what: 'Posun v čase',
+        how: [
+          'tažení myší nebo prstem',
+          'dva prsty do stran na trackpadu',
+          'Shift + kolečko myši',
+          'šipky ← a →',
+        ],
+      },
+      {
+        what: 'Posun nahoru a dolů',
+        how: ['kolečko myši', 'dva prsty nahoru a dolů na trackpadu', 'tažení', 'šipky ↑ a ↓'],
+      },
+      {
+        what: 'Skok jinam',
+        how: [
+          'klepnutí nebo tažení v pruhu úplně dole',
+          'hledání v hlavičce',
+          'v tabulce „Zobrazit na ose“',
+        ],
+      },
+      {
+        what: 'Detail záznamu',
+        how: ['klepnutí na záznam', 'Esc detail zavře'],
+      },
+    ],
+    ipadTitle: 'iPad s klávesnicí Magic Keyboard',
+    ipad:
+      'Sevření prstů na trackpadu klávesnice přiblíží celou stránku, ne osu – Safari to gesto webu ' +
+      'nepředá. Na osu použij klávesy + a − nebo dvojklik. Omylem přiblíženou stránku vrátíš stejným ' +
+      'gestem opačně.',
   },
 
   auth: {
@@ -262,7 +310,7 @@ export const cs = {
   },
 
   dataIO: {
-    title: 'Data',
+    title: 'Nápověda a data',
     overview: 'Přehled',
     counts: (categories: number, tags: number, events: number) =>
       `${events} ${plural(events, 'záznam', 'záznamy', 'záznamů')}, ` +

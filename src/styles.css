@@ -250,13 +250,20 @@ h4 {
   min-height: 0;
 }
 
+/*
+ * Hlavička drží na každé šířce jeden řádek — každý pixel, který si vezme,
+ * chybí ose. Ovládací prvky mají jednotnou výšku `--touch`, takže výšku
+ * hlavičky určuje jen ona a svislý okraj. `position: relative` je kotva pro
+ * rozbalené hledání a bublinu filtru na telefonu.
+ */
 .app-header {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
   flex-wrap: wrap;
-  padding: 18px 36px;
-  padding-top: max(18px, env(safe-area-inset-top));
+  padding: 10px 24px;
+  padding-top: max(10px, env(safe-area-inset-top));
   background: transparent;
 }
 
@@ -272,14 +279,15 @@ h4 {
 }
 
 .app-title {
-  font-size: 17px;
+  font-size: 16px;
+  line-height: 1.25;
   font-weight: 650;
   letter-spacing: -0.01em;
   white-space: nowrap;
 }
 
 .app-context {
-  margin: 2px 0 0;
+  margin: 1px 0 0;
   font-size: 12px;
   font-variant-numeric: tabular-nums;
   color: var(--text-soft);
@@ -334,7 +342,7 @@ h4 {
 .switch {
   display: inline-flex;
   gap: 2px;
-  padding: 4px;
+  padding: 3px;
   border: 1px solid var(--border);
   border-radius: var(--radius-pill);
   background: var(--surface);
@@ -342,8 +350,8 @@ h4 {
 }
 
 .switch-segment {
-  min-height: 36px;
-  padding: 0 18px;
+  min-height: calc(var(--touch) - 8px);
+  padding: 0 16px;
   border: 0;
   border-radius: var(--radius-pill);
   background: transparent;
@@ -363,18 +371,36 @@ h4 {
 .app-actions {
   display: flex;
   align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
+  gap: 8px;
   margin-left: auto;
+}
+
+/* Nový záznam: na počítači s popiskem, na telefonu jen plus (viz níž). */
+.new-record {
+  gap: 7px;
+  padding: 0 16px 0 13px;
 }
 
 /* --- Hledání --- */
 
 .search {
+  display: flex;
+  align-items: center;
+}
+
+.search-field {
   position: relative;
   display: flex;
   align-items: center;
   width: clamp(150px, 20vw, 230px);
+}
+
+/*
+ * Na široké obrazovce je pole vidět vždy, tlačítko netřeba. Dvojitý selektor
+ * schválně: `.icon-button` níž v souboru jinak skrytí přebije.
+ */
+.search .search-toggle {
+  display: none;
 }
 
 .search-icon {
@@ -409,13 +435,16 @@ h4 {
   outline-offset: 1px;
 }
 
-/* --- Zámek --- */
+/* --- Kulatá tlačítka s ikonou (hledání, filtr, nápověda, zámek) --- */
 
-.lock-button {
+.icon-button {
+  position: relative;
+  flex: 0 0 auto;
   width: var(--touch);
   height: var(--touch);
   display: grid;
   place-items: center;
+  padding: 0;
   border: 1px solid var(--border);
   border-radius: 50%;
   background: var(--surface);
@@ -425,16 +454,38 @@ h4 {
   transition: transform 0.15s ease-out, color 0.12s ease;
 }
 
-.lock-button:hover {
+.icon-button:hover {
   transform: translateY(-1px);
   color: var(--text);
 }
 
-.lock-button-open {
+/* Odemčený zámek – přihlášeno. */
+.icon-button-strong {
   color: #262218;
 }
 
-.lock-button:focus-visible,
+/*
+ * Zapnutý filtr musí být poznat i se zavřenou bublinou. Dřív to nesl text
+ * „(3/6)“; ikona na něj nemá místo, takže to říká tečka v rohu a plná barva.
+ */
+.icon-button-active {
+  color: #262218;
+  border-color: var(--border-strong);
+}
+
+.icon-button-active::after {
+  content: '';
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 7px;
+  height: 7px;
+  border: 1.5px solid var(--surface);
+  border-radius: 50%;
+  background: #262218;
+}
+
+.icon-button:focus-visible,
 .pill:focus-visible,
 .switch-segment:focus-visible {
   outline: 2px solid var(--focus);
@@ -498,11 +549,6 @@ h4 {
   cursor: default;
 }
 
-/* Zapnutý filtr má být poznat i se zavřenou bublinou. */
-.pill-active {
-  border-color: var(--border-strong);
-  color: var(--text);
-}
 
 .app-main {
   display: flex;
@@ -1400,6 +1446,40 @@ h4 {
   font-size: 16px;
 }
 
+/* --- Nápověda k ovládání --- */
+
+.help-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin: 10px 0 0;
+  font-size: 14px;
+}
+
+.help-row {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 14px;
+}
+
+.help-row dt {
+  font-weight: 600;
+}
+
+.help-row dd {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.help-note {
+  margin: 14px 0 0;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  background: var(--surface-muted);
+  color: var(--text-muted);
+  font-size: 13.5px;
+}
+
 .data-section .muted {
   margin-top: 0;
   margin-bottom: 12px;
@@ -1466,27 +1546,84 @@ h4 {
   .app-title {
     font-size: 15.5px;
   }
+
+  /* Hledání se schová do tlačítka a rozbalí se přes celý řádek hlavičky. */
+  .search .search-toggle {
+    display: grid;
+  }
+
+  .search-field {
+    display: none;
+  }
+
+  .search-expanded .search-field {
+    display: flex;
+    position: absolute;
+    z-index: 45;
+    left: 24px;
+    right: 24px;
+    bottom: 10px;
+    width: auto;
+  }
+
+  .search-expanded .search-toggle {
+    visibility: hidden;
+  }
 }
 
-/* Telefon – nemá být rozbitý, i když není priorita */
+/*
+ * Telefon – jeden řádek: přepínač pohledů vlevo, kulatá tlačítka vpravo.
+ * Název aplikace a rozsah let se nevejdou; název nese záložka prohlížeče
+ * a roky jsou vidět přímo na ose.
+ */
 @media (max-width: 640px) {
   .app-header {
-    gap: 8px;
+    gap: 6px;
     padding: 8px 12px;
+    padding-top: max(8px, env(safe-area-inset-top));
+  }
+
+  .app-brand {
+    display: none;
+  }
+
+  .switch-segment {
+    padding: 0 12px;
   }
 
   .app-actions {
-    width: 100%;
-    margin-left: 0;
+    gap: 6px;
   }
 
-  .app-actions .button,
-  .view-switch {
-    flex: 1;
+  .search-expanded .search-field {
+    left: 12px;
+    right: 12px;
+    bottom: 8px;
   }
 
-  .search {
-    width: 100%;
+  /* Nový záznam jen jako plus, stejně kulatý jako ostatní. */
+  .new-record {
+    width: var(--touch);
+    padding: 0;
+  }
+
+  .new-record-label {
+    display: none;
+  }
+
+  /*
+   * Bublina filtru se ukotví k hlavičce, ne k tlačítku: od tlačítka vpravo
+   * by 268 px široká bublina vyjela z displeje doleva.
+   */
+  .filter-anchor {
+    position: static;
+  }
+
+  .filter-popover {
+    left: 12px;
+    right: 12px;
+    top: calc(100% - 2px);
+    width: auto;
   }
 
   .modal {
@@ -1500,6 +1637,11 @@ h4 {
   .detail-list {
     grid-template-columns: 1fr;
     gap: 2px;
+  }
+
+  .help-row {
+    grid-template-columns: 1fr;
+    gap: 1px;
   }
 
   .detail-list dd {

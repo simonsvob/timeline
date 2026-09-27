@@ -3,7 +3,7 @@
 Shrnutí pro konverzaci, která na projektu pokračuje bez historie. Popisuje, co
 aplikace je, jak je zapojená, co už se rozhodlo a proč, a co zbývá.
 
-Poslední aktualizace: 21. září 2026.
+Poslední aktualizace: 27. září 2026.
 
 **Vzhled** prošel přestavbou na návrh „Řeka" (centrální čára, události nad ní,
 životy pod ní). Předchozí vzhled je zazálohovaný na větvi `zaloha/design-v1`.
@@ -144,7 +144,16 @@ hledaný záznam.
 
 **Osa nemá nástrojovou lištu.** Skok na rok, tlačítka zoomu ani „celý rozsah"
 tam nejsou — pinch a tažení to zvládnou rychleji a lišta jen ubírala místo.
-Hledání se přesunulo do hlavičky, přihlášení je jen ikona zámku.
+Hledání se přesunulo do hlavičky, přihlášení je jen ikona zámku. Filtr
+a Data (teď „Nápověda a data") jsou taky kulatá tlačítka s ikonou a hlavička
+drží na každé šířce jeden řádek — na telefonu dřív zabrala čtvrtinu displeje.
+
+**Klávesnice jako náhrada za pinch na iPadu.** Kamarád zadavatele na iPadu
+s Magic Keyboard nezazoomoval vůbec: Safari sevření prstů na trackpadu stránce
+nepředá a přiblíží celou stránku. To se obejít nedá, proto přibylo ovládání
+klávesami `+`, `−` a šipkami. Jestli teď s připojenou klávesnicí funguje
+i pinch prsty na displeji, zatím nikdo neověřil na skutečném iPadu — v náhledu
+v Chromiu ano.
 
 **Body nahoře, rozsahy dole.** Bodové záznamy mají vlastní pásmo nahoře
 a kreslí se jako svislé značky s pilulkou. Rozházené mezi pruhy se ztrácely

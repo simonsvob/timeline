@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
+  keyNudge,
+  KEY_ZOOM_STEP,
   chooseTickLevel,
   clampViewport,
   generateTicks,
@@ -149,5 +151,38 @@ describe('strop na rychlosti zoomu', () => {
 
   it('dlouhá prodleva nedovolí velký skok', () => {
     expect(limitZoomFactor(100, 5000)).toBeLessThan(1.5);
+  });
+});
+
+describe('ovládání klávesnicí', () => {
+  it('+ a − přibližují a oddalují o stejný krok', () => {
+    expect(keyNudge('+', 1000)?.zoom).toBeCloseTo(KEY_ZOOM_STEP);
+    expect(keyNudge('-', 1000)?.zoom).toBeCloseTo(-KEY_ZOOM_STEP);
+  });
+
+  it('zoom bez Shiftu jde i přes = a _', () => {
+    expect(keyNudge('=', 1000)).toEqual(keyNudge('+', 1000));
+    expect(keyNudge('_', 1000)).toEqual(keyNudge('-', 1000));
+  });
+
+  it('šipka doprava jde dopředu v čase – obsah jede doleva', () => {
+    expect(keyNudge('ArrowRight', 1000)?.pan).toBeLessThan(0);
+    expect(keyNudge('ArrowLeft', 1000)?.pan).toBeGreaterThan(0);
+  });
+
+  it('posun šipkou se řídí šířkou plátna', () => {
+    expect(keyNudge('ArrowLeft', 400)?.pan).toBe(100);
+    expect(keyNudge('ArrowLeft', 1600)?.pan).toBe(400);
+  });
+
+  it('šipka dolů posune čáru jako kolečko dolů', () => {
+    expect(keyNudge('ArrowDown', 1000)?.shift).toBeLessThan(0);
+    expect(keyNudge('ArrowUp', 1000)?.shift).toBeGreaterThan(0);
+  });
+
+  it('ostatní klávesy ose nepatří', () => {
+    expect(keyNudge('a', 1000)).toBeNull();
+    expect(keyNudge('Enter', 1000)).toBeNull();
+    expect(keyNudge(' ', 1000)).toBeNull();
   });
 });

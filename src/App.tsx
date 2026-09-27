@@ -15,6 +15,7 @@ import { BandFilter } from './components/BandFilter';
 import { DataPanel } from './components/DataPanel';
 import { DetailPanel } from './components/DetailPanel';
 import { EventForm } from './components/EventForm';
+import { FilterIcon, HelpIcon, PlusIcon } from './components/icons';
 import { SearchBox, LockButton } from './components/SearchBox';
 import { TableView } from './components/TableView';
 import {
@@ -94,6 +95,11 @@ export function App() {
     return set;
   }, [state.events]);
 
+  const filterLabel =
+    hiddenBands.size > 0
+      ? cs.nav.filterActive(populatedBands.size - hiddenBands.size, populatedBands.size)
+      : cs.nav.filter;
+
   const toggleBand = useCallback((id: Placement) => {
     setHiddenBands((prev) => {
       const next = new Set(prev);
@@ -172,22 +178,31 @@ export function App() {
         <div className="app-actions">
           <SearchBox events={state.events} tagMap={state.tagMap} onPick={showOnTimeline} />
           {state.canEdit ? (
-            <button type="button" className="pill pill-dark" onClick={openNew}>
-              {cs.table.newEvent}
+            <button
+              type="button"
+              className="pill pill-dark new-record"
+              onClick={openNew}
+              aria-label={cs.table.newEvent}
+              title={cs.table.newEvent}
+            >
+              <PlusIcon />
+              <span className="new-record-label">{cs.table.newEvent}</span>
             </button>
           ) : null}
           {mode === 'timeline' && populatedBands.size > 1 ? (
             <div className="filter-anchor">
               <button
                 type="button"
-                className={`pill${hiddenBands.size > 0 ? ' pill-active' : ''}`}
+                className={`icon-button${hiddenBands.size > 0 ? ' icon-button-active' : ''}`}
+                // Bublina se zavírá pointerdownem kdekoli mimo sebe. Bez tohohle
+                // by ji klepnutí na tlačítko zavřelo a hned zase otevřelo.
+                onPointerDown={(e) => e.stopPropagation()}
                 onClick={() => setFilterOpen((prev) => !prev)}
                 aria-expanded={filterOpen}
+                aria-label={filterLabel}
+                title={filterLabel}
               >
-                {cs.nav.filter}
-                {hiddenBands.size > 0
-                  ? ` (${populatedBands.size - hiddenBands.size}/${populatedBands.size})`
-                  : ''}
+                <FilterIcon />
               </button>
               {filterOpen ? (
                 <BandFilter
@@ -200,8 +215,14 @@ export function App() {
               ) : null}
             </div>
           ) : null}
-          <button type="button" className="pill" onClick={() => setModal('data')}>
-            {cs.nav.data}
+          <button
+            type="button"
+            className="icon-button"
+            onClick={() => setModal('data')}
+            aria-label={cs.nav.help}
+            title={cs.nav.help}
+          >
+            <HelpIcon />
           </button>
           <LockButton
             unlocked={state.canEdit}

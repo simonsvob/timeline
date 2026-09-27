@@ -109,6 +109,59 @@ export function panBy(view: Viewport, dxPixels: number, domain: Domain): Viewpor
   return clampViewport({ ...view, t0: view.t0 - dxPixels / view.pxPerYear }, domain);
 }
 
+// ---------------------------------------------------------------------------
+// Klávesnice
+// ---------------------------------------------------------------------------
+
+/**
+ * Posun a zoom z klávesnice. Na iPadu s Magic Keyboard je to jediný spolehlivý
+ * zoom: Safari sevření prstů na trackpadu stránce nepředá (žádný `wheel`,
+ * `gesture*` ani pointer), místo toho přiblíží celou stránku. Klávesy chodí
+ * všude stejně.
+ *
+ * `zoom` je přirozený logaritmus násobku měřítka, `pan` vodorovný posun
+ * obsahu v pixelech (kladný = obsah doprava, tedy zpátky v čase), `shift`
+ * svislý posun čáry v pixelech se stejným znaménkem jako kolečko.
+ */
+export interface KeyNudge {
+  zoom: number;
+  pan: number;
+  shift: number;
+}
+
+/** Jedno stisknutí + nebo − přiblíží či oddálí zhruba o polovinu. */
+export const KEY_ZOOM_STEP = Math.log(1.5);
+/** Šipka doleva/doprava posune o čtvrtinu šířky. */
+export const KEY_PAN_SHARE = 0.25;
+/** Šipka nahoru/dolů posune čáru jako tři řádky pruhů. */
+export const KEY_SHIFT_PX = 100;
+
+/**
+ * Klávesa → pohyb osy, nebo `null`, když klávesa ose nepatří. Bere se
+ * `event.key`, ne `event.code`: na české klávesnici je `+` bez Shiftu na místě
+ * jedničky a `-` vedle tečky, a kód klávesy by to nepoznal.
+ */
+export function keyNudge(key: string, width: number): KeyNudge | null {
+  switch (key) {
+    case '+':
+    case '=':
+      return { zoom: KEY_ZOOM_STEP, pan: 0, shift: 0 };
+    case '-':
+    case '_':
+      return { zoom: -KEY_ZOOM_STEP, pan: 0, shift: 0 };
+    case 'ArrowLeft':
+      return { zoom: 0, pan: width * KEY_PAN_SHARE, shift: 0 };
+    case 'ArrowRight':
+      return { zoom: 0, pan: -width * KEY_PAN_SHARE, shift: 0 };
+    case 'ArrowUp':
+      return { zoom: 0, pan: 0, shift: KEY_SHIFT_PX };
+    case 'ArrowDown':
+      return { zoom: 0, pan: 0, shift: -KEY_SHIFT_PX };
+    default:
+      return null;
+  }
+}
+
 /** Výřez, který ukáže zadaný interval (s okrajem). */
 export function viewportForRange(
   from: number,

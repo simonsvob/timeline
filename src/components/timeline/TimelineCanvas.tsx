@@ -17,6 +17,7 @@ import { cs } from '../../i18n/cs';
 import { formatRangeCompact } from '../../lib/format';
 import {
   generateTicks,
+  keyNudge,
   limitZoomFactor,
   panBy,
   zoomAt,
@@ -57,6 +58,12 @@ const VELOCITY_SMOOTHING = 0.4;
 const VELOCITY_RESET_MS = 90;
 /** Po delší prodlevě mezi posledním pohybem a puštěním se doběh nespouští. */
 const RELEASE_WINDOW_MS = 180;
+/**
+ * Časová konstanta dojezdu po stisku klávesy. Skok o celý krok najednou
+ * trhal okem; takhle krok doběhne zhruba za čtvrt vteřiny a podržená klávesa
+ * se skládá do plynulého pohybu.
+ */
+const KEY_EASE_MS = 90;
 
 /**
  * Safari posílá za pinch vlastní GestureEvent, který standardní typy DOM
@@ -279,7 +286,14 @@ export function TimelineCanvas({
   const onViewChangeRef = useRef(onViewChange);
   onViewChangeRef.current = onViewChange;
 
-  const pointers = useRef(new Map<number, { x: number; y: number }>());
+  /**
+   * Aktivní ukazatele na plátně. `touch` odlišuje prsty a pero od myši —
+   * pinch i odkládání gest počítají jen s prsty. Na iPadu s Magic Keyboard
+   * je kurzor trackpadu na plátně současně s prsty a nesmí se jim plést do
+   * počítání dvojice.
+   */
+  const pointers = useRef(new Map<number, { x: number; y: number; touch: boolean }>());
+  const dotyky = () => [...pointers.current.values()].filter((pointer) => pointer.touch);
   /** čas poslední změny měřítka – drží strop na rychlosti zoomu */
   const lastZoomAt = useRef(0);
 
@@ -354,6 +368,77 @@ export function TimelineCanvas({
 
   useEffect(() => stopInertia, [stopInertia]);
 
+  // --- klávesnice ------------------------------------------------------------
+
+  /**
+   * Zbývající pohyb po stisku klávesy. Každý snímek se z něj ukousne díl
+   * a zbytek se dojíždí; další stisk se jen přičte, takže podržená klávesa
+   * se nesčítá skokově.
+   */
+  const keyMotion = useRef<{ zoom: number; pan: number; shift: number; last: number; frame: number } | null>(null);
+
+  const stopKeyMotion = useCallback(() => {
+    if (keyMotion.current) {
+      cancelAnimationFrame(keyMotion.current.frame);
+      keyMotion.current = null;
+    }
+  }, []);
+
+  useEffect(() => {
+    const step = (now: number) => {
+      const motion = keyMotion.current;
+      if (!motion) return;
+      const dt = Math.min(now - motion.last, 48);
+      motion.last = now;
+      const share = 1 - Math.exp(-dt / KEY_EASE_MS);
+      const zoom = motion.zoom * share;
+      const pan = motion.pan * share;
+      const shift = motion.shift * share;
+      motion.zoom -= zoom;
+      motion.pan -= pan;
+      motion.shift -= shift;
+
+      let next = viewRef.current;
+      if (zoom !== 0) next = zoomAt(next, next.width / 2, Math.exp(zoom), domainRef.current);
+      if (pan !== 0) next = panBy(next, pan, domainRef.current);
+      if (next !== viewRef.current) onViewChangeRef.current(next);
+      if (shift !== 0) setAxisShift((prev) => clampShiftRef.current(prev + shift));
+
+      const hotovo = Math.abs(motion.zoom) < 0.002 && Math.abs(motion.pan) < 0.5 && Math.abs(motion.shift) < 0.5;
+      if (hotovo) keyMotion.current = null;
+      else motion.frame = requestAnimationFrame(step);
+    };
+
+    const onKey = (event: KeyboardEvent) => {
+      // ⌘/Ctrl + a − patří zoomu prohlížeče, ten se nepřebírá.
+      if (event.defaultPrevented || event.ctrlKey || event.metaKey || event.altKey) return;
+      const target = event.target instanceof HTMLElement ? event.target : null;
+      if (target?.closest('input, textarea, select, [contenteditable="true"]')) return;
+      // Otevřený modál (formulář, Data) osu zakrývá – šipky patří jemu.
+      if (document.querySelector('[aria-modal="true"]')) return;
+
+      const nudge = keyNudge(event.key, viewRef.current.width);
+      if (!nudge) return;
+      event.preventDefault();
+      stopInertia();
+
+      const motion = keyMotion.current;
+      if (motion) {
+        motion.zoom += nudge.zoom;
+        motion.pan += nudge.pan;
+        motion.shift += nudge.shift;
+      } else {
+        keyMotion.current = { ...nudge, last: performance.now(), frame: requestAnimationFrame(step) };
+      }
+    };
+
+    window.addEventListener('keydown', onKey);
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      stopKeyMotion();
+    };
+  }, [stopInertia, stopKeyMotion]);
+
   // Kolečko / trackpad – nesmí být passive, jinak nejde zabránit zoomu stránky.
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -362,6 +447,7 @@ export function TimelineCanvas({
     const onWheel = (event: WheelEvent) => {
       event.preventDefault();
       stopInertia();
+      stopKeyMotion();
       const rect = canvas.getBoundingClientRect();
       const x = event.clientX - rect.left;
 
@@ -388,16 +474,18 @@ export function TimelineCanvas({
     //
     // Na iPadu chodí gesta SOUBĚŽNĚ s dotyky, které řeší pinch přes ukazatele,
     // a nedá se spolehnout na pořadí — `gesturestart` umí přijít dřív než druhý
-    // `pointerdown`. Kdyby se hlídaly až dva ukazatele, tahle skulina by zoom
-    // sečetla dvakrát. Stačí proto jediný ukazatel na plátně: na trackpadu
-    // Macu žádný není, protože se do mapy zapisuje až při `pointerdown`.
+    // `pointerdown`. Kdyby se hlídaly až dva prsty, tahle skulina by zoom
+    // sečetla dvakrát. Stačí proto jediný prst na plátně: na trackpadu Macu
+    // žádný není, protože se do mapy zapisuje až při `pointerdown`. Myš se
+    // nepočítá — stisknuté tlačítko myši s pinchem nemá nic společného.
     let lastScale = 1;
-    const dotykovyPinch = () => pointers.current.size >= 1;
+    const dotykovyPinch = () => dotyky().length >= 1;
 
     const onGestureStart = (event: GestureLikeEvent) => {
       event.preventDefault();
       if (dotykovyPinch()) return;
       stopInertia();
+      stopKeyMotion();
       lastScale = event.scale || 1;
     };
     const onGestureChange = (event: GestureLikeEvent) => {
@@ -427,7 +515,7 @@ export function TimelineCanvas({
       canvas.removeEventListener('gesturechange', onGestureChange as EventListener);
       canvas.removeEventListener('gestureend', onGestureEnd as EventListener);
     };
-  }, [onViewChange, clampShift, stopInertia, omezenyNasobek]);
+  }, [onViewChange, clampShift, stopInertia, stopKeyMotion, omezenyNasobek]);
 
   const dragState = useRef<{
     moved: number;
@@ -450,11 +538,13 @@ export function TimelineCanvas({
   const onPointerDown = (event: React.PointerEvent<HTMLCanvasElement>) => {
     const point = localPoint(event);
     stopInertia();
-    pointers.current.set(event.pointerId, point);
+    stopKeyMotion();
+    pointers.current.set(event.pointerId, { ...point, touch: event.pointerType !== 'mouse' });
     event.currentTarget.setPointerCapture(event.pointerId);
 
-    if (pointers.current.size === 2) {
-      const [a, b] = [...pointers.current.values()];
+    const prsty = dotyky();
+    if (prsty.length === 2) {
+      const [a, b] = prsty;
       pinchState.current = { distance: Math.hypot(a.x - b.x, a.y - b.y), centerX: (a.x + b.x) / 2 };
       dragState.current = null;
     } else if (pointers.current.size === 1) {
@@ -478,10 +568,12 @@ export function TimelineCanvas({
       setHoveredId(zasah(point)?.event.id ?? null);
       return;
     }
-    pointers.current.set(event.pointerId, point);
+    const pointer = pointers.current.get(event.pointerId)!;
+    pointers.current.set(event.pointerId, { ...point, touch: pointer.touch });
 
-    if (pointers.current.size >= 2 && pinchState.current) {
-      const [a, b] = [...pointers.current.values()];
+    const prsty = dotyky();
+    if (pinchState.current && prsty.length >= 2) {
+      const [a, b] = prsty;
       const distance = Math.hypot(a.x - b.x, a.y - b.y);
       const centerX = (a.x + b.x) / 2;
       const previous = pinchState.current;
@@ -526,7 +618,7 @@ export function TimelineCanvas({
     const drag = pointers.current.size === 1 ? dragState.current : null;
     const point = localPoint(event);
     pointers.current.delete(event.pointerId);
-    if (pointers.current.size < 2) pinchState.current = null;
+    if (dotyky().length < 2) pinchState.current = null;
 
     if (drag) {
       if (drag.moved < CLICK_SLOP) {
@@ -550,6 +642,18 @@ export function TimelineCanvas({
     if (pointers.current.size === 0) dragState.current = null;
   };
 
+  /**
+   * Pojistka pro ukazatel, kterému nepřišel `pointerup` ani `pointercancel`.
+   * Po běžném puštění přijde taky, ale to už ukazatel v mapě není a nic se
+   * nestane. Kdyby tam uvízl, další prst by se s ním spároval do pinche
+   * a jediný prst na plátně by pořád odkládal gesta.
+   */
+  const onLostPointerCapture = (event: React.PointerEvent<HTMLCanvasElement>) => {
+    if (!pointers.current.delete(event.pointerId)) return;
+    if (dotyky().length < 2) pinchState.current = null;
+    if (pointers.current.size === 0) dragState.current = null;
+  };
+
   const onDoubleClick = (event: React.MouseEvent<HTMLCanvasElement>) => {
     const rect = event.currentTarget.getBoundingClientRect();
     const factor = event.altKey || event.shiftKey ? 0.5 : 2;
@@ -569,6 +673,7 @@ export function TimelineCanvas({
         onPointerMove={onPointerMove}
         onPointerUp={endPointer}
         onPointerCancel={endPointer}
+        onLostPointerCapture={onLostPointerCapture}
         onPointerLeave={() => setHoveredId(null)}
         onDoubleClick={onDoubleClick}
       />

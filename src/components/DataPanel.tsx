@@ -1,7 +1,10 @@
 /**
- * Číselníky a přenos dat na jednom místě: štítky, období, export a import.
- * Export je dostupný komukoli (data jsou veřejná ke čtení), úpravy jen
- * přihlášeným.
+ * Nápověda, číselníky a přenos dat na jednom místě: ovládání osy, štítky,
+ * období, export a import. Export je dostupný komukoli (data jsou veřejná ke
+ * čtení), úpravy jen přihlášeným.
+ *
+ * Tlačítko v hlavičce je otazník, proto jde nápověda první: kdo modál otevře
+ * poprvé, hledá nejspíš, jak se osou pohybovat.
  *
  * Štítky ani období nemají vlastní tlačítko v hlavičce – sahá se na ně zřídka
  * a hlavička má nechat co nejvíc místa ose.
@@ -105,6 +108,21 @@ export function DataPanel({
           </button>
         }
       >
+        <section className="data-section">
+          <h3>{cs.help.title}</h3>
+          <dl className="help-list">
+            {cs.help.rows.map((row) => (
+              <div key={row.what} className="help-row">
+                <dt>{row.what}</dt>
+                <dd>{row.how.join(' · ')}</dd>
+              </div>
+            ))}
+          </dl>
+          <p className="help-note">
+            <strong>{cs.help.ipadTitle}.</strong> {cs.help.ipad}
+          </p>
+        </section>
+
         <section className="data-section">
           <h3>{cs.dataIO.overview}</h3>
           <p className="data-counts">

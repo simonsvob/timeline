@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Provizorní ikona: centrální čára s bodem nad ní a pruhem pod ní, jako na ose. -->
+  <rect width="64" height="64" rx="14" fill="#262218"/>
+  <rect x="9" y="13" width="28" height="10" rx="5" fill="#c9774c"/>
+  <rect x="21.75" y="22" width="2.5" height="8" fill="#c9774c"/>
+  <rect x="7" y="30.5" width="50" height="3.5" rx="1.75" fill="#f7f5f0"/>
+  <circle cx="23" cy="32.25" r="4.6" fill="#f7f5f0"/>
+  <rect x="29" y="40" width="27" height="10" rx="3.5" fill="#8db4d6"/>
+</svg>
