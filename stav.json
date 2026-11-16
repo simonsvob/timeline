@@ -1,8 +1,11 @@
 {
- "posledniBeh": "2026-11-16T22:22:00.000Z",
+ "posledniBeh": "2026-11-16T23:41:56.700Z",
  "pocty": {
   "categories": 6,
   "tags": 8,
-  "events": 557
+  "events": 557,
+  "persons": 191,
+  "person_events": 66,
+  "relations": 256
  }
 }
