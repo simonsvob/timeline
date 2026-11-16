@@ -1,0 +1,42 @@
+# Denní záloha databáze do větve `zaloha-dat`.
+#
+# Data mají jinak jedinou kopii v Supabase. Tahle úloha je každou noc stáhne
+# a uloží do repozitáře; historie větve je historie dat den po dni.
+# Obnova: vzít data.json z vybraného dne a nahrát řádky zpět podle `id`.
+#
+# Adresa a klíč nejsou tajemství — stejné hodnoty má každý prohlížeč, který
+# otevře web. Klíč umí jen číst, zápis hlídá přihlášení (RLS).
+name: Záloha dat
+
+on:
+  schedule:
+    - cron: '17 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  zaloha:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_URL: https://zhzkbmxfitkoyitztuxh.supabase.co
+      SUPABASE_KEY: sb_publishable_q-FDvwvj9e1ndNKfLjLBkg_jMnPDXWV
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          ref: zaloha-dat
+          path: zaloha
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node scripts/zaloha.mjs zaloha
+      - name: Uložit do větve zaloha-dat
+        working-directory: zaloha
+        run: |
+          git config user.name "zaloha"
+          git config user.email "zaloha@users.noreply.github.com"
+          git add data.json stav.json
+          git commit -m "Záloha $(date -u +%F)"
+          git push
