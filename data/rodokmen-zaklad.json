@@ -1,0 +1,4885 @@
+{
+ "popis": "Základ rodokmenu načtený do databáze 16. 11. 2026. Pravdu drží databáze; tenhle soubor je jen stopa, odkud data vzešla. Všechny vazby vznikly jako neověřené.",
+ "osoby": [
+  {
+   "id": "fce35ff0-c7eb-d3ae-8ccc-15e4c4abfe2d",
+   "slug": "adam",
+   "name": "Adam",
+   "qualifier": null,
+   "gender": "m",
+   "spine": true,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "fe39a21f-689a-afa9-dcbc-eb3377aeeb98",
+   "slug": "eva",
+   "name": "Eva",
+   "qualifier": null,
+   "gender": "f",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "c5875c3c-508d-0c0d-ee1f-ef2f9f4c08f9",
+   "slug": "kain",
+   "name": "Kain",
+   "qualifier": null,
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "bc846956-7db4-1510-a940-c5d6fc2e4730",
+   "slug": "abel",
+   "name": "Ábel",
+   "qualifier": null,
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "c6ce9982-e67d-a5ae-ca27-996226057b79",
+   "slug": "set",
+   "name": "Set",
+   "qualifier": null,
+   "gender": "m",
+   "spine": true,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "2694683a-8ca4-76b6-9afb-96cb618e3d38",
+   "slug": "enos",
+   "name": "Enoš",
+   "qualifier": null,
+   "gender": "m",
+   "spine": true,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "6beed83c-b564-e18e-2fa8-5af17456c1d0",
+   "slug": "kenan",
+   "name": "Kenan",
+   "qualifier": null,
+   "gender": "m",
+   "spine": true,
+   "roles": [],
+   "alt_names": [
+    "Kainan"
+   ]
+  },
+  {
+   "id": "07439aef-3880-4979-323b-0f791aea9167",
+   "slug": "mahalalel",
+   "name": "Mahalalel",
+   "qualifier": null,
+   "gender": "m",
+   "spine": true,
+   "roles": [],
+   "alt_names": [
+    "Mahalaleel"
+   ]
+  },
+  {
+   "id": "208f147b-97dc-d4f3-0a07-6d1165ead21c",
+   "slug": "jared",
+   "name": "Jared",
+   "qualifier": null,
+   "gender": "m",
+   "spine": true,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "ac3e33a6-25d4-9619-9e5d-72938854ad68",
+   "slug": "enoch",
+   "name": "Enoch",
+   "qualifier": "syn Jareda",
+   "gender": "m",
+   "spine": true,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "08e1938c-80cc-894b-d86b-cbae57de06e2",
+   "slug": "metuzalem",
+   "name": "Metuzalém",
+   "qualifier": null,
+   "gender": "m",
+   "spine": true,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "f05d9ed3-d247-2c78-3492-b632c48d1718",
+   "slug": "lamek",
+   "name": "Lamek",
+   "qualifier": "syn Metuzaléma",
+   "gender": "m",
+   "spine": true,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "248820cb-701b-17e2-eb5a-8f71ba79426a",
+   "slug": "noe",
+   "name": "Noe",
+   "qualifier": null,
+   "gender": "m",
+   "spine": true,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "e7467b4b-cc22-61e1-063c-29a8368f8731",
+   "slug": "sem",
+   "name": "Sem",
+   "qualifier": null,
+   "gender": "m",
+   "spine": true,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "6907b15b-a1f1-1127-5acb-c5c153df4a25",
+   "slug": "arpaksad",
+   "name": "Arpakšad",
+   "qualifier": null,
+   "gender": "m",
+   "spine": true,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "87f73fc9-2b28-c972-8537-a7b04c35e65a",
+   "slug": "sela",
+   "name": "Šela",
+   "qualifier": "syn Arpakšada",
+   "gender": "m",
+   "spine": true,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "fd7de1ae-e2f4-0b0e-ab91-dc27cc52779e",
+   "slug": "eber",
+   "name": "Eber",
+   "qualifier": null,
+   "gender": "m",
+   "spine": true,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "31293468-41ec-0b13-a38c-a8dc2d558f4e",
+   "slug": "peleg",
+   "name": "Peleg",
+   "qualifier": null,
+   "gender": "m",
+   "spine": true,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "c93c1b25-2100-7a66-e077-78c56ee4dfc2",
+   "slug": "reu",
+   "name": "Reu",
+   "qualifier": null,
+   "gender": "m",
+   "spine": true,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "1cb42758-b072-07c8-fd70-927687ae62fe",
+   "slug": "serug",
+   "name": "Serug",
+   "qualifier": null,
+   "gender": "m",
+   "spine": true,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "72b2a39f-af4d-f9b3-4650-79ee147289d1",
+   "slug": "nachor-ded",
+   "name": "Nachor",
+   "qualifier": "syn Seruga",
+   "gender": "m",
+   "spine": true,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "213fddb1-7d7a-b8bd-02e2-9b6ed5f71fb1",
+   "slug": "terach",
+   "name": "Terach",
+   "qualifier": null,
+   "gender": "m",
+   "spine": true,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "e32100ec-95c4-dbf3-e259-f7e53d8b1fdc",
+   "slug": "abraham",
+   "name": "Abraham",
+   "qualifier": null,
+   "gender": "m",
+   "spine": true,
+   "roles": [],
+   "alt_names": [
+    "Abram"
+   ]
+  },
+  {
+   "id": "e11e7b55-3dc4-a0cd-63bf-25c4c04b9739",
+   "slug": "cham",
+   "name": "Cham",
+   "qualifier": null,
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "a65ffe94-af02-61cc-856d-d8f98dabb795",
+   "slug": "jafet",
+   "name": "Jafet",
+   "qualifier": null,
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "d4168e05-dd22-5f56-c78e-e9dd1fb4a2c9",
+   "slug": "nachor-bratr",
+   "name": "Nachor",
+   "qualifier": "syn Teracha",
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "7160d5de-e9aa-0b71-b7b2-8a676dfa9cfa",
+   "slug": "haran",
+   "name": "Haran",
+   "qualifier": null,
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "021886c9-c183-c3cc-547d-e410bf181592",
+   "slug": "lot",
+   "name": "Lot",
+   "qualifier": null,
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "64f80f08-b077-c0c9-06aa-ea4bdbe659e1",
+   "slug": "sara",
+   "name": "Sára",
+   "qualifier": null,
+   "gender": "f",
+   "spine": false,
+   "roles": [],
+   "alt_names": [
+    "Sarai"
+   ]
+  },
+  {
+   "id": "cfe901a3-6183-9a7c-2685-99640098e8b9",
+   "slug": "hagar",
+   "name": "Hagar",
+   "qualifier": null,
+   "gender": "f",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "b389b8f5-5547-70f6-fba3-896c1bc574a5",
+   "slug": "ismael",
+   "name": "Išmael",
+   "qualifier": null,
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "c6e3f94c-d3dd-927c-6259-4a99ec742c66",
+   "slug": "ketura",
+   "name": "Ketura",
+   "qualifier": null,
+   "gender": "f",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "749b9d5a-fa99-6490-92ba-5150122fe97c",
+   "slug": "izak",
+   "name": "Izák",
+   "qualifier": null,
+   "gender": "m",
+   "spine": true,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "5937019e-5acd-4561-f7b3-dca1472e1dd0",
+   "slug": "rebeka",
+   "name": "Rebeka",
+   "qualifier": null,
+   "gender": "f",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "bd041b77-b3c4-d699-ccbe-c9db539b80c6",
+   "slug": "ezau",
+   "name": "Ezau",
+   "qualifier": null,
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "08b28686-fc67-4b77-8e57-970bfd6fdc6c",
+   "slug": "jakob",
+   "name": "Jákob",
+   "qualifier": "syn Izáka",
+   "gender": "m",
+   "spine": true,
+   "roles": [],
+   "alt_names": [
+    "Izrael"
+   ]
+  },
+  {
+   "id": "6438a3e6-0c7e-a247-e4ef-452046f91240",
+   "slug": "lea",
+   "name": "Lea",
+   "qualifier": null,
+   "gender": "f",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "2bf3be0e-f768-7472-7d93-0c0a15b70b20",
+   "slug": "rachel",
+   "name": "Ráchel",
+   "qualifier": null,
+   "gender": "f",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "985afa98-528f-0048-b643-4e66250d8acf",
+   "slug": "bilha",
+   "name": "Bilha",
+   "qualifier": null,
+   "gender": "f",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "c6c4565b-ec7e-846d-af36-ae3c6d6524fe",
+   "slug": "zilpa",
+   "name": "Zilpa",
+   "qualifier": null,
+   "gender": "f",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "2f22829c-37bf-948c-d4ce-460857422adb",
+   "slug": "ruben",
+   "name": "Ruben",
+   "qualifier": null,
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "09a4f7d5-8f43-de02-2dbe-b7de89a213d0",
+   "slug": "simeon",
+   "name": "Simeon",
+   "qualifier": null,
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "b324134f-6a3e-c8dd-7cd4-858b830e64de",
+   "slug": "levi",
+   "name": "Levi",
+   "qualifier": "syn Jákoba",
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "1919f43f-8399-870a-8835-aecaf80a7af5",
+   "slug": "juda",
+   "name": "Juda",
+   "qualifier": "syn Jákoba",
+   "gender": "m",
+   "spine": true,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "e09e5b70-af27-875e-172a-54b8da3debb5",
+   "slug": "isachar",
+   "name": "Isachar",
+   "qualifier": null,
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "614a59d9-795b-1497-5d98-decc00555439",
+   "slug": "zebulon",
+   "name": "Zebulon",
+   "qualifier": null,
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "5176e00e-edbe-ec1d-1b52-0fd878282afb",
+   "slug": "josef-jakobuv",
+   "name": "Josef",
+   "qualifier": "syn Jákoba",
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "8640841a-42ac-092e-e6d4-1c7c793b855d",
+   "slug": "benjamin",
+   "name": "Benjamin",
+   "qualifier": null,
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "4bc8861a-8738-f8ae-f403-bd33d15d5ee8",
+   "slug": "dan",
+   "name": "Dan",
+   "qualifier": null,
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "4700376d-bbae-12e9-313a-e655ce72cdd3",
+   "slug": "naftali",
+   "name": "Naftali",
+   "qualifier": null,
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "e9d894da-fadf-91fd-97da-60dc5f94bbff",
+   "slug": "gad",
+   "name": "Gad",
+   "qualifier": null,
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "ed3486a8-6590-708a-7e5b-362d3c780e94",
+   "slug": "aser",
+   "name": "Ašer",
+   "qualifier": null,
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "3161558d-67c3-42be-a32e-e4802a77afb7",
+   "slug": "dina",
+   "name": "Dina",
+   "qualifier": null,
+   "gender": "f",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "6481438d-64d2-6a7c-379a-9d4dfdabdaf6",
+   "slug": "tamar-judova",
+   "name": "Tamar",
+   "qualifier": "snacha Judy",
+   "gender": "f",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "93042b04-e69d-ec2a-0b24-74979dc3ad18",
+   "slug": "perec",
+   "name": "Perec",
+   "qualifier": null,
+   "gender": "m",
+   "spine": true,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "14cf3eb8-7b82-0ed0-93d9-07d301631c55",
+   "slug": "zerach",
+   "name": "Zerach",
+   "qualifier": null,
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "f2bb2515-924d-daa9-1e20-55fa34509926",
+   "slug": "checron",
+   "name": "Checron",
+   "qualifier": null,
+   "gender": "m",
+   "spine": true,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "b580a1ca-77cc-fce4-a174-f010ab8f9ae4",
+   "slug": "ram",
+   "name": "Ram",
+   "qualifier": null,
+   "gender": "m",
+   "spine": true,
+   "roles": [],
+   "alt_names": [
+    "Arni"
+   ]
+  },
+  {
+   "id": "f3d0d8b2-f566-6e8c-0c1f-29ca75f34a89",
+   "slug": "amminadab",
+   "name": "Amminadab",
+   "qualifier": null,
+   "gender": "m",
+   "spine": true,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "c5bbc3e4-7b96-6a00-6a9d-b768f98f31cd",
+   "slug": "nachson",
+   "name": "Nachšon",
+   "qualifier": null,
+   "gender": "m",
+   "spine": true,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "ee958c9e-09ed-155e-8d0d-9aa881f52af4",
+   "slug": "salmon",
+   "name": "Salmon",
+   "qualifier": null,
+   "gender": "m",
+   "spine": true,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "0f9d6ed4-8a91-8ed4-9c3f-7db3f6ab9132",
+   "slug": "boaz",
+   "name": "Boaz",
+   "qualifier": null,
+   "gender": "m",
+   "spine": true,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "4ebd74f7-6151-607d-34fb-549d42628bda",
+   "slug": "obed",
+   "name": "Obed",
+   "qualifier": null,
+   "gender": "m",
+   "spine": true,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "f18a05f9-718a-ccfa-5293-8b1924869bcd",
+   "slug": "jisai",
+   "name": "Jišai",
+   "qualifier": null,
+   "gender": "m",
+   "spine": true,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "5d3618a3-392c-e91f-198d-6d662f97a4e3",
+   "slug": "david",
+   "name": "David",
+   "qualifier": null,
+   "gender": "m",
+   "spine": true,
+   "roles": [
+    "kral"
+   ],
+   "alt_names": []
+  },
+  {
+   "id": "3afadf33-0e33-0aec-f94a-d86c74090999",
+   "slug": "raab",
+   "name": "Raab",
+   "qualifier": null,
+   "gender": "f",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "bf8d174f-1726-b7f6-6c71-97aff38145c4",
+   "slug": "rut",
+   "name": "Rut",
+   "qualifier": null,
+   "gender": "f",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "af7139ff-660f-736d-7219-36ffd549c769",
+   "slug": "kehat",
+   "name": "Kehat",
+   "qualifier": null,
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "df1acd45-81d1-a6e6-61c4-c177c7f9d40c",
+   "slug": "amram",
+   "name": "Amram",
+   "qualifier": null,
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "25162c0e-d498-c922-62db-d51b96acd607",
+   "slug": "jokebed",
+   "name": "Jokebed",
+   "qualifier": null,
+   "gender": "f",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "997da2a2-618a-aa3f-58fc-a5db51b40647",
+   "slug": "mojzis",
+   "name": "Mojžíš",
+   "qualifier": null,
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "6eb3a8b1-007e-76b8-d426-706a1659ec67",
+   "slug": "aron",
+   "name": "Áron",
+   "qualifier": null,
+   "gender": "m",
+   "spine": false,
+   "roles": [
+    "veleknez"
+   ],
+   "alt_names": []
+  },
+  {
+   "id": "a178dfc8-84ce-017b-04b0-e7152d77c4f4",
+   "slug": "miriam",
+   "name": "Miriam",
+   "qualifier": null,
+   "gender": "f",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "9c16372d-ed3e-0001-c9ce-63f3ed8fd437",
+   "slug": "cippora",
+   "name": "Cippora",
+   "qualifier": null,
+   "gender": "f",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "54e5886a-6e24-bb7b-dced-03a8b26b966e",
+   "slug": "eliseba",
+   "name": "Elišeba",
+   "qualifier": null,
+   "gender": "f",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "700d5662-dc77-da9a-e1ce-a2951978865b",
+   "slug": "nadab",
+   "name": "Nadab",
+   "qualifier": "syn Árona",
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "f6275e37-df7b-0759-a210-b3e604191cb2",
+   "slug": "abihu",
+   "name": "Abihu",
+   "qualifier": null,
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "d8842213-d71c-7507-8f58-22c553d5e5f2",
+   "slug": "eleazar",
+   "name": "Eleazar",
+   "qualifier": "syn Árona",
+   "gender": "m",
+   "spine": false,
+   "roles": [
+    "veleknez"
+   ],
+   "alt_names": []
+  },
+  {
+   "id": "78ddf6da-072f-cf74-e83e-963aee9439c3",
+   "slug": "itamar",
+   "name": "Itamar",
+   "qualifier": null,
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "596cb97d-b86c-f846-e97e-9aa8248dd43a",
+   "slug": "mikal",
+   "name": "Mikal",
+   "qualifier": null,
+   "gender": "f",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "6f362ceb-1bb9-b82c-9ff1-519acb2fa61d",
+   "slug": "achinoam",
+   "name": "Achinoam",
+   "qualifier": null,
+   "gender": "f",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "d443d8f9-8837-106b-e1e7-26c3c8785ce6",
+   "slug": "amnon",
+   "name": "Amnon",
+   "qualifier": null,
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "1bf71489-4f24-8578-3e12-1f4a3e2dbf9e",
+   "slug": "abigail",
+   "name": "Abigail",
+   "qualifier": null,
+   "gender": "f",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "ce00208b-59be-41af-36f9-a968e7008bca",
+   "slug": "kileab",
+   "name": "Kileab",
+   "qualifier": null,
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": [
+    "Daniel"
+   ]
+  },
+  {
+   "id": "3b415c14-6c48-3788-0d69-66a205968621",
+   "slug": "maaka-davidova",
+   "name": "Maaka",
+   "qualifier": "Davidova manželka",
+   "gender": "f",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "ea97bb9e-d0c7-6889-17a6-6314c16c745e",
+   "slug": "absalom",
+   "name": "Absalom",
+   "qualifier": null,
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "37077478-4850-57b2-b93a-1290e93cca8c",
+   "slug": "chaggit",
+   "name": "Chaggit",
+   "qualifier": null,
+   "gender": "f",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "15fbc911-60e8-6d35-e9f1-76842fa99910",
+   "slug": "adonijas",
+   "name": "Adonijáš",
+   "qualifier": null,
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "a5369078-dc53-2d1d-55c5-dc1f0a9a623f",
+   "slug": "abital",
+   "name": "Abital",
+   "qualifier": null,
+   "gender": "f",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "e65a33ec-5333-71a6-0e2a-4f15a9475de3",
+   "slug": "sefatjas",
+   "name": "Šefatjáš",
+   "qualifier": null,
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "07a345bf-0dc6-7b4f-4b48-70d2525dee70",
+   "slug": "egla",
+   "name": "Egla",
+   "qualifier": null,
+   "gender": "f",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "da44d778-bd16-ee8c-23ca-d80e219806b7",
+   "slug": "jitream",
+   "name": "Jitream",
+   "qualifier": null,
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "2f3d4802-22ec-57c8-4c43-b50d7378cf8d",
+   "slug": "tamar-davidova",
+   "name": "Tamar",
+   "qualifier": "dcera Davida",
+   "gender": "f",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "574f3e57-64ca-3343-327c-04eb10ade826",
+   "slug": "bat-seba",
+   "name": "Bat-šeba",
+   "qualifier": null,
+   "gender": "f",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "01b84c1a-352c-ad14-bb06-c48b38dbf6ee",
+   "slug": "salomoun",
+   "name": "Šalomoun",
+   "qualifier": null,
+   "gender": "m",
+   "spine": true,
+   "roles": [
+    "kral"
+   ],
+   "alt_names": [
+    "Jedidjáš"
+   ]
+  },
+  {
+   "id": "451c642d-2ac1-745a-12b1-7a8042714efc",
+   "slug": "natan",
+   "name": "Natan",
+   "qualifier": "syn Davida",
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "b49d21d2-76be-8672-8a6e-98fe79194cab",
+   "slug": "sobab",
+   "name": "Šobab",
+   "qualifier": null,
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "56ba562a-8840-dda1-c1cf-19cf06991886",
+   "slug": "simea",
+   "name": "Šimea",
+   "qualifier": null,
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": [
+    "Šammua"
+   ]
+  },
+  {
+   "id": "b5a52f60-7181-bd0d-001c-a205f38f1d00",
+   "slug": "rechoboam",
+   "name": "Rechoboam",
+   "qualifier": null,
+   "gender": "m",
+   "spine": true,
+   "roles": [
+    "kral"
+   ],
+   "alt_names": []
+  },
+  {
+   "id": "b48defa4-1664-6b4c-308b-ecf469a005f5",
+   "slug": "abijas",
+   "name": "Abijáš",
+   "qualifier": null,
+   "gender": "m",
+   "spine": true,
+   "roles": [
+    "kral"
+   ],
+   "alt_names": [
+    "Abijam"
+   ]
+  },
+  {
+   "id": "f1de8f9e-fad2-62d1-e34e-0e902fc8020a",
+   "slug": "asa",
+   "name": "Asa",
+   "qualifier": null,
+   "gender": "m",
+   "spine": true,
+   "roles": [
+    "kral"
+   ],
+   "alt_names": []
+  },
+  {
+   "id": "dbf9733e-6037-c18c-7026-02f39b2d6ca2",
+   "slug": "jehosafat",
+   "name": "Jehošafat",
+   "qualifier": null,
+   "gender": "m",
+   "spine": true,
+   "roles": [
+    "kral"
+   ],
+   "alt_names": []
+  },
+  {
+   "id": "49659314-81fe-edc1-3642-8f0954b94b75",
+   "slug": "jehoram",
+   "name": "Jehoram",
+   "qualifier": "judský král",
+   "gender": "m",
+   "spine": true,
+   "roles": [
+    "kral"
+   ],
+   "alt_names": []
+  },
+  {
+   "id": "68d1b603-ac82-f73d-6e9d-37b7762774bd",
+   "slug": "achazjas",
+   "name": "Achazjáš",
+   "qualifier": "judský král",
+   "gender": "m",
+   "spine": true,
+   "roles": [
+    "kral"
+   ],
+   "alt_names": []
+  },
+  {
+   "id": "462a4100-85aa-32e5-173d-022d2777bef2",
+   "slug": "jehoas",
+   "name": "Jehoaš",
+   "qualifier": "judský král",
+   "gender": "m",
+   "spine": true,
+   "roles": [
+    "kral"
+   ],
+   "alt_names": []
+  },
+  {
+   "id": "99c3c09b-103c-d821-f41e-e347a1f52db3",
+   "slug": "amacjas",
+   "name": "Amacjáš",
+   "qualifier": null,
+   "gender": "m",
+   "spine": true,
+   "roles": [
+    "kral"
+   ],
+   "alt_names": []
+  },
+  {
+   "id": "6fccf692-2a1b-f6a3-1cd5-91d7a282008a",
+   "slug": "uzzijas",
+   "name": "Uzzijáš",
+   "qualifier": null,
+   "gender": "m",
+   "spine": true,
+   "roles": [
+    "kral"
+   ],
+   "alt_names": [
+    "Azarjáš"
+   ]
+  },
+  {
+   "id": "1f25d82a-67d6-041e-9eb4-613842156eef",
+   "slug": "jotam",
+   "name": "Jotam",
+   "qualifier": null,
+   "gender": "m",
+   "spine": true,
+   "roles": [
+    "kral"
+   ],
+   "alt_names": []
+  },
+  {
+   "id": "5cdbd4ca-07dc-0633-5ce0-76a2f47fe9c3",
+   "slug": "achaz",
+   "name": "Achaz",
+   "qualifier": null,
+   "gender": "m",
+   "spine": true,
+   "roles": [
+    "kral"
+   ],
+   "alt_names": []
+  },
+  {
+   "id": "e3c2c075-8220-46c9-39c4-f8e287be21e6",
+   "slug": "ezekjas",
+   "name": "Ezekjáš",
+   "qualifier": null,
+   "gender": "m",
+   "spine": true,
+   "roles": [
+    "kral"
+   ],
+   "alt_names": []
+  },
+  {
+   "id": "4d6b5799-ffc9-cc23-6f93-92647bdd9d92",
+   "slug": "manasse",
+   "name": "Manasse",
+   "qualifier": "judský král",
+   "gender": "m",
+   "spine": true,
+   "roles": [
+    "kral"
+   ],
+   "alt_names": []
+  },
+  {
+   "id": "f68da1bb-4e88-5ccc-4607-09f20b73eddb",
+   "slug": "amon",
+   "name": "Amon",
+   "qualifier": null,
+   "gender": "m",
+   "spine": true,
+   "roles": [
+    "kral"
+   ],
+   "alt_names": []
+  },
+  {
+   "id": "1f008131-48c4-96bf-2366-954ce881a6a1",
+   "slug": "josijas",
+   "name": "Josijáš",
+   "qualifier": null,
+   "gender": "m",
+   "spine": true,
+   "roles": [
+    "kral"
+   ],
+   "alt_names": []
+  },
+  {
+   "id": "5edcc7c0-8c02-f80a-85dc-7c8eb96935d0",
+   "slug": "jehoachaz",
+   "name": "Jehoachaz",
+   "qualifier": "judský král",
+   "gender": "m",
+   "spine": false,
+   "roles": [
+    "kral"
+   ],
+   "alt_names": []
+  },
+  {
+   "id": "99cd1d36-eb34-fe65-ff6c-54895a21ee6e",
+   "slug": "jehojakim",
+   "name": "Jehojakim",
+   "qualifier": null,
+   "gender": "m",
+   "spine": true,
+   "roles": [
+    "kral"
+   ],
+   "alt_names": [
+    "Eljakim"
+   ]
+  },
+  {
+   "id": "c644137c-3432-bc20-c420-2e942675ad2b",
+   "slug": "sedekjas",
+   "name": "Sedekjáš",
+   "qualifier": null,
+   "gender": "m",
+   "spine": false,
+   "roles": [
+    "kral"
+   ],
+   "alt_names": []
+  },
+  {
+   "id": "52e94e1c-1e1b-854f-ffc5-62d667a07891",
+   "slug": "jehojakin",
+   "name": "Jehojakin",
+   "qualifier": null,
+   "gender": "m",
+   "spine": true,
+   "roles": [
+    "kral"
+   ],
+   "alt_names": [
+    "Jekonjáš"
+   ]
+  },
+  {
+   "id": "06343cb0-4a01-91c1-214d-2e080f6a12b9",
+   "slug": "naama",
+   "name": "Naama",
+   "qualifier": null,
+   "gender": "f",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "873d5c0b-daaa-d36e-ab97-45a421bd8392",
+   "slug": "maaka-rechoboamova",
+   "name": "Maaka",
+   "qualifier": "Rechoboamova manželka",
+   "gender": "f",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "90bcc962-4e87-ca43-541b-f3f3061ca7f0",
+   "slug": "azuba",
+   "name": "Azuba",
+   "qualifier": null,
+   "gender": "f",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "9c3a4991-2024-06cf-cfe1-d9590ce44d12",
+   "slug": "atalja",
+   "name": "Atalja",
+   "qualifier": null,
+   "gender": "f",
+   "spine": false,
+   "roles": [
+    "kral"
+   ],
+   "alt_names": []
+  },
+  {
+   "id": "fb372efd-462c-45d8-60b0-ec1fe29a0804",
+   "slug": "cibja",
+   "name": "Cibja",
+   "qualifier": null,
+   "gender": "f",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "1585b8a9-0b8a-8b8b-8141-731bc4b8d8c5",
+   "slug": "jehoaddan",
+   "name": "Jehoaddan",
+   "qualifier": null,
+   "gender": "f",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "e7369f92-1c0f-f550-6f43-b0c5813f87da",
+   "slug": "jekolja",
+   "name": "Jekolja",
+   "qualifier": null,
+   "gender": "f",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "3c18f06a-4861-fe37-f234-6bb9d5621076",
+   "slug": "jerusa",
+   "name": "Jeruša",
+   "qualifier": null,
+   "gender": "f",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "d799e89f-134e-0f11-32f2-0edea7d12d7a",
+   "slug": "abija-matka",
+   "name": "Abija",
+   "qualifier": null,
+   "gender": "f",
+   "spine": false,
+   "roles": [],
+   "alt_names": [
+    "Abi"
+   ]
+  },
+  {
+   "id": "cf127290-a730-f5ae-1787-6e8996d8d726",
+   "slug": "chefciba",
+   "name": "Chefciba",
+   "qualifier": null,
+   "gender": "f",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "4534058f-e4be-e4c3-b22d-cc7590ff270c",
+   "slug": "mesullemet",
+   "name": "Mešullemet",
+   "qualifier": null,
+   "gender": "f",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "67ec1f6e-719c-1059-730e-bf882f3773b2",
+   "slug": "jedida",
+   "name": "Jedida",
+   "qualifier": null,
+   "gender": "f",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "b48f2f0d-bad6-ed03-7527-53455cadaf73",
+   "slug": "chamutal",
+   "name": "Chamutal",
+   "qualifier": null,
+   "gender": "f",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "7f1a4213-56e5-2094-4fd1-1d42c1a51b1f",
+   "slug": "zebida",
+   "name": "Zebida",
+   "qualifier": null,
+   "gender": "f",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "09268e0e-d6cd-b19c-6038-bf87c6d03f65",
+   "slug": "nechusta",
+   "name": "Nechušta",
+   "qualifier": null,
+   "gender": "f",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "ab1258c5-d5a0-5e87-3320-e227fd52abc1",
+   "slug": "sealtiel",
+   "name": "Šealtiel",
+   "qualifier": null,
+   "gender": "m",
+   "spine": true,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "77ff70d4-0c68-0862-05eb-b7f122c6251b",
+   "slug": "pedajas",
+   "name": "Pedajáš",
+   "qualifier": null,
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "7002dc55-0fd5-5c1f-ac4a-2ad2e02db649",
+   "slug": "zerubbabel",
+   "name": "Zerubbabel",
+   "qualifier": null,
+   "gender": "m",
+   "spine": true,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "f99f259b-7122-9d5c-18e0-c53f3d5c406c",
+   "slug": "abiud",
+   "name": "Abiud",
+   "qualifier": null,
+   "gender": "m",
+   "spine": true,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "65f0207d-6be9-6b27-54a4-916149e98504",
+   "slug": "eljakim-mt",
+   "name": "Eljakim",
+   "qualifier": "syn Abiuda",
+   "gender": "m",
+   "spine": true,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "21c97b3a-9500-5c14-7959-6aaec7a88246",
+   "slug": "azor",
+   "name": "Azor",
+   "qualifier": null,
+   "gender": "m",
+   "spine": true,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "fd49911c-10e4-c195-accc-6fdf7723f399",
+   "slug": "cadok",
+   "name": "Cadok",
+   "qualifier": "syn Azora",
+   "gender": "m",
+   "spine": true,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "355d9ff8-ba4c-40cc-7975-59b865046305",
+   "slug": "achim",
+   "name": "Achim",
+   "qualifier": null,
+   "gender": "m",
+   "spine": true,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "1857e16c-2d05-a81f-e200-6d2bfc1de6ea",
+   "slug": "eliud",
+   "name": "Eliud",
+   "qualifier": null,
+   "gender": "m",
+   "spine": true,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "377e217b-5606-e964-3a2b-6c0c47d8e33e",
+   "slug": "eleazar-mt",
+   "name": "Eleazar",
+   "qualifier": "syn Eliuda",
+   "gender": "m",
+   "spine": true,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "a717141f-1ce2-6d73-74b8-a1f540677c10",
+   "slug": "mattan",
+   "name": "Mattan",
+   "qualifier": null,
+   "gender": "m",
+   "spine": true,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "60e2ea1c-34e9-12d6-6c16-dadf7942e67a",
+   "slug": "jakob-mt",
+   "name": "Jákob",
+   "qualifier": "otec Josefa",
+   "gender": "m",
+   "spine": true,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "76383685-53a9-aa88-0637-89d0c558153e",
+   "slug": "josef-mariin",
+   "name": "Josef",
+   "qualifier": "Mariin manžel",
+   "gender": "m",
+   "spine": true,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "1200d410-1cd5-f80e-ded1-26884deefd11",
+   "slug": "marie",
+   "name": "Marie",
+   "qualifier": "Ježíšova matka",
+   "gender": "f",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "7fbdd440-3c29-5042-21b7-23ea19f315b4",
+   "slug": "jezis",
+   "name": "Ježíš",
+   "qualifier": null,
+   "gender": "m",
+   "spine": true,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "fac927dc-0771-7373-b715-9a7da247a53c",
+   "slug": "jakub-bratr",
+   "name": "Jakub",
+   "qualifier": "Ježíšův bratr",
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "59913347-2d02-6c6f-27c7-1254e218bc61",
+   "slug": "josef-bratr",
+   "name": "Josef",
+   "qualifier": "Ježíšův bratr",
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "9096a4a7-8910-8b46-400e-3ae34d88e568",
+   "slug": "simon-bratr",
+   "name": "Šimon",
+   "qualifier": "Ježíšův bratr",
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "ef7df3b7-3970-df0c-f981-15cf47716c5d",
+   "slug": "juda-bratr",
+   "name": "Juda",
+   "qualifier": "Ježíšův bratr",
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "87990a29-7650-8240-852d-a78ecd3d72f6",
+   "slug": "zecharjas-knez",
+   "name": "Zecharjáš",
+   "qualifier": "otec Jana Křtitele",
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "df9df41f-d6ef-7618-e28d-b07bd8257dfb",
+   "slug": "alzbeta",
+   "name": "Alžběta",
+   "qualifier": null,
+   "gender": "f",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "c862caef-d4a0-fc49-4624-b31aafb0c70d",
+   "slug": "jan-krtitel",
+   "name": "Jan Křtitel",
+   "qualifier": null,
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "52672543-f69c-239b-9bef-5ef023c5e24a",
+   "slug": "mattata",
+   "name": "Mattata",
+   "qualifier": null,
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "cca1af97-bd33-f011-322e-f86ba34f2e7a",
+   "slug": "menna",
+   "name": "Menna",
+   "qualifier": null,
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "7acf512e-ce84-f6d7-d1f8-598e9691162b",
+   "slug": "melea",
+   "name": "Melea",
+   "qualifier": null,
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "b72e810f-9e48-3f94-7b76-536d28fbfaaa",
+   "slug": "eljakim-lk",
+   "name": "Eljakim",
+   "qualifier": "syn Meley",
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "96bb2006-2fed-427a-cbd7-58f299d7888a",
+   "slug": "jonan",
+   "name": "Jonan",
+   "qualifier": null,
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "bf8f40f1-1fce-37b7-1f08-ef49df02d215",
+   "slug": "josef-lk1",
+   "name": "Josef",
+   "qualifier": "syn Jonana",
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "2715ed43-43ba-6b17-1c4e-e3a581751706",
+   "slug": "jidas-lk",
+   "name": "Jidáš",
+   "qualifier": "syn Josefa",
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "64ffedd8-fe66-3f44-e36d-bcf8560f33b2",
+   "slug": "symeon",
+   "name": "Symeon",
+   "qualifier": null,
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "f27713a5-abd6-0c0c-92e3-50c46bb0a0f5",
+   "slug": "levi-lk1",
+   "name": "Levi",
+   "qualifier": "syn Symeona",
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "fee43bbf-f530-5a0e-de4a-cd59e6b999ed",
+   "slug": "mattat-lk1",
+   "name": "Mattat",
+   "qualifier": "syn Leviho, otec Jorima",
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "1a201d6a-ea33-5e22-0a2c-f3cd6ee71ba2",
+   "slug": "jorim",
+   "name": "Jorim",
+   "qualifier": null,
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "3dd41062-bb8f-84fc-cb6c-6f33f0c007bd",
+   "slug": "eliezer-lk",
+   "name": "Eliezer",
+   "qualifier": "syn Jorima",
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "210d9468-4a98-3416-cfe1-40f88c903556",
+   "slug": "jezis-lk",
+   "name": "Ježíš",
+   "qualifier": "syn Eliezera",
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "4e74a865-5295-6a1c-f3c1-747068eaf3e6",
+   "slug": "er-lk",
+   "name": "Er",
+   "qualifier": "syn Ježíše",
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "c3dba334-11bb-1e17-6c41-3b39f04fa4f1",
+   "slug": "elmadam",
+   "name": "Elmadam",
+   "qualifier": null,
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "cfce47e3-bd58-c7d5-a6ad-75f9a7778db2",
+   "slug": "kosam",
+   "name": "Kosam",
+   "qualifier": null,
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "bc426869-0cdf-9696-76bc-b748be2e4f74",
+   "slug": "addi",
+   "name": "Addi",
+   "qualifier": null,
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "ffbc6a16-f675-6ff6-3ba1-a6241e235a5f",
+   "slug": "melchi-lk1",
+   "name": "Melchi",
+   "qualifier": "syn Addiho",
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "efc2e696-8895-1240-d2e2-38d75cb81a4c",
+   "slug": "neri",
+   "name": "Neri",
+   "qualifier": null,
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "6b413825-bd6c-df8b-a823-42c5ee77d39f",
+   "slug": "rhesa",
+   "name": "Rhesa",
+   "qualifier": null,
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "3510c8df-f50a-ea2f-96f6-4edc8dfdcb28",
+   "slug": "jochanan-lk",
+   "name": "Jochanan",
+   "qualifier": "syn Rhesy",
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "00c3bd68-3165-08fe-6971-0439056be528",
+   "slug": "joda",
+   "name": "Joda",
+   "qualifier": null,
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "1efe12cb-cae2-b645-4ce0-a320185b9978",
+   "slug": "josech",
+   "name": "Josech",
+   "qualifier": null,
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "03b4077a-0ee3-2a47-d88b-c1b891b95621",
+   "slug": "semein",
+   "name": "Semein",
+   "qualifier": null,
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "9a222877-f6e0-95fa-a059-c47b051d4f09",
+   "slug": "mattatias-1",
+   "name": "Mattatiáš",
+   "qualifier": "syn Semeina",
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "319ef31b-65e4-22a7-3125-dd24b69313a9",
+   "slug": "maat",
+   "name": "Maat",
+   "qualifier": null,
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "7885b466-2003-3aa5-d378-1301d0260bc5",
+   "slug": "naggai",
+   "name": "Naggai",
+   "qualifier": null,
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "71aa6f93-2730-52b5-1410-749a89b7a190",
+   "slug": "esli",
+   "name": "Esli",
+   "qualifier": null,
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "ec088e97-9283-8fd8-6d6c-faafb62ff948",
+   "slug": "nahum-lk",
+   "name": "Nahum",
+   "qualifier": "syn Esliho",
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "891c64b5-7e97-d6a8-5bd1-1a0d9423a6f8",
+   "slug": "amos-lk",
+   "name": "Amos",
+   "qualifier": "syn Nahuma",
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "0d45bf9d-44ea-60d4-70be-81564ad9db52",
+   "slug": "mattatias-2",
+   "name": "Mattatiáš",
+   "qualifier": "syn Amose",
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "3ab6dc47-3a77-bf66-f1a9-cd692cb95608",
+   "slug": "josef-lk2",
+   "name": "Josef",
+   "qualifier": "syn Mattatiáše",
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "2ce966a6-6978-8241-0559-f9e649d39788",
+   "slug": "jannai",
+   "name": "Jannai",
+   "qualifier": null,
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "c2a397b0-735d-2418-af8e-afa6a975d078",
+   "slug": "melchi-lk2",
+   "name": "Melchi",
+   "qualifier": "syn Jannaie",
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "3dba5392-902a-5565-6df7-c13faeaafdb4",
+   "slug": "levi-lk2",
+   "name": "Levi",
+   "qualifier": "syn Melchiho",
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "6a3c67c4-5c98-4ae3-1914-f523dafad88f",
+   "slug": "mattat-lk2",
+   "name": "Mattat",
+   "qualifier": "syn Leviho, otec Heliho",
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  },
+  {
+   "id": "9aed79a3-cf19-afff-d85d-e21bde90cb8c",
+   "slug": "heli",
+   "name": "Heli",
+   "qualifier": null,
+   "gender": "m",
+   "spine": false,
+   "roles": [],
+   "alt_names": []
+  }
+ ],
+ "vazby": [
+  {
+   "kind": "manzelstvi",
+   "od": "adam",
+   "do": "eva",
+   "certainty": "vyslovne",
+   "source": "1Mo 3:20; 4:1",
+   "note": null,
+   "od_id": "fce35ff0-c7eb-d3ae-8ccc-15e4c4abfe2d",
+   "do_id": "fe39a21f-689a-afa9-dcbc-eb3377aeeb98"
+  },
+  {
+   "kind": "rodic",
+   "od": "adam",
+   "do": "kain",
+   "certainty": "vyslovne",
+   "source": "1Mo 4:1",
+   "note": null,
+   "od_id": "fce35ff0-c7eb-d3ae-8ccc-15e4c4abfe2d",
+   "do_id": "c5875c3c-508d-0c0d-ee1f-ef2f9f4c08f9"
+  },
+  {
+   "kind": "rodic",
+   "od": "eva",
+   "do": "kain",
+   "certainty": "vyslovne",
+   "source": "1Mo 4:1",
+   "note": null,
+   "od_id": "fe39a21f-689a-afa9-dcbc-eb3377aeeb98",
+   "do_id": "c5875c3c-508d-0c0d-ee1f-ef2f9f4c08f9"
+  },
+  {
+   "kind": "rodic",
+   "od": "adam",
+   "do": "abel",
+   "certainty": "vyslovne",
+   "source": "1Mo 4:2",
+   "note": null,
+   "od_id": "fce35ff0-c7eb-d3ae-8ccc-15e4c4abfe2d",
+   "do_id": "bc846956-7db4-1510-a940-c5d6fc2e4730"
+  },
+  {
+   "kind": "rodic",
+   "od": "eva",
+   "do": "abel",
+   "certainty": "vyslovne",
+   "source": "1Mo 4:2",
+   "note": null,
+   "od_id": "fe39a21f-689a-afa9-dcbc-eb3377aeeb98",
+   "do_id": "bc846956-7db4-1510-a940-c5d6fc2e4730"
+  },
+  {
+   "kind": "rodic",
+   "od": "eva",
+   "do": "set",
+   "certainty": "vyslovne",
+   "source": "1Mo 4:25",
+   "note": null,
+   "od_id": "fe39a21f-689a-afa9-dcbc-eb3377aeeb98",
+   "do_id": "c6ce9982-e67d-a5ae-ca27-996226057b79"
+  },
+  {
+   "kind": "rodic",
+   "od": "adam",
+   "do": "set",
+   "certainty": "vyslovne",
+   "source": "1Mo 5:3",
+   "note": null,
+   "od_id": "fce35ff0-c7eb-d3ae-8ccc-15e4c4abfe2d",
+   "do_id": "c6ce9982-e67d-a5ae-ca27-996226057b79"
+  },
+  {
+   "kind": "rodic",
+   "od": "set",
+   "do": "enos",
+   "certainty": "vyslovne",
+   "source": "1Mo 5:6",
+   "note": null,
+   "od_id": "c6ce9982-e67d-a5ae-ca27-996226057b79",
+   "do_id": "2694683a-8ca4-76b6-9afb-96cb618e3d38"
+  },
+  {
+   "kind": "rodic",
+   "od": "enos",
+   "do": "kenan",
+   "certainty": "vyslovne",
+   "source": "1Mo 5:9",
+   "note": null,
+   "od_id": "2694683a-8ca4-76b6-9afb-96cb618e3d38",
+   "do_id": "6beed83c-b564-e18e-2fa8-5af17456c1d0"
+  },
+  {
+   "kind": "rodic",
+   "od": "kenan",
+   "do": "mahalalel",
+   "certainty": "vyslovne",
+   "source": "1Mo 5:12",
+   "note": null,
+   "od_id": "6beed83c-b564-e18e-2fa8-5af17456c1d0",
+   "do_id": "07439aef-3880-4979-323b-0f791aea9167"
+  },
+  {
+   "kind": "rodic",
+   "od": "mahalalel",
+   "do": "jared",
+   "certainty": "vyslovne",
+   "source": "1Mo 5:15",
+   "note": null,
+   "od_id": "07439aef-3880-4979-323b-0f791aea9167",
+   "do_id": "208f147b-97dc-d4f3-0a07-6d1165ead21c"
+  },
+  {
+   "kind": "rodic",
+   "od": "jared",
+   "do": "enoch",
+   "certainty": "vyslovne",
+   "source": "1Mo 5:18",
+   "note": null,
+   "od_id": "208f147b-97dc-d4f3-0a07-6d1165ead21c",
+   "do_id": "ac3e33a6-25d4-9619-9e5d-72938854ad68"
+  },
+  {
+   "kind": "rodic",
+   "od": "enoch",
+   "do": "metuzalem",
+   "certainty": "vyslovne",
+   "source": "1Mo 5:21",
+   "note": null,
+   "od_id": "ac3e33a6-25d4-9619-9e5d-72938854ad68",
+   "do_id": "08e1938c-80cc-894b-d86b-cbae57de06e2"
+  },
+  {
+   "kind": "rodic",
+   "od": "metuzalem",
+   "do": "lamek",
+   "certainty": "vyslovne",
+   "source": "1Mo 5:25",
+   "note": null,
+   "od_id": "08e1938c-80cc-894b-d86b-cbae57de06e2",
+   "do_id": "f05d9ed3-d247-2c78-3492-b632c48d1718"
+  },
+  {
+   "kind": "rodic",
+   "od": "lamek",
+   "do": "noe",
+   "certainty": "vyslovne",
+   "source": "1Mo 5:28, 29",
+   "note": null,
+   "od_id": "f05d9ed3-d247-2c78-3492-b632c48d1718",
+   "do_id": "248820cb-701b-17e2-eb5a-8f71ba79426a"
+  },
+  {
+   "kind": "rodic",
+   "od": "noe",
+   "do": "sem",
+   "certainty": "vyslovne",
+   "source": "1Mo 5:32",
+   "note": "Rok Semova narození je odvozený: 1Mo 5:32 uvádí Noemových 500 let, z 1Mo 11:10 vychází 502.",
+   "od_id": "248820cb-701b-17e2-eb5a-8f71ba79426a",
+   "do_id": "e7467b4b-cc22-61e1-063c-29a8368f8731"
+  },
+  {
+   "kind": "rodic",
+   "od": "noe",
+   "do": "cham",
+   "certainty": "vyslovne",
+   "source": "1Mo 5:32",
+   "note": null,
+   "od_id": "248820cb-701b-17e2-eb5a-8f71ba79426a",
+   "do_id": "e11e7b55-3dc4-a0cd-63bf-25c4c04b9739"
+  },
+  {
+   "kind": "rodic",
+   "od": "noe",
+   "do": "jafet",
+   "certainty": "vyslovne",
+   "source": "1Mo 5:32",
+   "note": null,
+   "od_id": "248820cb-701b-17e2-eb5a-8f71ba79426a",
+   "do_id": "a65ffe94-af02-61cc-856d-d8f98dabb795"
+  },
+  {
+   "kind": "rodic",
+   "od": "sem",
+   "do": "arpaksad",
+   "certainty": "vyslovne",
+   "source": "1Mo 11:10",
+   "note": null,
+   "od_id": "e7467b4b-cc22-61e1-063c-29a8368f8731",
+   "do_id": "6907b15b-a1f1-1127-5acb-c5c153df4a25"
+  },
+  {
+   "kind": "rodic",
+   "od": "arpaksad",
+   "do": "sela",
+   "certainty": "sporne",
+   "source": "1Mo 11:12; Lk 3:35, 36",
+   "note": "Lukáš 3:36 uvádí mezi Arpakšadem a Šelou ještě Kainana, 1Mo 11:12 ne. Ověřit v it „Kainan“.",
+   "od_id": "6907b15b-a1f1-1127-5acb-c5c153df4a25",
+   "do_id": "87f73fc9-2b28-c972-8537-a7b04c35e65a"
+  },
+  {
+   "kind": "rodic",
+   "od": "sela",
+   "do": "eber",
+   "certainty": "vyslovne",
+   "source": "1Mo 11:14",
+   "note": null,
+   "od_id": "87f73fc9-2b28-c972-8537-a7b04c35e65a",
+   "do_id": "fd7de1ae-e2f4-0b0e-ab91-dc27cc52779e"
+  },
+  {
+   "kind": "rodic",
+   "od": "eber",
+   "do": "peleg",
+   "certainty": "vyslovne",
+   "source": "1Mo 11:16",
+   "note": null,
+   "od_id": "fd7de1ae-e2f4-0b0e-ab91-dc27cc52779e",
+   "do_id": "31293468-41ec-0b13-a38c-a8dc2d558f4e"
+  },
+  {
+   "kind": "rodic",
+   "od": "peleg",
+   "do": "reu",
+   "certainty": "vyslovne",
+   "source": "1Mo 11:18",
+   "note": null,
+   "od_id": "31293468-41ec-0b13-a38c-a8dc2d558f4e",
+   "do_id": "c93c1b25-2100-7a66-e077-78c56ee4dfc2"
+  },
+  {
+   "kind": "rodic",
+   "od": "reu",
+   "do": "serug",
+   "certainty": "vyslovne",
+   "source": "1Mo 11:20",
+   "note": null,
+   "od_id": "c93c1b25-2100-7a66-e077-78c56ee4dfc2",
+   "do_id": "1cb42758-b072-07c8-fd70-927687ae62fe"
+  },
+  {
+   "kind": "rodic",
+   "od": "serug",
+   "do": "nachor-ded",
+   "certainty": "vyslovne",
+   "source": "1Mo 11:22",
+   "note": null,
+   "od_id": "1cb42758-b072-07c8-fd70-927687ae62fe",
+   "do_id": "72b2a39f-af4d-f9b3-4650-79ee147289d1"
+  },
+  {
+   "kind": "rodic",
+   "od": "nachor-ded",
+   "do": "terach",
+   "certainty": "vyslovne",
+   "source": "1Mo 11:24",
+   "note": null,
+   "od_id": "72b2a39f-af4d-f9b3-4650-79ee147289d1",
+   "do_id": "213fddb1-7d7a-b8bd-02e2-9b6ed5f71fb1"
+  },
+  {
+   "kind": "rodic",
+   "od": "terach",
+   "do": "abraham",
+   "certainty": "vyslovne",
+   "source": "1Mo 11:26",
+   "note": "Rok Abrahamova narození je odvozený: 1Mo 11:26 uvádí Terachových 70 let, osa podle it „Chronologie“ počítá 130.",
+   "od_id": "213fddb1-7d7a-b8bd-02e2-9b6ed5f71fb1",
+   "do_id": "e32100ec-95c4-dbf3-e259-f7e53d8b1fdc"
+  },
+  {
+   "kind": "rodic",
+   "od": "terach",
+   "do": "nachor-bratr",
+   "certainty": "vyslovne",
+   "source": "1Mo 11:26",
+   "note": null,
+   "od_id": "213fddb1-7d7a-b8bd-02e2-9b6ed5f71fb1",
+   "do_id": "d4168e05-dd22-5f56-c78e-e9dd1fb4a2c9"
+  },
+  {
+   "kind": "rodic",
+   "od": "terach",
+   "do": "haran",
+   "certainty": "vyslovne",
+   "source": "1Mo 11:26",
+   "note": null,
+   "od_id": "213fddb1-7d7a-b8bd-02e2-9b6ed5f71fb1",
+   "do_id": "7160d5de-e9aa-0b71-b7b2-8a676dfa9cfa"
+  },
+  {
+   "kind": "rodic",
+   "od": "haran",
+   "do": "lot",
+   "certainty": "vyslovne",
+   "source": "1Mo 11:27",
+   "note": null,
+   "od_id": "7160d5de-e9aa-0b71-b7b2-8a676dfa9cfa",
+   "do_id": "021886c9-c183-c3cc-547d-e410bf181592"
+  },
+  {
+   "kind": "manzelstvi",
+   "od": "abraham",
+   "do": "sara",
+   "certainty": "vyslovne",
+   "source": "1Mo 11:29",
+   "note": null,
+   "od_id": "e32100ec-95c4-dbf3-e259-f7e53d8b1fdc",
+   "do_id": "64f80f08-b077-c0c9-06aa-ea4bdbe659e1"
+  },
+  {
+   "kind": "rodic",
+   "od": "terach",
+   "do": "sara",
+   "certainty": "odvozeno",
+   "source": "1Mo 20:12",
+   "note": "Abraham o Sáře říká, že je dcerou jeho otce, ne jeho matky.",
+   "od_id": "213fddb1-7d7a-b8bd-02e2-9b6ed5f71fb1",
+   "do_id": "64f80f08-b077-c0c9-06aa-ea4bdbe659e1"
+  },
+  {
+   "kind": "manzelstvi",
+   "od": "abraham",
+   "do": "hagar",
+   "certainty": "vyslovne",
+   "source": "1Mo 16:3",
+   "note": null,
+   "od_id": "e32100ec-95c4-dbf3-e259-f7e53d8b1fdc",
+   "do_id": "cfe901a3-6183-9a7c-2685-99640098e8b9"
+  },
+  {
+   "kind": "rodic",
+   "od": "abraham",
+   "do": "ismael",
+   "certainty": "vyslovne",
+   "source": "1Mo 16:15",
+   "note": null,
+   "od_id": "e32100ec-95c4-dbf3-e259-f7e53d8b1fdc",
+   "do_id": "b389b8f5-5547-70f6-fba3-896c1bc574a5"
+  },
+  {
+   "kind": "rodic",
+   "od": "hagar",
+   "do": "ismael",
+   "certainty": "vyslovne",
+   "source": "1Mo 16:15",
+   "note": null,
+   "od_id": "cfe901a3-6183-9a7c-2685-99640098e8b9",
+   "do_id": "b389b8f5-5547-70f6-fba3-896c1bc574a5"
+  },
+  {
+   "kind": "manzelstvi",
+   "od": "abraham",
+   "do": "ketura",
+   "certainty": "vyslovne",
+   "source": "1Mo 25:1",
+   "note": null,
+   "od_id": "e32100ec-95c4-dbf3-e259-f7e53d8b1fdc",
+   "do_id": "c6e3f94c-d3dd-927c-6259-4a99ec742c66"
+  },
+  {
+   "kind": "rodic",
+   "od": "abraham",
+   "do": "izak",
+   "certainty": "vyslovne",
+   "source": "1Mo 21:2, 3",
+   "note": null,
+   "od_id": "e32100ec-95c4-dbf3-e259-f7e53d8b1fdc",
+   "do_id": "749b9d5a-fa99-6490-92ba-5150122fe97c"
+  },
+  {
+   "kind": "rodic",
+   "od": "sara",
+   "do": "izak",
+   "certainty": "vyslovne",
+   "source": "1Mo 21:2, 3",
+   "note": null,
+   "od_id": "64f80f08-b077-c0c9-06aa-ea4bdbe659e1",
+   "do_id": "749b9d5a-fa99-6490-92ba-5150122fe97c"
+  },
+  {
+   "kind": "manzelstvi",
+   "od": "izak",
+   "do": "rebeka",
+   "certainty": "vyslovne",
+   "source": "1Mo 24:67",
+   "note": null,
+   "od_id": "749b9d5a-fa99-6490-92ba-5150122fe97c",
+   "do_id": "5937019e-5acd-4561-f7b3-dca1472e1dd0"
+  },
+  {
+   "kind": "rodic",
+   "od": "izak",
+   "do": "ezau",
+   "certainty": "vyslovne",
+   "source": "1Mo 25:24–26",
+   "note": null,
+   "od_id": "749b9d5a-fa99-6490-92ba-5150122fe97c",
+   "do_id": "bd041b77-b3c4-d699-ccbe-c9db539b80c6"
+  },
+  {
+   "kind": "rodic",
+   "od": "rebeka",
+   "do": "ezau",
+   "certainty": "vyslovne",
+   "source": "1Mo 25:24–26",
+   "note": null,
+   "od_id": "5937019e-5acd-4561-f7b3-dca1472e1dd0",
+   "do_id": "bd041b77-b3c4-d699-ccbe-c9db539b80c6"
+  },
+  {
+   "kind": "rodic",
+   "od": "izak",
+   "do": "jakob",
+   "certainty": "vyslovne",
+   "source": "1Mo 25:24–26",
+   "note": null,
+   "od_id": "749b9d5a-fa99-6490-92ba-5150122fe97c",
+   "do_id": "08b28686-fc67-4b77-8e57-970bfd6fdc6c"
+  },
+  {
+   "kind": "rodic",
+   "od": "rebeka",
+   "do": "jakob",
+   "certainty": "vyslovne",
+   "source": "1Mo 25:24–26",
+   "note": null,
+   "od_id": "5937019e-5acd-4561-f7b3-dca1472e1dd0",
+   "do_id": "08b28686-fc67-4b77-8e57-970bfd6fdc6c"
+  },
+  {
+   "kind": "manzelstvi",
+   "od": "jakob",
+   "do": "lea",
+   "certainty": "vyslovne",
+   "source": "1Mo 29:23",
+   "note": null,
+   "od_id": "08b28686-fc67-4b77-8e57-970bfd6fdc6c",
+   "do_id": "6438a3e6-0c7e-a247-e4ef-452046f91240"
+  },
+  {
+   "kind": "manzelstvi",
+   "od": "jakob",
+   "do": "rachel",
+   "certainty": "vyslovne",
+   "source": "1Mo 29:28",
+   "note": null,
+   "od_id": "08b28686-fc67-4b77-8e57-970bfd6fdc6c",
+   "do_id": "2bf3be0e-f768-7472-7d93-0c0a15b70b20"
+  },
+  {
+   "kind": "manzelstvi",
+   "od": "jakob",
+   "do": "bilha",
+   "certainty": "vyslovne",
+   "source": "1Mo 30:4",
+   "note": null,
+   "od_id": "08b28686-fc67-4b77-8e57-970bfd6fdc6c",
+   "do_id": "985afa98-528f-0048-b643-4e66250d8acf"
+  },
+  {
+   "kind": "manzelstvi",
+   "od": "jakob",
+   "do": "zilpa",
+   "certainty": "vyslovne",
+   "source": "1Mo 30:9",
+   "note": null,
+   "od_id": "08b28686-fc67-4b77-8e57-970bfd6fdc6c",
+   "do_id": "c6c4565b-ec7e-846d-af36-ae3c6d6524fe"
+  },
+  {
+   "kind": "rodic",
+   "od": "jakob",
+   "do": "ruben",
+   "certainty": "vyslovne",
+   "source": "1Mo 35:23–26",
+   "note": null,
+   "od_id": "08b28686-fc67-4b77-8e57-970bfd6fdc6c",
+   "do_id": "2f22829c-37bf-948c-d4ce-460857422adb"
+  },
+  {
+   "kind": "rodic",
+   "od": "lea",
+   "do": "ruben",
+   "certainty": "vyslovne",
+   "source": "1Mo 35:23–26",
+   "note": null,
+   "od_id": "6438a3e6-0c7e-a247-e4ef-452046f91240",
+   "do_id": "2f22829c-37bf-948c-d4ce-460857422adb"
+  },
+  {
+   "kind": "rodic",
+   "od": "jakob",
+   "do": "simeon",
+   "certainty": "vyslovne",
+   "source": "1Mo 35:23–26",
+   "note": null,
+   "od_id": "08b28686-fc67-4b77-8e57-970bfd6fdc6c",
+   "do_id": "09a4f7d5-8f43-de02-2dbe-b7de89a213d0"
+  },
+  {
+   "kind": "rodic",
+   "od": "lea",
+   "do": "simeon",
+   "certainty": "vyslovne",
+   "source": "1Mo 35:23–26",
+   "note": null,
+   "od_id": "6438a3e6-0c7e-a247-e4ef-452046f91240",
+   "do_id": "09a4f7d5-8f43-de02-2dbe-b7de89a213d0"
+  },
+  {
+   "kind": "rodic",
+   "od": "jakob",
+   "do": "levi",
+   "certainty": "vyslovne",
+   "source": "1Mo 35:23–26",
+   "note": null,
+   "od_id": "08b28686-fc67-4b77-8e57-970bfd6fdc6c",
+   "do_id": "b324134f-6a3e-c8dd-7cd4-858b830e64de"
+  },
+  {
+   "kind": "rodic",
+   "od": "lea",
+   "do": "levi",
+   "certainty": "vyslovne",
+   "source": "1Mo 35:23–26",
+   "note": null,
+   "od_id": "6438a3e6-0c7e-a247-e4ef-452046f91240",
+   "do_id": "b324134f-6a3e-c8dd-7cd4-858b830e64de"
+  },
+  {
+   "kind": "rodic",
+   "od": "jakob",
+   "do": "juda",
+   "certainty": "vyslovne",
+   "source": "1Mo 35:23–26",
+   "note": null,
+   "od_id": "08b28686-fc67-4b77-8e57-970bfd6fdc6c",
+   "do_id": "1919f43f-8399-870a-8835-aecaf80a7af5"
+  },
+  {
+   "kind": "rodic",
+   "od": "lea",
+   "do": "juda",
+   "certainty": "vyslovne",
+   "source": "1Mo 35:23–26",
+   "note": null,
+   "od_id": "6438a3e6-0c7e-a247-e4ef-452046f91240",
+   "do_id": "1919f43f-8399-870a-8835-aecaf80a7af5"
+  },
+  {
+   "kind": "rodic",
+   "od": "jakob",
+   "do": "isachar",
+   "certainty": "vyslovne",
+   "source": "1Mo 35:23–26",
+   "note": null,
+   "od_id": "08b28686-fc67-4b77-8e57-970bfd6fdc6c",
+   "do_id": "e09e5b70-af27-875e-172a-54b8da3debb5"
+  },
+  {
+   "kind": "rodic",
+   "od": "lea",
+   "do": "isachar",
+   "certainty": "vyslovne",
+   "source": "1Mo 35:23–26",
+   "note": null,
+   "od_id": "6438a3e6-0c7e-a247-e4ef-452046f91240",
+   "do_id": "e09e5b70-af27-875e-172a-54b8da3debb5"
+  },
+  {
+   "kind": "rodic",
+   "od": "jakob",
+   "do": "zebulon",
+   "certainty": "vyslovne",
+   "source": "1Mo 35:23–26",
+   "note": null,
+   "od_id": "08b28686-fc67-4b77-8e57-970bfd6fdc6c",
+   "do_id": "614a59d9-795b-1497-5d98-decc00555439"
+  },
+  {
+   "kind": "rodic",
+   "od": "lea",
+   "do": "zebulon",
+   "certainty": "vyslovne",
+   "source": "1Mo 35:23–26",
+   "note": null,
+   "od_id": "6438a3e6-0c7e-a247-e4ef-452046f91240",
+   "do_id": "614a59d9-795b-1497-5d98-decc00555439"
+  },
+  {
+   "kind": "rodic",
+   "od": "jakob",
+   "do": "josef-jakobuv",
+   "certainty": "vyslovne",
+   "source": "1Mo 35:23–26",
+   "note": null,
+   "od_id": "08b28686-fc67-4b77-8e57-970bfd6fdc6c",
+   "do_id": "5176e00e-edbe-ec1d-1b52-0fd878282afb"
+  },
+  {
+   "kind": "rodic",
+   "od": "rachel",
+   "do": "josef-jakobuv",
+   "certainty": "vyslovne",
+   "source": "1Mo 35:23–26",
+   "note": null,
+   "od_id": "2bf3be0e-f768-7472-7d93-0c0a15b70b20",
+   "do_id": "5176e00e-edbe-ec1d-1b52-0fd878282afb"
+  },
+  {
+   "kind": "rodic",
+   "od": "jakob",
+   "do": "benjamin",
+   "certainty": "vyslovne",
+   "source": "1Mo 35:23–26",
+   "note": null,
+   "od_id": "08b28686-fc67-4b77-8e57-970bfd6fdc6c",
+   "do_id": "8640841a-42ac-092e-e6d4-1c7c793b855d"
+  },
+  {
+   "kind": "rodic",
+   "od": "rachel",
+   "do": "benjamin",
+   "certainty": "vyslovne",
+   "source": "1Mo 35:23–26",
+   "note": null,
+   "od_id": "2bf3be0e-f768-7472-7d93-0c0a15b70b20",
+   "do_id": "8640841a-42ac-092e-e6d4-1c7c793b855d"
+  },
+  {
+   "kind": "rodic",
+   "od": "jakob",
+   "do": "dan",
+   "certainty": "vyslovne",
+   "source": "1Mo 35:23–26",
+   "note": null,
+   "od_id": "08b28686-fc67-4b77-8e57-970bfd6fdc6c",
+   "do_id": "4bc8861a-8738-f8ae-f403-bd33d15d5ee8"
+  },
+  {
+   "kind": "rodic",
+   "od": "bilha",
+   "do": "dan",
+   "certainty": "vyslovne",
+   "source": "1Mo 35:23–26",
+   "note": null,
+   "od_id": "985afa98-528f-0048-b643-4e66250d8acf",
+   "do_id": "4bc8861a-8738-f8ae-f403-bd33d15d5ee8"
+  },
+  {
+   "kind": "rodic",
+   "od": "jakob",
+   "do": "naftali",
+   "certainty": "vyslovne",
+   "source": "1Mo 35:23–26",
+   "note": null,
+   "od_id": "08b28686-fc67-4b77-8e57-970bfd6fdc6c",
+   "do_id": "4700376d-bbae-12e9-313a-e655ce72cdd3"
+  },
+  {
+   "kind": "rodic",
+   "od": "bilha",
+   "do": "naftali",
+   "certainty": "vyslovne",
+   "source": "1Mo 35:23–26",
+   "note": null,
+   "od_id": "985afa98-528f-0048-b643-4e66250d8acf",
+   "do_id": "4700376d-bbae-12e9-313a-e655ce72cdd3"
+  },
+  {
+   "kind": "rodic",
+   "od": "jakob",
+   "do": "gad",
+   "certainty": "vyslovne",
+   "source": "1Mo 35:23–26",
+   "note": null,
+   "od_id": "08b28686-fc67-4b77-8e57-970bfd6fdc6c",
+   "do_id": "e9d894da-fadf-91fd-97da-60dc5f94bbff"
+  },
+  {
+   "kind": "rodic",
+   "od": "zilpa",
+   "do": "gad",
+   "certainty": "vyslovne",
+   "source": "1Mo 35:23–26",
+   "note": null,
+   "od_id": "c6c4565b-ec7e-846d-af36-ae3c6d6524fe",
+   "do_id": "e9d894da-fadf-91fd-97da-60dc5f94bbff"
+  },
+  {
+   "kind": "rodic",
+   "od": "jakob",
+   "do": "aser",
+   "certainty": "vyslovne",
+   "source": "1Mo 35:23–26",
+   "note": null,
+   "od_id": "08b28686-fc67-4b77-8e57-970bfd6fdc6c",
+   "do_id": "ed3486a8-6590-708a-7e5b-362d3c780e94"
+  },
+  {
+   "kind": "rodic",
+   "od": "zilpa",
+   "do": "aser",
+   "certainty": "vyslovne",
+   "source": "1Mo 35:23–26",
+   "note": null,
+   "od_id": "c6c4565b-ec7e-846d-af36-ae3c6d6524fe",
+   "do_id": "ed3486a8-6590-708a-7e5b-362d3c780e94"
+  },
+  {
+   "kind": "rodic",
+   "od": "jakob",
+   "do": "dina",
+   "certainty": "vyslovne",
+   "source": "1Mo 30:21",
+   "note": null,
+   "od_id": "08b28686-fc67-4b77-8e57-970bfd6fdc6c",
+   "do_id": "3161558d-67c3-42be-a32e-e4802a77afb7"
+  },
+  {
+   "kind": "rodic",
+   "od": "lea",
+   "do": "dina",
+   "certainty": "vyslovne",
+   "source": "1Mo 30:21",
+   "note": null,
+   "od_id": "6438a3e6-0c7e-a247-e4ef-452046f91240",
+   "do_id": "3161558d-67c3-42be-a32e-e4802a77afb7"
+  },
+  {
+   "kind": "rodic",
+   "od": "juda",
+   "do": "zerach",
+   "certainty": "vyslovne",
+   "source": "1Mo 38:29, 30",
+   "note": null,
+   "od_id": "1919f43f-8399-870a-8835-aecaf80a7af5",
+   "do_id": "14cf3eb8-7b82-0ed0-93d9-07d301631c55"
+  },
+  {
+   "kind": "rodic",
+   "od": "tamar-judova",
+   "do": "perec",
+   "certainty": "vyslovne",
+   "source": "1Mo 38:29; Mt 1:3",
+   "note": null,
+   "od_id": "6481438d-64d2-6a7c-379a-9d4dfdabdaf6",
+   "do_id": "93042b04-e69d-ec2a-0b24-74979dc3ad18"
+  },
+  {
+   "kind": "rodic",
+   "od": "tamar-judova",
+   "do": "zerach",
+   "certainty": "vyslovne",
+   "source": "1Mo 38:30; Mt 1:3",
+   "note": null,
+   "od_id": "6481438d-64d2-6a7c-379a-9d4dfdabdaf6",
+   "do_id": "14cf3eb8-7b82-0ed0-93d9-07d301631c55"
+  },
+  {
+   "kind": "rodic",
+   "od": "juda",
+   "do": "perec",
+   "certainty": "vyslovne",
+   "source": "Rt 4:18–22; Mt 1:3–6",
+   "note": null,
+   "od_id": "1919f43f-8399-870a-8835-aecaf80a7af5",
+   "do_id": "93042b04-e69d-ec2a-0b24-74979dc3ad18"
+  },
+  {
+   "kind": "rodic",
+   "od": "perec",
+   "do": "checron",
+   "certainty": "vyslovne",
+   "source": "Rt 4:18–22; Mt 1:3–6",
+   "note": null,
+   "od_id": "93042b04-e69d-ec2a-0b24-74979dc3ad18",
+   "do_id": "f2bb2515-924d-daa9-1e20-55fa34509926"
+  },
+  {
+   "kind": "rodic",
+   "od": "checron",
+   "do": "ram",
+   "certainty": "vyslovne",
+   "source": "Rt 4:18–22; Mt 1:3–6",
+   "note": null,
+   "od_id": "f2bb2515-924d-daa9-1e20-55fa34509926",
+   "do_id": "b580a1ca-77cc-fce4-a174-f010ab8f9ae4"
+  },
+  {
+   "kind": "rodic",
+   "od": "ram",
+   "do": "amminadab",
+   "certainty": "vyslovne",
+   "source": "Rt 4:18–22; Mt 1:3–6",
+   "note": null,
+   "od_id": "b580a1ca-77cc-fce4-a174-f010ab8f9ae4",
+   "do_id": "f3d0d8b2-f566-6e8c-0c1f-29ca75f34a89"
+  },
+  {
+   "kind": "rodic",
+   "od": "amminadab",
+   "do": "nachson",
+   "certainty": "vyslovne",
+   "source": "Rt 4:18–22; Mt 1:3–6",
+   "note": null,
+   "od_id": "f3d0d8b2-f566-6e8c-0c1f-29ca75f34a89",
+   "do_id": "c5bbc3e4-7b96-6a00-6a9d-b768f98f31cd"
+  },
+  {
+   "kind": "rodic",
+   "od": "nachson",
+   "do": "salmon",
+   "certainty": "vyslovne",
+   "source": "Rt 4:18–22; Mt 1:3–6",
+   "note": null,
+   "od_id": "c5bbc3e4-7b96-6a00-6a9d-b768f98f31cd",
+   "do_id": "ee958c9e-09ed-155e-8d0d-9aa881f52af4"
+  },
+  {
+   "kind": "rodic",
+   "od": "salmon",
+   "do": "boaz",
+   "certainty": "vyslovne",
+   "source": "Rt 4:18–22; Mt 1:3–6",
+   "note": null,
+   "od_id": "ee958c9e-09ed-155e-8d0d-9aa881f52af4",
+   "do_id": "0f9d6ed4-8a91-8ed4-9c3f-7db3f6ab9132"
+  },
+  {
+   "kind": "rodic",
+   "od": "boaz",
+   "do": "obed",
+   "certainty": "vyslovne",
+   "source": "Rt 4:18–22; Mt 1:3–6",
+   "note": null,
+   "od_id": "0f9d6ed4-8a91-8ed4-9c3f-7db3f6ab9132",
+   "do_id": "4ebd74f7-6151-607d-34fb-549d42628bda"
+  },
+  {
+   "kind": "rodic",
+   "od": "obed",
+   "do": "jisai",
+   "certainty": "vyslovne",
+   "source": "Rt 4:18–22; Mt 1:3–6",
+   "note": null,
+   "od_id": "4ebd74f7-6151-607d-34fb-549d42628bda",
+   "do_id": "f18a05f9-718a-ccfa-5293-8b1924869bcd"
+  },
+  {
+   "kind": "rodic",
+   "od": "jisai",
+   "do": "david",
+   "certainty": "vyslovne",
+   "source": "Rt 4:18–22; Mt 1:3–6",
+   "note": null,
+   "od_id": "f18a05f9-718a-ccfa-5293-8b1924869bcd",
+   "do_id": "5d3618a3-392c-e91f-198d-6d662f97a4e3"
+  },
+  {
+   "kind": "manzelstvi",
+   "od": "salmon",
+   "do": "raab",
+   "certainty": "vyslovne",
+   "source": "Mt 1:5",
+   "note": null,
+   "od_id": "ee958c9e-09ed-155e-8d0d-9aa881f52af4",
+   "do_id": "3afadf33-0e33-0aec-f94a-d86c74090999"
+  },
+  {
+   "kind": "rodic",
+   "od": "raab",
+   "do": "boaz",
+   "certainty": "vyslovne",
+   "source": "Mt 1:5",
+   "note": null,
+   "od_id": "3afadf33-0e33-0aec-f94a-d86c74090999",
+   "do_id": "0f9d6ed4-8a91-8ed4-9c3f-7db3f6ab9132"
+  },
+  {
+   "kind": "manzelstvi",
+   "od": "boaz",
+   "do": "rut",
+   "certainty": "vyslovne",
+   "source": "Rt 4:13",
+   "note": null,
+   "od_id": "0f9d6ed4-8a91-8ed4-9c3f-7db3f6ab9132",
+   "do_id": "bf8d174f-1726-b7f6-6c71-97aff38145c4"
+  },
+  {
+   "kind": "rodic",
+   "od": "rut",
+   "do": "obed",
+   "certainty": "vyslovne",
+   "source": "Rt 4:13, 17",
+   "note": null,
+   "od_id": "bf8d174f-1726-b7f6-6c71-97aff38145c4",
+   "do_id": "4ebd74f7-6151-607d-34fb-549d42628bda"
+  },
+  {
+   "kind": "rodic",
+   "od": "levi",
+   "do": "kehat",
+   "certainty": "vyslovne",
+   "source": "2Mo 6:16",
+   "note": null,
+   "od_id": "b324134f-6a3e-c8dd-7cd4-858b830e64de",
+   "do_id": "af7139ff-660f-736d-7219-36ffd549c769"
+  },
+  {
+   "kind": "rodic",
+   "od": "kehat",
+   "do": "amram",
+   "certainty": "vyslovne",
+   "source": "2Mo 6:18",
+   "note": null,
+   "od_id": "af7139ff-660f-736d-7219-36ffd549c769",
+   "do_id": "df1acd45-81d1-a6e6-61c4-c177c7f9d40c"
+  },
+  {
+   "kind": "manzelstvi",
+   "od": "amram",
+   "do": "jokebed",
+   "certainty": "vyslovne",
+   "source": "2Mo 6:20",
+   "note": null,
+   "od_id": "df1acd45-81d1-a6e6-61c4-c177c7f9d40c",
+   "do_id": "25162c0e-d498-c922-62db-d51b96acd607"
+  },
+  {
+   "kind": "rodic",
+   "od": "amram",
+   "do": "aron",
+   "certainty": "vyslovne",
+   "source": "2Mo 6:20",
+   "note": null,
+   "od_id": "df1acd45-81d1-a6e6-61c4-c177c7f9d40c",
+   "do_id": "6eb3a8b1-007e-76b8-d426-706a1659ec67"
+  },
+  {
+   "kind": "rodic",
+   "od": "jokebed",
+   "do": "aron",
+   "certainty": "vyslovne",
+   "source": "2Mo 6:20",
+   "note": null,
+   "od_id": "25162c0e-d498-c922-62db-d51b96acd607",
+   "do_id": "6eb3a8b1-007e-76b8-d426-706a1659ec67"
+  },
+  {
+   "kind": "rodic",
+   "od": "amram",
+   "do": "mojzis",
+   "certainty": "vyslovne",
+   "source": "2Mo 6:20",
+   "note": null,
+   "od_id": "df1acd45-81d1-a6e6-61c4-c177c7f9d40c",
+   "do_id": "997da2a2-618a-aa3f-58fc-a5db51b40647"
+  },
+  {
+   "kind": "rodic",
+   "od": "jokebed",
+   "do": "mojzis",
+   "certainty": "vyslovne",
+   "source": "2Mo 6:20",
+   "note": null,
+   "od_id": "25162c0e-d498-c922-62db-d51b96acd607",
+   "do_id": "997da2a2-618a-aa3f-58fc-a5db51b40647"
+  },
+  {
+   "kind": "rodic",
+   "od": "amram",
+   "do": "miriam",
+   "certainty": "vyslovne",
+   "source": "4Mo 26:59",
+   "note": null,
+   "od_id": "df1acd45-81d1-a6e6-61c4-c177c7f9d40c",
+   "do_id": "a178dfc8-84ce-017b-04b0-e7152d77c4f4"
+  },
+  {
+   "kind": "rodic",
+   "od": "jokebed",
+   "do": "miriam",
+   "certainty": "vyslovne",
+   "source": "4Mo 26:59",
+   "note": null,
+   "od_id": "25162c0e-d498-c922-62db-d51b96acd607",
+   "do_id": "a178dfc8-84ce-017b-04b0-e7152d77c4f4"
+  },
+  {
+   "kind": "manzelstvi",
+   "od": "mojzis",
+   "do": "cippora",
+   "certainty": "vyslovne",
+   "source": "2Mo 2:21",
+   "note": null,
+   "od_id": "997da2a2-618a-aa3f-58fc-a5db51b40647",
+   "do_id": "9c16372d-ed3e-0001-c9ce-63f3ed8fd437"
+  },
+  {
+   "kind": "manzelstvi",
+   "od": "aron",
+   "do": "eliseba",
+   "certainty": "vyslovne",
+   "source": "2Mo 6:23",
+   "note": null,
+   "od_id": "6eb3a8b1-007e-76b8-d426-706a1659ec67",
+   "do_id": "54e5886a-6e24-bb7b-dced-03a8b26b966e"
+  },
+  {
+   "kind": "rodic",
+   "od": "aron",
+   "do": "nadab",
+   "certainty": "vyslovne",
+   "source": "2Mo 6:23",
+   "note": null,
+   "od_id": "6eb3a8b1-007e-76b8-d426-706a1659ec67",
+   "do_id": "700d5662-dc77-da9a-e1ce-a2951978865b"
+  },
+  {
+   "kind": "rodic",
+   "od": "eliseba",
+   "do": "nadab",
+   "certainty": "vyslovne",
+   "source": "2Mo 6:23",
+   "note": null,
+   "od_id": "54e5886a-6e24-bb7b-dced-03a8b26b966e",
+   "do_id": "700d5662-dc77-da9a-e1ce-a2951978865b"
+  },
+  {
+   "kind": "rodic",
+   "od": "aron",
+   "do": "abihu",
+   "certainty": "vyslovne",
+   "source": "2Mo 6:23",
+   "note": null,
+   "od_id": "6eb3a8b1-007e-76b8-d426-706a1659ec67",
+   "do_id": "f6275e37-df7b-0759-a210-b3e604191cb2"
+  },
+  {
+   "kind": "rodic",
+   "od": "eliseba",
+   "do": "abihu",
+   "certainty": "vyslovne",
+   "source": "2Mo 6:23",
+   "note": null,
+   "od_id": "54e5886a-6e24-bb7b-dced-03a8b26b966e",
+   "do_id": "f6275e37-df7b-0759-a210-b3e604191cb2"
+  },
+  {
+   "kind": "rodic",
+   "od": "aron",
+   "do": "eleazar",
+   "certainty": "vyslovne",
+   "source": "2Mo 6:23",
+   "note": null,
+   "od_id": "6eb3a8b1-007e-76b8-d426-706a1659ec67",
+   "do_id": "d8842213-d71c-7507-8f58-22c553d5e5f2"
+  },
+  {
+   "kind": "rodic",
+   "od": "eliseba",
+   "do": "eleazar",
+   "certainty": "vyslovne",
+   "source": "2Mo 6:23",
+   "note": null,
+   "od_id": "54e5886a-6e24-bb7b-dced-03a8b26b966e",
+   "do_id": "d8842213-d71c-7507-8f58-22c553d5e5f2"
+  },
+  {
+   "kind": "rodic",
+   "od": "aron",
+   "do": "itamar",
+   "certainty": "vyslovne",
+   "source": "2Mo 6:23",
+   "note": null,
+   "od_id": "6eb3a8b1-007e-76b8-d426-706a1659ec67",
+   "do_id": "78ddf6da-072f-cf74-e83e-963aee9439c3"
+  },
+  {
+   "kind": "rodic",
+   "od": "eliseba",
+   "do": "itamar",
+   "certainty": "vyslovne",
+   "source": "2Mo 6:23",
+   "note": null,
+   "od_id": "54e5886a-6e24-bb7b-dced-03a8b26b966e",
+   "do_id": "78ddf6da-072f-cf74-e83e-963aee9439c3"
+  },
+  {
+   "kind": "manzelstvi",
+   "od": "david",
+   "do": "mikal",
+   "certainty": "vyslovne",
+   "source": "1Sa 18:27",
+   "note": null,
+   "od_id": "5d3618a3-392c-e91f-198d-6d662f97a4e3",
+   "do_id": "596cb97d-b86c-f846-e97e-9aa8248dd43a"
+  },
+  {
+   "kind": "manzelstvi",
+   "od": "david",
+   "do": "achinoam",
+   "certainty": "vyslovne",
+   "source": "2Sa 3:2",
+   "note": null,
+   "od_id": "5d3618a3-392c-e91f-198d-6d662f97a4e3",
+   "do_id": "6f362ceb-1bb9-b82c-9ff1-519acb2fa61d"
+  },
+  {
+   "kind": "rodic",
+   "od": "david",
+   "do": "amnon",
+   "certainty": "vyslovne",
+   "source": "2Sa 3:2",
+   "note": null,
+   "od_id": "5d3618a3-392c-e91f-198d-6d662f97a4e3",
+   "do_id": "d443d8f9-8837-106b-e1e7-26c3c8785ce6"
+  },
+  {
+   "kind": "rodic",
+   "od": "achinoam",
+   "do": "amnon",
+   "certainty": "vyslovne",
+   "source": "2Sa 3:2",
+   "note": null,
+   "od_id": "6f362ceb-1bb9-b82c-9ff1-519acb2fa61d",
+   "do_id": "d443d8f9-8837-106b-e1e7-26c3c8785ce6"
+  },
+  {
+   "kind": "manzelstvi",
+   "od": "david",
+   "do": "abigail",
+   "certainty": "vyslovne",
+   "source": "2Sa 3:3",
+   "note": null,
+   "od_id": "5d3618a3-392c-e91f-198d-6d662f97a4e3",
+   "do_id": "1bf71489-4f24-8578-3e12-1f4a3e2dbf9e"
+  },
+  {
+   "kind": "rodic",
+   "od": "david",
+   "do": "kileab",
+   "certainty": "vyslovne",
+   "source": "2Sa 3:3",
+   "note": null,
+   "od_id": "5d3618a3-392c-e91f-198d-6d662f97a4e3",
+   "do_id": "ce00208b-59be-41af-36f9-a968e7008bca"
+  },
+  {
+   "kind": "rodic",
+   "od": "abigail",
+   "do": "kileab",
+   "certainty": "vyslovne",
+   "source": "2Sa 3:3",
+   "note": null,
+   "od_id": "1bf71489-4f24-8578-3e12-1f4a3e2dbf9e",
+   "do_id": "ce00208b-59be-41af-36f9-a968e7008bca"
+  },
+  {
+   "kind": "manzelstvi",
+   "od": "david",
+   "do": "maaka-davidova",
+   "certainty": "vyslovne",
+   "source": "2Sa 3:3",
+   "note": null,
+   "od_id": "5d3618a3-392c-e91f-198d-6d662f97a4e3",
+   "do_id": "3b415c14-6c48-3788-0d69-66a205968621"
+  },
+  {
+   "kind": "rodic",
+   "od": "david",
+   "do": "absalom",
+   "certainty": "vyslovne",
+   "source": "2Sa 3:3",
+   "note": null,
+   "od_id": "5d3618a3-392c-e91f-198d-6d662f97a4e3",
+   "do_id": "ea97bb9e-d0c7-6889-17a6-6314c16c745e"
+  },
+  {
+   "kind": "rodic",
+   "od": "maaka-davidova",
+   "do": "absalom",
+   "certainty": "vyslovne",
+   "source": "2Sa 3:3",
+   "note": null,
+   "od_id": "3b415c14-6c48-3788-0d69-66a205968621",
+   "do_id": "ea97bb9e-d0c7-6889-17a6-6314c16c745e"
+  },
+  {
+   "kind": "manzelstvi",
+   "od": "david",
+   "do": "chaggit",
+   "certainty": "vyslovne",
+   "source": "2Sa 3:4",
+   "note": null,
+   "od_id": "5d3618a3-392c-e91f-198d-6d662f97a4e3",
+   "do_id": "37077478-4850-57b2-b93a-1290e93cca8c"
+  },
+  {
+   "kind": "rodic",
+   "od": "david",
+   "do": "adonijas",
+   "certainty": "vyslovne",
+   "source": "2Sa 3:4",
+   "note": null,
+   "od_id": "5d3618a3-392c-e91f-198d-6d662f97a4e3",
+   "do_id": "15fbc911-60e8-6d35-e9f1-76842fa99910"
+  },
+  {
+   "kind": "rodic",
+   "od": "chaggit",
+   "do": "adonijas",
+   "certainty": "vyslovne",
+   "source": "2Sa 3:4",
+   "note": null,
+   "od_id": "37077478-4850-57b2-b93a-1290e93cca8c",
+   "do_id": "15fbc911-60e8-6d35-e9f1-76842fa99910"
+  },
+  {
+   "kind": "manzelstvi",
+   "od": "david",
+   "do": "abital",
+   "certainty": "vyslovne",
+   "source": "2Sa 3:4",
+   "note": null,
+   "od_id": "5d3618a3-392c-e91f-198d-6d662f97a4e3",
+   "do_id": "a5369078-dc53-2d1d-55c5-dc1f0a9a623f"
+  },
+  {
+   "kind": "rodic",
+   "od": "david",
+   "do": "sefatjas",
+   "certainty": "vyslovne",
+   "source": "2Sa 3:4",
+   "note": null,
+   "od_id": "5d3618a3-392c-e91f-198d-6d662f97a4e3",
+   "do_id": "e65a33ec-5333-71a6-0e2a-4f15a9475de3"
+  },
+  {
+   "kind": "rodic",
+   "od": "abital",
+   "do": "sefatjas",
+   "certainty": "vyslovne",
+   "source": "2Sa 3:4",
+   "note": null,
+   "od_id": "a5369078-dc53-2d1d-55c5-dc1f0a9a623f",
+   "do_id": "e65a33ec-5333-71a6-0e2a-4f15a9475de3"
+  },
+  {
+   "kind": "manzelstvi",
+   "od": "david",
+   "do": "egla",
+   "certainty": "vyslovne",
+   "source": "2Sa 3:5",
+   "note": null,
+   "od_id": "5d3618a3-392c-e91f-198d-6d662f97a4e3",
+   "do_id": "07a345bf-0dc6-7b4f-4b48-70d2525dee70"
+  },
+  {
+   "kind": "rodic",
+   "od": "david",
+   "do": "jitream",
+   "certainty": "vyslovne",
+   "source": "2Sa 3:5",
+   "note": null,
+   "od_id": "5d3618a3-392c-e91f-198d-6d662f97a4e3",
+   "do_id": "da44d778-bd16-ee8c-23ca-d80e219806b7"
+  },
+  {
+   "kind": "rodic",
+   "od": "egla",
+   "do": "jitream",
+   "certainty": "vyslovne",
+   "source": "2Sa 3:5",
+   "note": null,
+   "od_id": "07a345bf-0dc6-7b4f-4b48-70d2525dee70",
+   "do_id": "da44d778-bd16-ee8c-23ca-d80e219806b7"
+  },
+  {
+   "kind": "rodic",
+   "od": "david",
+   "do": "tamar-davidova",
+   "certainty": "vyslovne",
+   "source": "2Sa 13:1; 1Pa 3:9",
+   "note": null,
+   "od_id": "5d3618a3-392c-e91f-198d-6d662f97a4e3",
+   "do_id": "2f3d4802-22ec-57c8-4c43-b50d7378cf8d"
+  },
+  {
+   "kind": "rodic",
+   "od": "maaka-davidova",
+   "do": "tamar-davidova",
+   "certainty": "odvozeno",
+   "source": "rodokmen „Slíbené potomstvo“ (PDF)",
+   "note": "Tamar byla Absalomova sestra (2Sa 13:1).",
+   "od_id": "3b415c14-6c48-3788-0d69-66a205968621",
+   "do_id": "2f3d4802-22ec-57c8-4c43-b50d7378cf8d"
+  },
+  {
+   "kind": "manzelstvi",
+   "od": "david",
+   "do": "bat-seba",
+   "certainty": "vyslovne",
+   "source": "2Sa 11:27",
+   "note": null,
+   "od_id": "5d3618a3-392c-e91f-198d-6d662f97a4e3",
+   "do_id": "574f3e57-64ca-3343-327c-04eb10ade826"
+  },
+  {
+   "kind": "rodic",
+   "od": "david",
+   "do": "simea",
+   "certainty": "vyslovne",
+   "source": "1Pa 3:5",
+   "note": null,
+   "od_id": "5d3618a3-392c-e91f-198d-6d662f97a4e3",
+   "do_id": "56ba562a-8840-dda1-c1cf-19cf06991886"
+  },
+  {
+   "kind": "rodic",
+   "od": "bat-seba",
+   "do": "simea",
+   "certainty": "vyslovne",
+   "source": "1Pa 3:5",
+   "note": null,
+   "od_id": "574f3e57-64ca-3343-327c-04eb10ade826",
+   "do_id": "56ba562a-8840-dda1-c1cf-19cf06991886"
+  },
+  {
+   "kind": "rodic",
+   "od": "david",
+   "do": "sobab",
+   "certainty": "vyslovne",
+   "source": "1Pa 3:5",
+   "note": null,
+   "od_id": "5d3618a3-392c-e91f-198d-6d662f97a4e3",
+   "do_id": "b49d21d2-76be-8672-8a6e-98fe79194cab"
+  },
+  {
+   "kind": "rodic",
+   "od": "bat-seba",
+   "do": "sobab",
+   "certainty": "vyslovne",
+   "source": "1Pa 3:5",
+   "note": null,
+   "od_id": "574f3e57-64ca-3343-327c-04eb10ade826",
+   "do_id": "b49d21d2-76be-8672-8a6e-98fe79194cab"
+  },
+  {
+   "kind": "rodic",
+   "od": "david",
+   "do": "natan",
+   "certainty": "vyslovne",
+   "source": "1Pa 3:5",
+   "note": null,
+   "od_id": "5d3618a3-392c-e91f-198d-6d662f97a4e3",
+   "do_id": "451c642d-2ac1-745a-12b1-7a8042714efc"
+  },
+  {
+   "kind": "rodic",
+   "od": "bat-seba",
+   "do": "natan",
+   "certainty": "vyslovne",
+   "source": "1Pa 3:5",
+   "note": null,
+   "od_id": "574f3e57-64ca-3343-327c-04eb10ade826",
+   "do_id": "451c642d-2ac1-745a-12b1-7a8042714efc"
+  },
+  {
+   "kind": "rodic",
+   "od": "david",
+   "do": "salomoun",
+   "certainty": "vyslovne",
+   "source": "1Pa 3:5",
+   "note": null,
+   "od_id": "5d3618a3-392c-e91f-198d-6d662f97a4e3",
+   "do_id": "01b84c1a-352c-ad14-bb06-c48b38dbf6ee"
+  },
+  {
+   "kind": "rodic",
+   "od": "bat-seba",
+   "do": "salomoun",
+   "certainty": "vyslovne",
+   "source": "1Pa 3:5",
+   "note": null,
+   "od_id": "574f3e57-64ca-3343-327c-04eb10ade826",
+   "do_id": "01b84c1a-352c-ad14-bb06-c48b38dbf6ee"
+  },
+  {
+   "kind": "rodic",
+   "od": "salomoun",
+   "do": "rechoboam",
+   "certainty": "vyslovne",
+   "source": "1Pa 3:10–14",
+   "note": null,
+   "od_id": "01b84c1a-352c-ad14-bb06-c48b38dbf6ee",
+   "do_id": "b5a52f60-7181-bd0d-001c-a205f38f1d00"
+  },
+  {
+   "kind": "rodic",
+   "od": "rechoboam",
+   "do": "abijas",
+   "certainty": "vyslovne",
+   "source": "1Pa 3:10–14",
+   "note": null,
+   "od_id": "b5a52f60-7181-bd0d-001c-a205f38f1d00",
+   "do_id": "b48defa4-1664-6b4c-308b-ecf469a005f5"
+  },
+  {
+   "kind": "rodic",
+   "od": "abijas",
+   "do": "asa",
+   "certainty": "vyslovne",
+   "source": "1Pa 3:10–14",
+   "note": null,
+   "od_id": "b48defa4-1664-6b4c-308b-ecf469a005f5",
+   "do_id": "f1de8f9e-fad2-62d1-e34e-0e902fc8020a"
+  },
+  {
+   "kind": "rodic",
+   "od": "asa",
+   "do": "jehosafat",
+   "certainty": "vyslovne",
+   "source": "1Pa 3:10–14",
+   "note": null,
+   "od_id": "f1de8f9e-fad2-62d1-e34e-0e902fc8020a",
+   "do_id": "dbf9733e-6037-c18c-7026-02f39b2d6ca2"
+  },
+  {
+   "kind": "rodic",
+   "od": "jehosafat",
+   "do": "jehoram",
+   "certainty": "vyslovne",
+   "source": "1Pa 3:10–14",
+   "note": null,
+   "od_id": "dbf9733e-6037-c18c-7026-02f39b2d6ca2",
+   "do_id": "49659314-81fe-edc1-3642-8f0954b94b75"
+  },
+  {
+   "kind": "rodic",
+   "od": "jehoram",
+   "do": "achazjas",
+   "certainty": "vyslovne",
+   "source": "1Pa 3:10–14",
+   "note": null,
+   "od_id": "49659314-81fe-edc1-3642-8f0954b94b75",
+   "do_id": "68d1b603-ac82-f73d-6e9d-37b7762774bd"
+  },
+  {
+   "kind": "rodic",
+   "od": "achazjas",
+   "do": "jehoas",
+   "certainty": "vyslovne",
+   "source": "1Pa 3:10–14",
+   "note": null,
+   "od_id": "68d1b603-ac82-f73d-6e9d-37b7762774bd",
+   "do_id": "462a4100-85aa-32e5-173d-022d2777bef2"
+  },
+  {
+   "kind": "rodic",
+   "od": "jehoas",
+   "do": "amacjas",
+   "certainty": "vyslovne",
+   "source": "1Pa 3:10–14",
+   "note": null,
+   "od_id": "462a4100-85aa-32e5-173d-022d2777bef2",
+   "do_id": "99c3c09b-103c-d821-f41e-e347a1f52db3"
+  },
+  {
+   "kind": "rodic",
+   "od": "amacjas",
+   "do": "uzzijas",
+   "certainty": "vyslovne",
+   "source": "1Pa 3:10–14",
+   "note": null,
+   "od_id": "99c3c09b-103c-d821-f41e-e347a1f52db3",
+   "do_id": "6fccf692-2a1b-f6a3-1cd5-91d7a282008a"
+  },
+  {
+   "kind": "rodic",
+   "od": "uzzijas",
+   "do": "jotam",
+   "certainty": "vyslovne",
+   "source": "1Pa 3:10–14",
+   "note": null,
+   "od_id": "6fccf692-2a1b-f6a3-1cd5-91d7a282008a",
+   "do_id": "1f25d82a-67d6-041e-9eb4-613842156eef"
+  },
+  {
+   "kind": "rodic",
+   "od": "jotam",
+   "do": "achaz",
+   "certainty": "vyslovne",
+   "source": "1Pa 3:10–14",
+   "note": null,
+   "od_id": "1f25d82a-67d6-041e-9eb4-613842156eef",
+   "do_id": "5cdbd4ca-07dc-0633-5ce0-76a2f47fe9c3"
+  },
+  {
+   "kind": "rodic",
+   "od": "achaz",
+   "do": "ezekjas",
+   "certainty": "vyslovne",
+   "source": "1Pa 3:10–14",
+   "note": null,
+   "od_id": "5cdbd4ca-07dc-0633-5ce0-76a2f47fe9c3",
+   "do_id": "e3c2c075-8220-46c9-39c4-f8e287be21e6"
+  },
+  {
+   "kind": "rodic",
+   "od": "ezekjas",
+   "do": "manasse",
+   "certainty": "vyslovne",
+   "source": "1Pa 3:10–14",
+   "note": null,
+   "od_id": "e3c2c075-8220-46c9-39c4-f8e287be21e6",
+   "do_id": "4d6b5799-ffc9-cc23-6f93-92647bdd9d92"
+  },
+  {
+   "kind": "rodic",
+   "od": "manasse",
+   "do": "amon",
+   "certainty": "vyslovne",
+   "source": "1Pa 3:10–14",
+   "note": null,
+   "od_id": "4d6b5799-ffc9-cc23-6f93-92647bdd9d92",
+   "do_id": "f68da1bb-4e88-5ccc-4607-09f20b73eddb"
+  },
+  {
+   "kind": "rodic",
+   "od": "amon",
+   "do": "josijas",
+   "certainty": "vyslovne",
+   "source": "1Pa 3:10–14",
+   "note": null,
+   "od_id": "f68da1bb-4e88-5ccc-4607-09f20b73eddb",
+   "do_id": "1f008131-48c4-96bf-2366-954ce881a6a1"
+  },
+  {
+   "kind": "rodic",
+   "od": "josijas",
+   "do": "jehoachaz",
+   "certainty": "vyslovne",
+   "source": "1Pa 3:15",
+   "note": null,
+   "od_id": "1f008131-48c4-96bf-2366-954ce881a6a1",
+   "do_id": "5edcc7c0-8c02-f80a-85dc-7c8eb96935d0"
+  },
+  {
+   "kind": "rodic",
+   "od": "josijas",
+   "do": "jehojakim",
+   "certainty": "vyslovne",
+   "source": "1Pa 3:15",
+   "note": null,
+   "od_id": "1f008131-48c4-96bf-2366-954ce881a6a1",
+   "do_id": "99cd1d36-eb34-fe65-ff6c-54895a21ee6e"
+  },
+  {
+   "kind": "rodic",
+   "od": "josijas",
+   "do": "sedekjas",
+   "certainty": "vyslovne",
+   "source": "1Pa 3:15",
+   "note": null,
+   "od_id": "1f008131-48c4-96bf-2366-954ce881a6a1",
+   "do_id": "c644137c-3432-bc20-c420-2e942675ad2b"
+  },
+  {
+   "kind": "rodic",
+   "od": "jehojakim",
+   "do": "jehojakin",
+   "certainty": "vyslovne",
+   "source": "1Pa 3:16",
+   "note": null,
+   "od_id": "99cd1d36-eb34-fe65-ff6c-54895a21ee6e",
+   "do_id": "52e94e1c-1e1b-854f-ffc5-62d667a07891"
+  },
+  {
+   "kind": "manzelstvi",
+   "od": "salomoun",
+   "do": "naama",
+   "certainty": "vyslovne",
+   "source": "rodokmen „Slíbené potomstvo“ (PDF)",
+   "note": null,
+   "od_id": "01b84c1a-352c-ad14-bb06-c48b38dbf6ee",
+   "do_id": "06343cb0-4a01-91c1-214d-2e080f6a12b9"
+  },
+  {
+   "kind": "rodic",
+   "od": "naama",
+   "do": "rechoboam",
+   "certainty": "vyslovne",
+   "source": "rodokmen „Slíbené potomstvo“ (PDF)",
+   "note": null,
+   "od_id": "06343cb0-4a01-91c1-214d-2e080f6a12b9",
+   "do_id": "b5a52f60-7181-bd0d-001c-a205f38f1d00"
+  },
+  {
+   "kind": "manzelstvi",
+   "od": "rechoboam",
+   "do": "maaka-rechoboamova",
+   "certainty": "vyslovne",
+   "source": "rodokmen „Slíbené potomstvo“ (PDF)",
+   "note": null,
+   "od_id": "b5a52f60-7181-bd0d-001c-a205f38f1d00",
+   "do_id": "873d5c0b-daaa-d36e-ab97-45a421bd8392"
+  },
+  {
+   "kind": "rodic",
+   "od": "maaka-rechoboamova",
+   "do": "abijas",
+   "certainty": "vyslovne",
+   "source": "rodokmen „Slíbené potomstvo“ (PDF)",
+   "note": null,
+   "od_id": "873d5c0b-daaa-d36e-ab97-45a421bd8392",
+   "do_id": "b48defa4-1664-6b4c-308b-ecf469a005f5"
+  },
+  {
+   "kind": "manzelstvi",
+   "od": "asa",
+   "do": "azuba",
+   "certainty": "vyslovne",
+   "source": "rodokmen „Slíbené potomstvo“ (PDF)",
+   "note": null,
+   "od_id": "f1de8f9e-fad2-62d1-e34e-0e902fc8020a",
+   "do_id": "90bcc962-4e87-ca43-541b-f3f3061ca7f0"
+  },
+  {
+   "kind": "rodic",
+   "od": "azuba",
+   "do": "jehosafat",
+   "certainty": "vyslovne",
+   "source": "rodokmen „Slíbené potomstvo“ (PDF)",
+   "note": null,
+   "od_id": "90bcc962-4e87-ca43-541b-f3f3061ca7f0",
+   "do_id": "dbf9733e-6037-c18c-7026-02f39b2d6ca2"
+  },
+  {
+   "kind": "manzelstvi",
+   "od": "jehoram",
+   "do": "atalja",
+   "certainty": "vyslovne",
+   "source": "rodokmen „Slíbené potomstvo“ (PDF)",
+   "note": null,
+   "od_id": "49659314-81fe-edc1-3642-8f0954b94b75",
+   "do_id": "9c3a4991-2024-06cf-cfe1-d9590ce44d12"
+  },
+  {
+   "kind": "rodic",
+   "od": "atalja",
+   "do": "achazjas",
+   "certainty": "vyslovne",
+   "source": "rodokmen „Slíbené potomstvo“ (PDF)",
+   "note": null,
+   "od_id": "9c3a4991-2024-06cf-cfe1-d9590ce44d12",
+   "do_id": "68d1b603-ac82-f73d-6e9d-37b7762774bd"
+  },
+  {
+   "kind": "manzelstvi",
+   "od": "achazjas",
+   "do": "cibja",
+   "certainty": "vyslovne",
+   "source": "rodokmen „Slíbené potomstvo“ (PDF)",
+   "note": null,
+   "od_id": "68d1b603-ac82-f73d-6e9d-37b7762774bd",
+   "do_id": "fb372efd-462c-45d8-60b0-ec1fe29a0804"
+  },
+  {
+   "kind": "rodic",
+   "od": "cibja",
+   "do": "jehoas",
+   "certainty": "vyslovne",
+   "source": "rodokmen „Slíbené potomstvo“ (PDF)",
+   "note": null,
+   "od_id": "fb372efd-462c-45d8-60b0-ec1fe29a0804",
+   "do_id": "462a4100-85aa-32e5-173d-022d2777bef2"
+  },
+  {
+   "kind": "manzelstvi",
+   "od": "jehoas",
+   "do": "jehoaddan",
+   "certainty": "vyslovne",
+   "source": "rodokmen „Slíbené potomstvo“ (PDF)",
+   "note": null,
+   "od_id": "462a4100-85aa-32e5-173d-022d2777bef2",
+   "do_id": "1585b8a9-0b8a-8b8b-8141-731bc4b8d8c5"
+  },
+  {
+   "kind": "rodic",
+   "od": "jehoaddan",
+   "do": "amacjas",
+   "certainty": "vyslovne",
+   "source": "rodokmen „Slíbené potomstvo“ (PDF)",
+   "note": null,
+   "od_id": "1585b8a9-0b8a-8b8b-8141-731bc4b8d8c5",
+   "do_id": "99c3c09b-103c-d821-f41e-e347a1f52db3"
+  },
+  {
+   "kind": "manzelstvi",
+   "od": "amacjas",
+   "do": "jekolja",
+   "certainty": "vyslovne",
+   "source": "rodokmen „Slíbené potomstvo“ (PDF)",
+   "note": null,
+   "od_id": "99c3c09b-103c-d821-f41e-e347a1f52db3",
+   "do_id": "e7369f92-1c0f-f550-6f43-b0c5813f87da"
+  },
+  {
+   "kind": "rodic",
+   "od": "jekolja",
+   "do": "uzzijas",
+   "certainty": "vyslovne",
+   "source": "rodokmen „Slíbené potomstvo“ (PDF)",
+   "note": null,
+   "od_id": "e7369f92-1c0f-f550-6f43-b0c5813f87da",
+   "do_id": "6fccf692-2a1b-f6a3-1cd5-91d7a282008a"
+  },
+  {
+   "kind": "manzelstvi",
+   "od": "uzzijas",
+   "do": "jerusa",
+   "certainty": "vyslovne",
+   "source": "rodokmen „Slíbené potomstvo“ (PDF)",
+   "note": null,
+   "od_id": "6fccf692-2a1b-f6a3-1cd5-91d7a282008a",
+   "do_id": "3c18f06a-4861-fe37-f234-6bb9d5621076"
+  },
+  {
+   "kind": "rodic",
+   "od": "jerusa",
+   "do": "jotam",
+   "certainty": "vyslovne",
+   "source": "rodokmen „Slíbené potomstvo“ (PDF)",
+   "note": null,
+   "od_id": "3c18f06a-4861-fe37-f234-6bb9d5621076",
+   "do_id": "1f25d82a-67d6-041e-9eb4-613842156eef"
+  },
+  {
+   "kind": "manzelstvi",
+   "od": "achaz",
+   "do": "abija-matka",
+   "certainty": "vyslovne",
+   "source": "rodokmen „Slíbené potomstvo“ (PDF)",
+   "note": null,
+   "od_id": "5cdbd4ca-07dc-0633-5ce0-76a2f47fe9c3",
+   "do_id": "d799e89f-134e-0f11-32f2-0edea7d12d7a"
+  },
+  {
+   "kind": "rodic",
+   "od": "abija-matka",
+   "do": "ezekjas",
+   "certainty": "vyslovne",
+   "source": "rodokmen „Slíbené potomstvo“ (PDF)",
+   "note": null,
+   "od_id": "d799e89f-134e-0f11-32f2-0edea7d12d7a",
+   "do_id": "e3c2c075-8220-46c9-39c4-f8e287be21e6"
+  },
+  {
+   "kind": "manzelstvi",
+   "od": "ezekjas",
+   "do": "chefciba",
+   "certainty": "vyslovne",
+   "source": "rodokmen „Slíbené potomstvo“ (PDF)",
+   "note": null,
+   "od_id": "e3c2c075-8220-46c9-39c4-f8e287be21e6",
+   "do_id": "cf127290-a730-f5ae-1787-6e8996d8d726"
+  },
+  {
+   "kind": "rodic",
+   "od": "chefciba",
+   "do": "manasse",
+   "certainty": "vyslovne",
+   "source": "rodokmen „Slíbené potomstvo“ (PDF)",
+   "note": null,
+   "od_id": "cf127290-a730-f5ae-1787-6e8996d8d726",
+   "do_id": "4d6b5799-ffc9-cc23-6f93-92647bdd9d92"
+  },
+  {
+   "kind": "manzelstvi",
+   "od": "manasse",
+   "do": "mesullemet",
+   "certainty": "vyslovne",
+   "source": "rodokmen „Slíbené potomstvo“ (PDF)",
+   "note": null,
+   "od_id": "4d6b5799-ffc9-cc23-6f93-92647bdd9d92",
+   "do_id": "4534058f-e4be-e4c3-b22d-cc7590ff270c"
+  },
+  {
+   "kind": "rodic",
+   "od": "mesullemet",
+   "do": "amon",
+   "certainty": "vyslovne",
+   "source": "rodokmen „Slíbené potomstvo“ (PDF)",
+   "note": null,
+   "od_id": "4534058f-e4be-e4c3-b22d-cc7590ff270c",
+   "do_id": "f68da1bb-4e88-5ccc-4607-09f20b73eddb"
+  },
+  {
+   "kind": "manzelstvi",
+   "od": "amon",
+   "do": "jedida",
+   "certainty": "vyslovne",
+   "source": "rodokmen „Slíbené potomstvo“ (PDF)",
+   "note": null,
+   "od_id": "f68da1bb-4e88-5ccc-4607-09f20b73eddb",
+   "do_id": "67ec1f6e-719c-1059-730e-bf882f3773b2"
+  },
+  {
+   "kind": "rodic",
+   "od": "jedida",
+   "do": "josijas",
+   "certainty": "vyslovne",
+   "source": "rodokmen „Slíbené potomstvo“ (PDF)",
+   "note": null,
+   "od_id": "67ec1f6e-719c-1059-730e-bf882f3773b2",
+   "do_id": "1f008131-48c4-96bf-2366-954ce881a6a1"
+  },
+  {
+   "kind": "manzelstvi",
+   "od": "josijas",
+   "do": "chamutal",
+   "certainty": "vyslovne",
+   "source": "rodokmen „Slíbené potomstvo“ (PDF)",
+   "note": null,
+   "od_id": "1f008131-48c4-96bf-2366-954ce881a6a1",
+   "do_id": "b48f2f0d-bad6-ed03-7527-53455cadaf73"
+  },
+  {
+   "kind": "rodic",
+   "od": "chamutal",
+   "do": "jehoachaz",
+   "certainty": "vyslovne",
+   "source": "rodokmen „Slíbené potomstvo“ (PDF)",
+   "note": null,
+   "od_id": "b48f2f0d-bad6-ed03-7527-53455cadaf73",
+   "do_id": "5edcc7c0-8c02-f80a-85dc-7c8eb96935d0"
+  },
+  {
+   "kind": "rodic",
+   "od": "chamutal",
+   "do": "sedekjas",
+   "certainty": "vyslovne",
+   "source": "rodokmen „Slíbené potomstvo“ (PDF)",
+   "note": null,
+   "od_id": "b48f2f0d-bad6-ed03-7527-53455cadaf73",
+   "do_id": "c644137c-3432-bc20-c420-2e942675ad2b"
+  },
+  {
+   "kind": "manzelstvi",
+   "od": "josijas",
+   "do": "zebida",
+   "certainty": "vyslovne",
+   "source": "rodokmen „Slíbené potomstvo“ (PDF)",
+   "note": null,
+   "od_id": "1f008131-48c4-96bf-2366-954ce881a6a1",
+   "do_id": "7f1a4213-56e5-2094-4fd1-1d42c1a51b1f"
+  },
+  {
+   "kind": "rodic",
+   "od": "zebida",
+   "do": "jehojakim",
+   "certainty": "vyslovne",
+   "source": "rodokmen „Slíbené potomstvo“ (PDF)",
+   "note": null,
+   "od_id": "7f1a4213-56e5-2094-4fd1-1d42c1a51b1f",
+   "do_id": "99cd1d36-eb34-fe65-ff6c-54895a21ee6e"
+  },
+  {
+   "kind": "manzelstvi",
+   "od": "jehojakim",
+   "do": "nechusta",
+   "certainty": "vyslovne",
+   "source": "rodokmen „Slíbené potomstvo“ (PDF)",
+   "note": null,
+   "od_id": "99cd1d36-eb34-fe65-ff6c-54895a21ee6e",
+   "do_id": "09268e0e-d6cd-b19c-6038-bf87c6d03f65"
+  },
+  {
+   "kind": "rodic",
+   "od": "nechusta",
+   "do": "jehojakin",
+   "certainty": "vyslovne",
+   "source": "rodokmen „Slíbené potomstvo“ (PDF)",
+   "note": null,
+   "od_id": "09268e0e-d6cd-b19c-6038-bf87c6d03f65",
+   "do_id": "52e94e1c-1e1b-854f-ffc5-62d667a07891"
+  },
+  {
+   "kind": "rodic",
+   "od": "jehojakin",
+   "do": "sealtiel",
+   "certainty": "vyslovne",
+   "source": "Mt 1:12; 1Pa 3:17",
+   "note": null,
+   "od_id": "52e94e1c-1e1b-854f-ffc5-62d667a07891",
+   "do_id": "ab1258c5-d5a0-5e87-3320-e227fd52abc1"
+  },
+  {
+   "kind": "rodic",
+   "od": "jehojakin",
+   "do": "pedajas",
+   "certainty": "vyslovne",
+   "source": "1Pa 3:17, 18",
+   "note": null,
+   "od_id": "52e94e1c-1e1b-854f-ffc5-62d667a07891",
+   "do_id": "77ff70d4-0c68-0862-05eb-b7f122c6251b"
+  },
+  {
+   "kind": "rodic",
+   "od": "sealtiel",
+   "do": "zerubbabel",
+   "certainty": "sporne",
+   "source": "Mt 1:12; Lk 3:27",
+   "note": "1Pa 3:19 uvádí jako Zerubbabelova otce Pedajáše.",
+   "od_id": "ab1258c5-d5a0-5e87-3320-e227fd52abc1",
+   "do_id": "7002dc55-0fd5-5c1f-ac4a-2ad2e02db649"
+  },
+  {
+   "kind": "rodic",
+   "od": "pedajas",
+   "do": "zerubbabel",
+   "certainty": "sporne",
+   "source": "1Pa 3:19",
+   "note": "Mt 1:12 a Lk 3:27 uvádějí jako otce Šealtiela.",
+   "od_id": "77ff70d4-0c68-0862-05eb-b7f122c6251b",
+   "do_id": "7002dc55-0fd5-5c1f-ac4a-2ad2e02db649"
+  },
+  {
+   "kind": "rodic",
+   "od": "zerubbabel",
+   "do": "abiud",
+   "certainty": "vyslovne",
+   "source": "Mt 1:13–16",
+   "note": null,
+   "od_id": "7002dc55-0fd5-5c1f-ac4a-2ad2e02db649",
+   "do_id": "f99f259b-7122-9d5c-18e0-c53f3d5c406c"
+  },
+  {
+   "kind": "rodic",
+   "od": "abiud",
+   "do": "eljakim-mt",
+   "certainty": "vyslovne",
+   "source": "Mt 1:13–16",
+   "note": null,
+   "od_id": "f99f259b-7122-9d5c-18e0-c53f3d5c406c",
+   "do_id": "65f0207d-6be9-6b27-54a4-916149e98504"
+  },
+  {
+   "kind": "rodic",
+   "od": "eljakim-mt",
+   "do": "azor",
+   "certainty": "vyslovne",
+   "source": "Mt 1:13–16",
+   "note": null,
+   "od_id": "65f0207d-6be9-6b27-54a4-916149e98504",
+   "do_id": "21c97b3a-9500-5c14-7959-6aaec7a88246"
+  },
+  {
+   "kind": "rodic",
+   "od": "azor",
+   "do": "cadok",
+   "certainty": "vyslovne",
+   "source": "Mt 1:13–16",
+   "note": null,
+   "od_id": "21c97b3a-9500-5c14-7959-6aaec7a88246",
+   "do_id": "fd49911c-10e4-c195-accc-6fdf7723f399"
+  },
+  {
+   "kind": "rodic",
+   "od": "cadok",
+   "do": "achim",
+   "certainty": "vyslovne",
+   "source": "Mt 1:13–16",
+   "note": null,
+   "od_id": "fd49911c-10e4-c195-accc-6fdf7723f399",
+   "do_id": "355d9ff8-ba4c-40cc-7975-59b865046305"
+  },
+  {
+   "kind": "rodic",
+   "od": "achim",
+   "do": "eliud",
+   "certainty": "vyslovne",
+   "source": "Mt 1:13–16",
+   "note": null,
+   "od_id": "355d9ff8-ba4c-40cc-7975-59b865046305",
+   "do_id": "1857e16c-2d05-a81f-e200-6d2bfc1de6ea"
+  },
+  {
+   "kind": "rodic",
+   "od": "eliud",
+   "do": "eleazar-mt",
+   "certainty": "vyslovne",
+   "source": "Mt 1:13–16",
+   "note": null,
+   "od_id": "1857e16c-2d05-a81f-e200-6d2bfc1de6ea",
+   "do_id": "377e217b-5606-e964-3a2b-6c0c47d8e33e"
+  },
+  {
+   "kind": "rodic",
+   "od": "eleazar-mt",
+   "do": "mattan",
+   "certainty": "vyslovne",
+   "source": "Mt 1:13–16",
+   "note": null,
+   "od_id": "377e217b-5606-e964-3a2b-6c0c47d8e33e",
+   "do_id": "a717141f-1ce2-6d73-74b8-a1f540677c10"
+  },
+  {
+   "kind": "rodic",
+   "od": "mattan",
+   "do": "jakob-mt",
+   "certainty": "vyslovne",
+   "source": "Mt 1:13–16",
+   "note": null,
+   "od_id": "a717141f-1ce2-6d73-74b8-a1f540677c10",
+   "do_id": "60e2ea1c-34e9-12d6-6c16-dadf7942e67a"
+  },
+  {
+   "kind": "rodic",
+   "od": "jakob-mt",
+   "do": "josef-mariin",
+   "certainty": "vyslovne",
+   "source": "Mt 1:13–16",
+   "note": null,
+   "od_id": "60e2ea1c-34e9-12d6-6c16-dadf7942e67a",
+   "do_id": "76383685-53a9-aa88-0637-89d0c558153e"
+  },
+  {
+   "kind": "manzelstvi",
+   "od": "josef-mariin",
+   "do": "marie",
+   "certainty": "vyslovne",
+   "source": "Mt 1:16, 24",
+   "note": null,
+   "od_id": "76383685-53a9-aa88-0637-89d0c558153e",
+   "do_id": "1200d410-1cd5-f80e-ded1-26884deefd11"
+  },
+  {
+   "kind": "rodic",
+   "od": "marie",
+   "do": "jezis",
+   "certainty": "vyslovne",
+   "source": "Mt 1:16; Lk 2:7",
+   "note": null,
+   "od_id": "1200d410-1cd5-f80e-ded1-26884deefd11",
+   "do_id": "7fbdd440-3c29-5042-21b7-23ea19f315b4"
+  },
+  {
+   "kind": "pestoun",
+   "od": "josef-mariin",
+   "do": "jezis",
+   "certainty": "vyslovne",
+   "source": "Lk 3:23; Mt 1:16",
+   "note": "Královská linie vede k Ježíšovi přes Josefa jako adoptivního otce (tak i PDF).",
+   "od_id": "76383685-53a9-aa88-0637-89d0c558153e",
+   "do_id": "7fbdd440-3c29-5042-21b7-23ea19f315b4"
+  },
+  {
+   "kind": "rodic",
+   "od": "marie",
+   "do": "jakub-bratr",
+   "certainty": "vyslovne",
+   "source": "Mt 13:55",
+   "note": null,
+   "od_id": "1200d410-1cd5-f80e-ded1-26884deefd11",
+   "do_id": "fac927dc-0771-7373-b715-9a7da247a53c"
+  },
+  {
+   "kind": "rodic",
+   "od": "josef-mariin",
+   "do": "jakub-bratr",
+   "certainty": "vyslovne",
+   "source": "Mt 13:55",
+   "note": null,
+   "od_id": "76383685-53a9-aa88-0637-89d0c558153e",
+   "do_id": "fac927dc-0771-7373-b715-9a7da247a53c"
+  },
+  {
+   "kind": "rodic",
+   "od": "marie",
+   "do": "josef-bratr",
+   "certainty": "vyslovne",
+   "source": "Mt 13:55",
+   "note": null,
+   "od_id": "1200d410-1cd5-f80e-ded1-26884deefd11",
+   "do_id": "59913347-2d02-6c6f-27c7-1254e218bc61"
+  },
+  {
+   "kind": "rodic",
+   "od": "josef-mariin",
+   "do": "josef-bratr",
+   "certainty": "vyslovne",
+   "source": "Mt 13:55",
+   "note": null,
+   "od_id": "76383685-53a9-aa88-0637-89d0c558153e",
+   "do_id": "59913347-2d02-6c6f-27c7-1254e218bc61"
+  },
+  {
+   "kind": "rodic",
+   "od": "marie",
+   "do": "simon-bratr",
+   "certainty": "vyslovne",
+   "source": "Mt 13:55",
+   "note": null,
+   "od_id": "1200d410-1cd5-f80e-ded1-26884deefd11",
+   "do_id": "9096a4a7-8910-8b46-400e-3ae34d88e568"
+  },
+  {
+   "kind": "rodic",
+   "od": "josef-mariin",
+   "do": "simon-bratr",
+   "certainty": "vyslovne",
+   "source": "Mt 13:55",
+   "note": null,
+   "od_id": "76383685-53a9-aa88-0637-89d0c558153e",
+   "do_id": "9096a4a7-8910-8b46-400e-3ae34d88e568"
+  },
+  {
+   "kind": "rodic",
+   "od": "marie",
+   "do": "juda-bratr",
+   "certainty": "vyslovne",
+   "source": "Mt 13:55",
+   "note": null,
+   "od_id": "1200d410-1cd5-f80e-ded1-26884deefd11",
+   "do_id": "ef7df3b7-3970-df0c-f981-15cf47716c5d"
+  },
+  {
+   "kind": "rodic",
+   "od": "josef-mariin",
+   "do": "juda-bratr",
+   "certainty": "vyslovne",
+   "source": "Mt 13:55",
+   "note": null,
+   "od_id": "76383685-53a9-aa88-0637-89d0c558153e",
+   "do_id": "ef7df3b7-3970-df0c-f981-15cf47716c5d"
+  },
+  {
+   "kind": "manzelstvi",
+   "od": "zecharjas-knez",
+   "do": "alzbeta",
+   "certainty": "vyslovne",
+   "source": "Lk 1:5",
+   "note": null,
+   "od_id": "87990a29-7650-8240-852d-a78ecd3d72f6",
+   "do_id": "df9df41f-d6ef-7618-e28d-b07bd8257dfb"
+  },
+  {
+   "kind": "rodic",
+   "od": "zecharjas-knez",
+   "do": "jan-krtitel",
+   "certainty": "vyslovne",
+   "source": "Lk 1:13, 57–63",
+   "note": null,
+   "od_id": "87990a29-7650-8240-852d-a78ecd3d72f6",
+   "do_id": "c862caef-d4a0-fc49-4624-b31aafb0c70d"
+  },
+  {
+   "kind": "rodic",
+   "od": "alzbeta",
+   "do": "jan-krtitel",
+   "certainty": "vyslovne",
+   "source": "Lk 1:13, 57–63",
+   "note": null,
+   "od_id": "df9df41f-d6ef-7618-e28d-b07bd8257dfb",
+   "do_id": "c862caef-d4a0-fc49-4624-b31aafb0c70d"
+  },
+  {
+   "kind": "rodic",
+   "od": "natan",
+   "do": "mattata",
+   "certainty": "vyslovne",
+   "source": "Lk 3:27–31",
+   "note": null,
+   "od_id": "451c642d-2ac1-745a-12b1-7a8042714efc",
+   "do_id": "52672543-f69c-239b-9bef-5ef023c5e24a"
+  },
+  {
+   "kind": "rodic",
+   "od": "mattata",
+   "do": "menna",
+   "certainty": "vyslovne",
+   "source": "Lk 3:27–31",
+   "note": null,
+   "od_id": "52672543-f69c-239b-9bef-5ef023c5e24a",
+   "do_id": "cca1af97-bd33-f011-322e-f86ba34f2e7a"
+  },
+  {
+   "kind": "rodic",
+   "od": "menna",
+   "do": "melea",
+   "certainty": "vyslovne",
+   "source": "Lk 3:27–31",
+   "note": null,
+   "od_id": "cca1af97-bd33-f011-322e-f86ba34f2e7a",
+   "do_id": "7acf512e-ce84-f6d7-d1f8-598e9691162b"
+  },
+  {
+   "kind": "rodic",
+   "od": "melea",
+   "do": "eljakim-lk",
+   "certainty": "vyslovne",
+   "source": "Lk 3:27–31",
+   "note": null,
+   "od_id": "7acf512e-ce84-f6d7-d1f8-598e9691162b",
+   "do_id": "b72e810f-9e48-3f94-7b76-536d28fbfaaa"
+  },
+  {
+   "kind": "rodic",
+   "od": "eljakim-lk",
+   "do": "jonan",
+   "certainty": "vyslovne",
+   "source": "Lk 3:27–31",
+   "note": null,
+   "od_id": "b72e810f-9e48-3f94-7b76-536d28fbfaaa",
+   "do_id": "96bb2006-2fed-427a-cbd7-58f299d7888a"
+  },
+  {
+   "kind": "rodic",
+   "od": "jonan",
+   "do": "josef-lk1",
+   "certainty": "vyslovne",
+   "source": "Lk 3:27–31",
+   "note": null,
+   "od_id": "96bb2006-2fed-427a-cbd7-58f299d7888a",
+   "do_id": "bf8f40f1-1fce-37b7-1f08-ef49df02d215"
+  },
+  {
+   "kind": "rodic",
+   "od": "josef-lk1",
+   "do": "jidas-lk",
+   "certainty": "vyslovne",
+   "source": "Lk 3:27–31",
+   "note": null,
+   "od_id": "bf8f40f1-1fce-37b7-1f08-ef49df02d215",
+   "do_id": "2715ed43-43ba-6b17-1c4e-e3a581751706"
+  },
+  {
+   "kind": "rodic",
+   "od": "jidas-lk",
+   "do": "symeon",
+   "certainty": "vyslovne",
+   "source": "Lk 3:27–31",
+   "note": null,
+   "od_id": "2715ed43-43ba-6b17-1c4e-e3a581751706",
+   "do_id": "64ffedd8-fe66-3f44-e36d-bcf8560f33b2"
+  },
+  {
+   "kind": "rodic",
+   "od": "symeon",
+   "do": "levi-lk1",
+   "certainty": "vyslovne",
+   "source": "Lk 3:27–31",
+   "note": null,
+   "od_id": "64ffedd8-fe66-3f44-e36d-bcf8560f33b2",
+   "do_id": "f27713a5-abd6-0c0c-92e3-50c46bb0a0f5"
+  },
+  {
+   "kind": "rodic",
+   "od": "levi-lk1",
+   "do": "mattat-lk1",
+   "certainty": "vyslovne",
+   "source": "Lk 3:27–31",
+   "note": null,
+   "od_id": "f27713a5-abd6-0c0c-92e3-50c46bb0a0f5",
+   "do_id": "fee43bbf-f530-5a0e-de4a-cd59e6b999ed"
+  },
+  {
+   "kind": "rodic",
+   "od": "mattat-lk1",
+   "do": "jorim",
+   "certainty": "vyslovne",
+   "source": "Lk 3:27–31",
+   "note": null,
+   "od_id": "fee43bbf-f530-5a0e-de4a-cd59e6b999ed",
+   "do_id": "1a201d6a-ea33-5e22-0a2c-f3cd6ee71ba2"
+  },
+  {
+   "kind": "rodic",
+   "od": "jorim",
+   "do": "eliezer-lk",
+   "certainty": "vyslovne",
+   "source": "Lk 3:27–31",
+   "note": null,
+   "od_id": "1a201d6a-ea33-5e22-0a2c-f3cd6ee71ba2",
+   "do_id": "3dd41062-bb8f-84fc-cb6c-6f33f0c007bd"
+  },
+  {
+   "kind": "rodic",
+   "od": "eliezer-lk",
+   "do": "jezis-lk",
+   "certainty": "vyslovne",
+   "source": "Lk 3:27–31",
+   "note": null,
+   "od_id": "3dd41062-bb8f-84fc-cb6c-6f33f0c007bd",
+   "do_id": "210d9468-4a98-3416-cfe1-40f88c903556"
+  },
+  {
+   "kind": "rodic",
+   "od": "jezis-lk",
+   "do": "er-lk",
+   "certainty": "vyslovne",
+   "source": "Lk 3:27–31",
+   "note": null,
+   "od_id": "210d9468-4a98-3416-cfe1-40f88c903556",
+   "do_id": "4e74a865-5295-6a1c-f3c1-747068eaf3e6"
+  },
+  {
+   "kind": "rodic",
+   "od": "er-lk",
+   "do": "elmadam",
+   "certainty": "vyslovne",
+   "source": "Lk 3:27–31",
+   "note": null,
+   "od_id": "4e74a865-5295-6a1c-f3c1-747068eaf3e6",
+   "do_id": "c3dba334-11bb-1e17-6c41-3b39f04fa4f1"
+  },
+  {
+   "kind": "rodic",
+   "od": "elmadam",
+   "do": "kosam",
+   "certainty": "vyslovne",
+   "source": "Lk 3:27–31",
+   "note": null,
+   "od_id": "c3dba334-11bb-1e17-6c41-3b39f04fa4f1",
+   "do_id": "cfce47e3-bd58-c7d5-a6ad-75f9a7778db2"
+  },
+  {
+   "kind": "rodic",
+   "od": "kosam",
+   "do": "addi",
+   "certainty": "vyslovne",
+   "source": "Lk 3:27–31",
+   "note": null,
+   "od_id": "cfce47e3-bd58-c7d5-a6ad-75f9a7778db2",
+   "do_id": "bc426869-0cdf-9696-76bc-b748be2e4f74"
+  },
+  {
+   "kind": "rodic",
+   "od": "addi",
+   "do": "melchi-lk1",
+   "certainty": "vyslovne",
+   "source": "Lk 3:27–31",
+   "note": null,
+   "od_id": "bc426869-0cdf-9696-76bc-b748be2e4f74",
+   "do_id": "ffbc6a16-f675-6ff6-3ba1-a6241e235a5f"
+  },
+  {
+   "kind": "rodic",
+   "od": "melchi-lk1",
+   "do": "neri",
+   "certainty": "vyslovne",
+   "source": "Lk 3:27–31",
+   "note": null,
+   "od_id": "ffbc6a16-f675-6ff6-3ba1-a6241e235a5f",
+   "do_id": "efc2e696-8895-1240-d2e2-38d75cb81a4c"
+  },
+  {
+   "kind": "rodic",
+   "od": "neri",
+   "do": "sealtiel",
+   "certainty": "sporne",
+   "source": "Lk 3:27",
+   "note": "Mt 1:12 a 1Pa 3:17 uvádějí jako Šealtielova otce Jehojakina (Jekonjáše). PDF kreslí Šealtiela jako Neriho zetě.",
+   "od_id": "efc2e696-8895-1240-d2e2-38d75cb81a4c",
+   "do_id": "ab1258c5-d5a0-5e87-3320-e227fd52abc1"
+  },
+  {
+   "kind": "rodic",
+   "od": "zerubbabel",
+   "do": "rhesa",
+   "certainty": "vyslovne",
+   "source": "Lk 3:23–27",
+   "note": null,
+   "od_id": "7002dc55-0fd5-5c1f-ac4a-2ad2e02db649",
+   "do_id": "6b413825-bd6c-df8b-a823-42c5ee77d39f"
+  },
+  {
+   "kind": "rodic",
+   "od": "rhesa",
+   "do": "jochanan-lk",
+   "certainty": "vyslovne",
+   "source": "Lk 3:23–27",
+   "note": null,
+   "od_id": "6b413825-bd6c-df8b-a823-42c5ee77d39f",
+   "do_id": "3510c8df-f50a-ea2f-96f6-4edc8dfdcb28"
+  },
+  {
+   "kind": "rodic",
+   "od": "jochanan-lk",
+   "do": "joda",
+   "certainty": "vyslovne",
+   "source": "Lk 3:23–27",
+   "note": null,
+   "od_id": "3510c8df-f50a-ea2f-96f6-4edc8dfdcb28",
+   "do_id": "00c3bd68-3165-08fe-6971-0439056be528"
+  },
+  {
+   "kind": "rodic",
+   "od": "joda",
+   "do": "josech",
+   "certainty": "vyslovne",
+   "source": "Lk 3:23–27",
+   "note": null,
+   "od_id": "00c3bd68-3165-08fe-6971-0439056be528",
+   "do_id": "1efe12cb-cae2-b645-4ce0-a320185b9978"
+  },
+  {
+   "kind": "rodic",
+   "od": "josech",
+   "do": "semein",
+   "certainty": "vyslovne",
+   "source": "Lk 3:23–27",
+   "note": null,
+   "od_id": "1efe12cb-cae2-b645-4ce0-a320185b9978",
+   "do_id": "03b4077a-0ee3-2a47-d88b-c1b891b95621"
+  },
+  {
+   "kind": "rodic",
+   "od": "semein",
+   "do": "mattatias-1",
+   "certainty": "vyslovne",
+   "source": "Lk 3:23–27",
+   "note": null,
+   "od_id": "03b4077a-0ee3-2a47-d88b-c1b891b95621",
+   "do_id": "9a222877-f6e0-95fa-a059-c47b051d4f09"
+  },
+  {
+   "kind": "rodic",
+   "od": "mattatias-1",
+   "do": "maat",
+   "certainty": "vyslovne",
+   "source": "Lk 3:23–27",
+   "note": null,
+   "od_id": "9a222877-f6e0-95fa-a059-c47b051d4f09",
+   "do_id": "319ef31b-65e4-22a7-3125-dd24b69313a9"
+  },
+  {
+   "kind": "rodic",
+   "od": "maat",
+   "do": "naggai",
+   "certainty": "vyslovne",
+   "source": "Lk 3:23–27",
+   "note": null,
+   "od_id": "319ef31b-65e4-22a7-3125-dd24b69313a9",
+   "do_id": "7885b466-2003-3aa5-d378-1301d0260bc5"
+  },
+  {
+   "kind": "rodic",
+   "od": "naggai",
+   "do": "esli",
+   "certainty": "vyslovne",
+   "source": "Lk 3:23–27",
+   "note": null,
+   "od_id": "7885b466-2003-3aa5-d378-1301d0260bc5",
+   "do_id": "71aa6f93-2730-52b5-1410-749a89b7a190"
+  },
+  {
+   "kind": "rodic",
+   "od": "esli",
+   "do": "nahum-lk",
+   "certainty": "vyslovne",
+   "source": "Lk 3:23–27",
+   "note": null,
+   "od_id": "71aa6f93-2730-52b5-1410-749a89b7a190",
+   "do_id": "ec088e97-9283-8fd8-6d6c-faafb62ff948"
+  },
+  {
+   "kind": "rodic",
+   "od": "nahum-lk",
+   "do": "amos-lk",
+   "certainty": "vyslovne",
+   "source": "Lk 3:23–27",
+   "note": null,
+   "od_id": "ec088e97-9283-8fd8-6d6c-faafb62ff948",
+   "do_id": "891c64b5-7e97-d6a8-5bd1-1a0d9423a6f8"
+  },
+  {
+   "kind": "rodic",
+   "od": "amos-lk",
+   "do": "mattatias-2",
+   "certainty": "vyslovne",
+   "source": "Lk 3:23–27",
+   "note": null,
+   "od_id": "891c64b5-7e97-d6a8-5bd1-1a0d9423a6f8",
+   "do_id": "0d45bf9d-44ea-60d4-70be-81564ad9db52"
+  },
+  {
+   "kind": "rodic",
+   "od": "mattatias-2",
+   "do": "josef-lk2",
+   "certainty": "vyslovne",
+   "source": "Lk 3:23–27",
+   "note": null,
+   "od_id": "0d45bf9d-44ea-60d4-70be-81564ad9db52",
+   "do_id": "3ab6dc47-3a77-bf66-f1a9-cd692cb95608"
+  },
+  {
+   "kind": "rodic",
+   "od": "josef-lk2",
+   "do": "jannai",
+   "certainty": "vyslovne",
+   "source": "Lk 3:23–27",
+   "note": null,
+   "od_id": "3ab6dc47-3a77-bf66-f1a9-cd692cb95608",
+   "do_id": "2ce966a6-6978-8241-0559-f9e649d39788"
+  },
+  {
+   "kind": "rodic",
+   "od": "jannai",
+   "do": "melchi-lk2",
+   "certainty": "vyslovne",
+   "source": "Lk 3:23–27",
+   "note": null,
+   "od_id": "2ce966a6-6978-8241-0559-f9e649d39788",
+   "do_id": "c2a397b0-735d-2418-af8e-afa6a975d078"
+  },
+  {
+   "kind": "rodic",
+   "od": "melchi-lk2",
+   "do": "levi-lk2",
+   "certainty": "vyslovne",
+   "source": "Lk 3:23–27",
+   "note": null,
+   "od_id": "c2a397b0-735d-2418-af8e-afa6a975d078",
+   "do_id": "3dba5392-902a-5565-6df7-c13faeaafdb4"
+  },
+  {
+   "kind": "rodic",
+   "od": "levi-lk2",
+   "do": "mattat-lk2",
+   "certainty": "vyslovne",
+   "source": "Lk 3:23–27",
+   "note": null,
+   "od_id": "3dba5392-902a-5565-6df7-c13faeaafdb4",
+   "do_id": "6a3c67c4-5c98-4ae3-1914-f523dafad88f"
+  },
+  {
+   "kind": "rodic",
+   "od": "mattat-lk2",
+   "do": "heli",
+   "certainty": "vyslovne",
+   "source": "Lk 3:23–27",
+   "note": null,
+   "od_id": "6a3c67c4-5c98-4ae3-1914-f523dafad88f",
+   "do_id": "9aed79a3-cf19-afff-d85d-e21bde90cb8c"
+  },
+  {
+   "kind": "rodic",
+   "od": "heli",
+   "do": "marie",
+   "certainty": "odvozeno",
+   "source": "rodokmen „Slíbené potomstvo“ (PDF)",
+   "note": "Lk 3:23 jmenuje jako Heliho syna Josefa; PDF vede Lukášovu linii přes Marii. Ověřit v it „Rodokmen Ježíše Krista“.",
+   "od_id": "9aed79a3-cf19-afff-d85d-e21bde90cb8c",
+   "do_id": "1200d410-1cd5-f80e-ded1-26884deefd11"
+  }
+ ],
+ "osoba_zaznam": [
+  {
+   "osoba": "adam",
+   "event_id": "694c7127-449d-506d-9a56-adf7c4745208",
+   "role": "zivot"
+  },
+  {
+   "osoba": "set",
+   "event_id": "a882ac3a-d216-5fd5-b13b-6eb7a4cb9bad",
+   "role": "zivot"
+  },
+  {
+   "osoba": "enos",
+   "event_id": "508b43f8-9f0b-5e4c-856f-13a08a5f7514",
+   "role": "zivot"
+  },
+  {
+   "osoba": "kenan",
+   "event_id": "b0f5b33c-e863-52ef-afab-5d29b33b350e",
+   "role": "zivot"
+  },
+  {
+   "osoba": "mahalalel",
+   "event_id": "5793a594-8fc4-5527-8544-690bc230e5a7",
+   "role": "zivot"
+  },
+  {
+   "osoba": "jared",
+   "event_id": "0bc56a39-2cc2-551c-9b0c-9b8822b4fb44",
+   "role": "zivot"
+  },
+  {
+   "osoba": "enoch",
+   "event_id": "7a0d8a00-4014-5ac3-b1a8-244d70e25009",
+   "role": "zivot"
+  },
+  {
+   "osoba": "metuzalem",
+   "event_id": "349d2d04-0d98-5f98-8df9-562c16b42f3a",
+   "role": "zivot"
+  },
+  {
+   "osoba": "lamek",
+   "event_id": "60d04a6a-1d1b-5e16-81eb-dbf1b540ff18",
+   "role": "zivot"
+  },
+  {
+   "osoba": "noe",
+   "event_id": "02776eaa-4a00-5547-a22e-5451054274b9",
+   "role": "zivot"
+  },
+  {
+   "osoba": "sem",
+   "event_id": "7c4a22c6-e2fc-4822-9a99-47999655a4b1",
+   "role": "zivot"
+  },
+  {
+   "osoba": "arpaksad",
+   "event_id": "9ffb7868-21d3-5df3-97ed-5dd2afb4c1ae",
+   "role": "zivot"
+  },
+  {
+   "osoba": "sela",
+   "event_id": "3b53fcca-39a1-5b8b-8b31-b9eaadb1d605",
+   "role": "zivot"
+  },
+  {
+   "osoba": "eber",
+   "event_id": "a39a3e31-ec91-52e3-af98-1aa575e7baf4",
+   "role": "zivot"
+  },
+  {
+   "osoba": "peleg",
+   "event_id": "6df966a7-aad1-53ec-a26d-79a030782dda",
+   "role": "zivot"
+  },
+  {
+   "osoba": "reu",
+   "event_id": "56b63bba-4659-5f24-aea3-50c4813d883f",
+   "role": "zivot"
+  },
+  {
+   "osoba": "serug",
+   "event_id": "87f5575b-58ce-5905-854a-f4fed36e38b5",
+   "role": "zivot"
+  },
+  {
+   "osoba": "nachor-ded",
+   "event_id": "3fd9f67e-e1f5-5037-85f3-a89405f4389c",
+   "role": "zivot"
+  },
+  {
+   "osoba": "terach",
+   "event_id": "65a2f8a4-8a31-56fd-92ab-79681ad53ac4",
+   "role": "zivot"
+  },
+  {
+   "osoba": "abraham",
+   "event_id": "a7570dbc-e0dd-523e-b919-18ad960fc1c4",
+   "role": "zivot"
+  },
+  {
+   "osoba": "sara",
+   "event_id": "4b850c6b-0ae1-5102-8d6f-dca15853f1f0",
+   "role": "zivot"
+  },
+  {
+   "osoba": "ismael",
+   "event_id": "14c51e3d-b8f0-5cf1-89f1-3ae82659e903",
+   "role": "zivot"
+  },
+  {
+   "osoba": "izak",
+   "event_id": "19df08d5-75cf-5818-9f6d-678bd2255be4",
+   "role": "zivot"
+  },
+  {
+   "osoba": "rebeka",
+   "event_id": "b6c471c2-7777-5794-bcf3-1d33123428dc",
+   "role": "zivot"
+  },
+  {
+   "osoba": "jakob",
+   "event_id": "382f4972-1859-568a-bae1-b6cc24f36a1d",
+   "role": "zivot"
+  },
+  {
+   "osoba": "mojzis",
+   "event_id": "5778cc54-8599-57b1-8639-a5c3fee1e5ee",
+   "role": "zivot"
+  },
+  {
+   "osoba": "david",
+   "event_id": "6aaca659-c5ff-5e21-835d-906fdd4bcd37",
+   "role": "zivot"
+  },
+  {
+   "osoba": "asa",
+   "event_id": "2d2f960e-edd4-5b67-bd39-0dc9e47a1527",
+   "role": "zivot"
+  },
+  {
+   "osoba": "ezekjas",
+   "event_id": "b31c36f6-b679-5264-9464-6491ac01c0a8",
+   "role": "zivot"
+  },
+  {
+   "osoba": "manasse",
+   "event_id": "cd3d2bdd-b08d-5745-a940-9e8414edc5d1",
+   "role": "zivot"
+  },
+  {
+   "osoba": "josijas",
+   "event_id": "154ec7ef-2f58-57db-aed1-6641c5b3812a",
+   "role": "zivot"
+  },
+  {
+   "osoba": "raab",
+   "event_id": "c6a909b9-def5-51a6-821f-36fb43f5841c",
+   "role": "zivot"
+  },
+  {
+   "osoba": "abel",
+   "event_id": "50c9116d-d8f2-47d9-997e-dac654dd599c",
+   "role": "zivot"
+  },
+  {
+   "osoba": "jezis",
+   "event_id": "a7709fa0-2263-5cdf-9b93-85d587adf4e8",
+   "role": "zivot"
+  },
+  {
+   "osoba": "marie",
+   "event_id": "2c733cb5-5a35-5231-9514-6a96ac060502",
+   "role": "zivot"
+  },
+  {
+   "osoba": "alzbeta",
+   "event_id": "1c313171-2781-57ab-a6bb-53c3ff881fa3",
+   "role": "zivot"
+  },
+  {
+   "osoba": "zecharjas-knez",
+   "event_id": "a5be5a36-27e7-53df-824c-51f40cc24662",
+   "role": "zivot"
+  },
+  {
+   "osoba": "jan-krtitel",
+   "event_id": "918aeb02-2d6a-5f28-9944-6db5ef5d510f",
+   "role": "zivot"
+  },
+  {
+   "osoba": "josef-jakobuv",
+   "event_id": "9459a490-791f-5131-b1d8-09f5fc447d4c",
+   "role": "zivot"
+  },
+  {
+   "osoba": "josef-mariin",
+   "event_id": "502b3441-6724-5e17-8ed6-b53f00364c4e",
+   "role": "zivot"
+  },
+  {
+   "osoba": "david",
+   "event_id": "9daa164f-a2c6-5303-9300-ef286159f180",
+   "role": "vlada"
+  },
+  {
+   "osoba": "salomoun",
+   "event_id": "91ba081b-104f-52a0-8bec-9b76f1e49761",
+   "role": "vlada"
+  },
+  {
+   "osoba": "rechoboam",
+   "event_id": "88970dea-f7fa-5a8c-8c66-b7798d2cb2a8",
+   "role": "vlada"
+  },
+  {
+   "osoba": "abijas",
+   "event_id": "d8ffb253-219f-5af3-ae03-86b297e6b601",
+   "role": "vlada"
+  },
+  {
+   "osoba": "asa",
+   "event_id": "0531ff89-f9ea-54b1-8c61-e1e01efe7ba4",
+   "role": "vlada"
+  },
+  {
+   "osoba": "jehosafat",
+   "event_id": "5ee10623-a93c-592b-bc1b-b562768a0fcc",
+   "role": "vlada"
+  },
+  {
+   "osoba": "jehoram",
+   "event_id": "0a794c88-0321-5551-8b7c-2c8d88d81a19",
+   "role": "vlada"
+  },
+  {
+   "osoba": "achazjas",
+   "event_id": "b8af7056-934e-524c-bc69-76b8ef622744",
+   "role": "vlada"
+  },
+  {
+   "osoba": "atalja",
+   "event_id": "6add9016-2d7e-5d39-95f0-22d75337c9e3",
+   "role": "vlada"
+  },
+  {
+   "osoba": "jehoas",
+   "event_id": "33c12496-711b-57f6-bb23-1dac9f3f1f26",
+   "role": "vlada"
+  },
+  {
+   "osoba": "amacjas",
+   "event_id": "28871e87-d2a1-584b-8cf8-28e1358a1c1d",
+   "role": "vlada"
+  },
+  {
+   "osoba": "uzzijas",
+   "event_id": "0443aedd-21ea-599b-8ed0-40948e9ad4ec",
+   "role": "vlada"
+  },
+  {
+   "osoba": "jotam",
+   "event_id": "e52e74cf-5d98-5623-9f6e-788df4c5b8b0",
+   "role": "vlada"
+  },
+  {
+   "osoba": "achaz",
+   "event_id": "0d7fe412-341f-560d-b6e0-bfba8673df55",
+   "role": "vlada"
+  },
+  {
+   "osoba": "ezekjas",
+   "event_id": "dc53fab0-131c-57db-bf9b-6bdbf77acb27",
+   "role": "vlada"
+  },
+  {
+   "osoba": "manasse",
+   "event_id": "9e1e7e51-3295-555a-b4b6-1f20b10505eb",
+   "role": "vlada"
+  },
+  {
+   "osoba": "amon",
+   "event_id": "2b18982b-0e8b-5041-8480-9d9364185fcb",
+   "role": "vlada"
+  },
+  {
+   "osoba": "josijas",
+   "event_id": "07e8dc6d-1921-58f1-8feb-76da8c78e922",
+   "role": "vlada"
+  },
+  {
+   "osoba": "jehoachaz",
+   "event_id": "9c65aaea-4baa-5262-ba60-8a3139906b4e",
+   "role": "vlada"
+  },
+  {
+   "osoba": "jehojakim",
+   "event_id": "65bbcc8e-f82c-5251-8d9e-2c4535619827",
+   "role": "vlada"
+  },
+  {
+   "osoba": "jehojakin",
+   "event_id": "e3d211fb-3c0d-5e9c-9a95-e7fffd106557",
+   "role": "vlada"
+  },
+  {
+   "osoba": "sedekjas",
+   "event_id": "ef9fd645-94c7-5b77-9339-a129117f94ec",
+   "role": "vlada"
+  },
+  {
+   "osoba": "amram",
+   "event_id": "690ee511-e0f3-50f6-b2a1-8f122578da9c",
+   "role": "zminka"
+  },
+  {
+   "osoba": "jokebed",
+   "event_id": "690ee511-e0f3-50f6-b2a1-8f122578da9c",
+   "role": "zminka"
+  },
+  {
+   "osoba": "miriam",
+   "event_id": "690ee511-e0f3-50f6-b2a1-8f122578da9c",
+   "role": "zminka"
+  },
+  {
+   "osoba": "rut",
+   "event_id": "529b2b9e-a035-50af-8193-873cd2b77e75",
+   "role": "zminka"
+  }
+ ]
+}

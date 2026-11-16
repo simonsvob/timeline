@@ -1,5 +1,5 @@
 /**
- * Kostra aplikace: přepínání pohledů (osa / tabulka), přihlášení,
+ * Kostra aplikace: přepínání pohledů (osa / tabulka / rodokmen), přihlášení,
  * modály (formulář, data) a detail vybraného záznamu.
  *
  * Filtr pásem drží stav tady, protože jeho tlačítko sedí v hlavičce, ale
@@ -7,7 +7,7 @@
  * sahá se na ně zřídka a v hlavičce by jen ubíraly místo.
  */
 
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { cs } from './i18n/cs';
 import { useAppState } from './state/store';
 import { AuthPanel } from './components/AuthPanel';
@@ -15,6 +15,11 @@ import { BandFilter } from './components/BandFilter';
 import { DataPanel } from './components/DataPanel';
 import { DetailPanel } from './components/DetailPanel';
 import { EventForm } from './components/EventForm';
+import {
+  GenealogyView,
+  type GenealogyFocus,
+  type GenealogyViewState,
+} from './components/GenealogyView';
 import { FilterIcon, HelpIcon, PlusIcon } from './components/icons';
 import { SearchBox, LockButton } from './components/SearchBox';
 import { TableView } from './components/TableView';
@@ -25,10 +30,11 @@ import {
   type TimelineViewState,
 } from './components/TimelineView';
 import { formatYear } from './lib/format';
+import { buildKinIndex, treeRoots } from './lib/genealogy';
 import { ConfirmDialog, Spinner } from './components/ui';
 import type { EventDraft, Placement, TimelineEvent } from './data/types';
 
-type ViewMode = 'timeline' | 'table';
+type ViewMode = 'timeline' | 'table' | 'genealogy';
 type ModalKind = 'none' | 'event' | 'data' | 'auth';
 
 export function App() {
@@ -49,6 +55,9 @@ export function App() {
    * nemá smysl.
    */
   const timelineState = useRef<TimelineViewState | null>(null);
+  /** Totéž pro rodokmen: rozbalené větve, vybraná osoba a posun. */
+  const genealogyState = useRef<GenealogyViewState | null>(null);
+  const [genealogyFocus, setGenealogyFocus] = useState<GenealogyFocus | null>(null);
   const [pendingDelete, setPendingDelete] = useState<TimelineEvent | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [hiddenBands, setHiddenBands] = useState<Set<Placement>>(new Set());
@@ -59,7 +68,33 @@ export function App() {
     [state.events, selectedId],
   );
 
-  /** Ukázat záznam na ose – z hledání i z tabulky. */
+  /**
+   * Příbuzenství, jak ho smí vidět ten, kdo se dívá: vazby, které ještě nikdo
+   * neověřil proti zdroji, uvidí jen přihlášený.
+   */
+  const kin = useMemo(
+    () =>
+      buildKinIndex(state.kinship.persons, state.kinship.relations, {
+        includeUnverified: state.canEdit,
+      }),
+    [state.kinship, state.canEdit],
+  );
+  /** Rodokmen se nabízí, až je co ukázat. */
+  const genealogyAvailable = useMemo(() => treeRoots(kin).length > 0, [kin]);
+  const relationTotals = useMemo(
+    () => ({
+      total: state.kinship.relations.length,
+      verified: state.kinship.relations.filter((relation) => relation.verified).length,
+    }),
+    [state.kinship.relations],
+  );
+
+  // Po odhlášení může rodokmen zmizet (nic ověřeného) – zpátky na osu.
+  useEffect(() => {
+    if (mode === 'genealogy' && !genealogyAvailable && !state.loading) setMode('timeline');
+  }, [mode, genealogyAvailable, state.loading]);
+
+  /** Ukázat záznam na ose – z hledání, z tabulky i z rodokmenu. */
   const showOnTimeline = useCallback((event: TimelineEvent) => {
     focusNonce.current += 1;
     setTimelineFocus({ event, nonce: focusNonce.current });
@@ -67,6 +102,20 @@ export function App() {
     setAnchor(null);
     setMode('timeline');
   }, []);
+
+  /** Ukázat osobu v rodokmenu – z detailu záznamu na ose. */
+  const showInGenealogy = useCallback((personId: string) => {
+    focusNonce.current += 1;
+    setGenealogyFocus({ personId, nonce: focusNonce.current });
+    setSelectedId(null);
+    setMode('genealogy');
+  }, []);
+
+  const rememberGenealogy = useCallback((next: GenealogyViewState) => {
+    genealogyState.current = next;
+  }, []);
+
+  const clearGenealogyFocus = useCallback(() => setGenealogyFocus(null), []);
 
   const rememberTimeline = useCallback((next: TimelineViewState) => {
     timelineState.current = next;
@@ -156,7 +205,10 @@ export function App() {
           {mode === 'timeline' && context ? <p className="app-context">{context}</p> : null}
         </div>
 
-        <nav className="switch" aria-label={cs.nav.timeline}>
+        <nav
+          className={`switch${genealogyAvailable ? ' switch-compact' : ''}`}
+          aria-label={cs.nav.views}
+        >
           <button
             type="button"
             className={`switch-segment${mode === 'timeline' ? ' switch-segment-active' : ''}`}
@@ -173,7 +225,37 @@ export function App() {
           >
             {cs.nav.table}
           </button>
+          {genealogyAvailable ? (
+            <button
+              type="button"
+              className={`switch-segment${mode === 'genealogy' ? ' switch-segment-active' : ''}`}
+              onClick={() => {
+                setSelectedId(null);
+                setMode('genealogy');
+              }}
+              aria-pressed={mode === 'genealogy'}
+            >
+              {cs.nav.genealogy}
+            </button>
+          ) : null}
         </nav>
+        {/* Na telefonu se tři segmenty nevejdou do řádku; CSS ukáže tuhle nabídku. */}
+        {genealogyAvailable ? (
+          <select
+            className="switch-select"
+            value={mode}
+            aria-label={cs.nav.views}
+            onChange={(e) => {
+              const next = e.target.value as ViewMode;
+              if (next === 'genealogy') setSelectedId(null);
+              setMode(next);
+            }}
+          >
+            <option value="timeline">{cs.nav.timeline}</option>
+            <option value="table">{cs.nav.table}</option>
+            <option value="genealogy">{cs.nav.genealogy}</option>
+          </select>
+        ) : null}
 
         <div className="app-actions">
           <SearchBox events={state.events} tagMap={state.tagMap} onPick={showOnTimeline} />
@@ -274,6 +356,20 @@ export function App() {
                   onRemember={rememberTimeline}
                   onRangeChange={onRangeChange}
                 />
+              ) : mode === 'genealogy' ? (
+                <GenealogyView
+                  kin={kin}
+                  links={state.kinship.links}
+                  events={state.events}
+                  relationTotals={relationTotals}
+                  canEdit={state.canEdit}
+                  focus={genealogyFocus}
+                  onFocusApplied={clearGenealogyFocus}
+                  saved={genealogyState.current}
+                  onRemember={rememberGenealogy}
+                  onShowOnTimeline={showOnTimeline}
+                  onSaveRelation={state.saveRelation}
+                />
               ) : (
                 <TableView
                   events={state.events}
@@ -287,9 +383,12 @@ export function App() {
               )}
             </div>
 
-            {selected ? (
+            {selected && mode !== 'genealogy' ? (
               <DetailPanel
                 event={selected}
+                kin={kin}
+                links={state.kinship.links}
+                onShowInGenealogy={genealogyAvailable ? showInGenealogy : null}
                 tag={selected.tagId ? (state.tagMap.get(selected.tagId) ?? null) : null}
                 canEdit={state.canEdit}
                 anchor={anchor}
@@ -321,6 +420,7 @@ export function App() {
           onSaveCategory={state.saveCategory}
           onDeleteCategory={state.removeCategory}
           onReorderCategories={state.reorderCategories}
+          showGenealogyHelp={genealogyAvailable}
           onClose={() => setModal('none')}
         />
       ) : null}

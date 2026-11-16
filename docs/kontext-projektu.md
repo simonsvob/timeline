@@ -3,7 +3,7 @@
 Shrnutí pro konverzaci, která na projektu pokračuje bez historie. Popisuje, co
 aplikace je, jak je zapojená, co už se rozhodlo a proč, a co zbývá.
 
-Poslední aktualizace: 27. září 2026.
+Poslední aktualizace: 16. listopadu 2026.
 
 **Vzhled** prošel přestavbou na návrh „Řeka" (centrální čára, události nad ní,
 životy pod ní). Předchozí vzhled je zazálohovaný na větvi `zaloha/design-v1`.
@@ -41,33 +41,60 @@ nebydlí** — kontext je schválně v repozitáři. Nová session potřebuje je
 3. **Konektor Netlify** je volitelný — nasazení se pustí samo po pushnutí do
    `main`. Hodí se jen na čtení logů a proměnných.
 
-Dobrý první příkaz do nové session: *„Přečti si `CLAUDE.md` a
-`docs/kontext-projektu.md` a shrň mi, v jakém stavu projekt je a co je
-rozdělané."* Odpověď rovnou ukáže, jestli kontext dosedl.
+Dobrý první příkaz do nové session: *„Přečti si `CLAUDE.md`,
+`docs/kontext-projektu.md` a `docs/plan-rozvoje.md` a shrň mi, v jakém stavu
+projekt je a co je rozdělané."* Odpověď rovnou ukáže, jestli kontext dosedl.
+
+**Jak se se zadavatelem pracuje.** Neprogramuje — mluv lidsky, stručně,
+podstatné na začátek. Hotové a ověřené změny chce **rovnou na ostrém webu**
+(push do `main`), o PR nestojí. U dat platí: opírat se jen o Bibli a publikace
+z jw.org, nic nedomýšlet, a kde si data odporují, **nerozhodovat za něj** —
+ukázat a zeptat se.
 
 Co v nové session **nebude** a je potřeba počítat s tím:
 
 - historie, proč se něco dělalo — proto se rozhodnutí zapisují sem a do
   commit messages, ne jen do chatu;
-- prostředí nemá přístup na `*.supabase.co` ani `*.netlify.app` (síťová
-  politika), takže se aplikace neověřuje proti ostrým datům, ale dočasným
-  lokálním náhledem nad exportem dat.
+- prostředí nemá přístup na `*.supabase.co`, `*.netlify.app` ani `jw.org`
+  (síťová politika), takže se aplikace neověřuje proti ostrým datům, ale
+  dočasným lokálním náhledem nad exportem dat, a texty publikací musí dodat
+  zadavatel. Na databázi se dá sáhnout jen přes konektor Supabase.
+
+**Dočasný náhled** (komponenty testy nemají, vzhled se ověřuje v prohlížeči):
+složka `preview-tmp/` s vlastním `index.html` a `main.tsx` a
+`vite.preview.config.ts`, který pluginem `resolveId` podvrhne `../lib/supabase`
+(falešné přihlášení podle `?login`) a `../data/repository` (data z JSON přes
+skutečné `…FromRow`). Řádky záznamů se vezmou přes konektor nebo z větve
+`zaloha-dat`. Chromium a Playwright jsou v prostředí předinstalované. Před
+commitem se náhled **maže**.
 
 ## Stav
 
 Aplikace je hotová a nasazená. Funguje osa s plynulým zoomem, formulářová
 editace, správa štítků i období (v modálu Data), filtr pásem, tabulkový
-přehled, export/import a přihlášení. V databázi je **552 záznamů**: tři časové
+přehled, **rodokmen**, export/import a přihlášení. V databázi je
+**557 záznamů**, 191 osob a 256 rodinných vazeb. Záznamy: tři časové
 osy z knihy *Odvážně choď s Bohem* (str. 14–15, 104–105, 186–187), chronologie
 králů, knih a událostí z hesla „Chronologie" a z dodatku nwt A6, přehled
-biblických knih a dávka událostí z tabulky zadavatele. Testů 179, všechny
+biblických knih a dávka událostí z tabulky zadavatele. Testů 202, všechny
 procházejí.
+
+Data se jednou denně zálohují do větve `zaloha-dat` (GitHub Actions).
 
 Ověřeno měřením, ne odhadem: 60 fps (medián 16,6 ms na snímek) při zoomu
 a posunu s 3000 záznamy; RLS testována chováním pod rolemi `anon`
 i `authenticated`, ne jen existencí politik.
 
 ### Co je rozdělané
+
+- **Rodokmen je kostra, ne hotová věc** (listopad 2026). Funguje strom
+  s páteří a rozbalováním větví, panel osoby, proklik na osu a zpět, hledání
+  osob a úprava zdroje, jistoty a ověření u vazby. **Všech 256 vazeb je
+  neověřených**, takže rodokmen zatím vidí jen přihlášený; zadavatel je
+  prochází a ověřuje sám. Co chybí a v jakém pořadí, je v
+  [`plan-rozvoje.md`](plan-rozvoje.md).
+- **Audit dat čeká na rozhodnutí.** Dvacet nálezů v 557 záznamech, čtyři
+  závažné. Nic z toho se neopravovalo — seznam je v `plan-rozvoje.md`.
 
 - **Období jsou předběžná.** Šest kategorií (do potopy, patriarchové, soudci,
   králové, od návratu z Babylonu, od Ježíše dál) je zatím na zkoušku. Hranice
@@ -218,6 +245,38 @@ deduplikační vrstvu a dva shodné pruhy pod sebou by byly chyba, ne informace.
 Naproti tomu **dva Josefové zůstali oba**: Jákobův syn a Ježíšův pěstoun jsou
 různí lidé, ne duplicita.
 
+### Rodokmen je samostatná sekce, ne vrstva na ose
+
+První návrh počítal s pohledem „Rodová linie“ — generace jako schody přímo na
+časové ose. Na linii Adam → Abraham to vypadá dobře, ale zadavatel správně
+namítl, že dál (Jákobových dvanáct synů, Davidovy manželky, dvě linie
+k Ježíšovi) z toho bude chaos. Rozhodnutí: **do osy žádné čáry**, rodokmen je
+třetí pohled s vlastním kreslením a s osou ho pojí jen proklik a sekce
+„Rodina“ v detailu záznamu.
+
+Další rozhodnutí kolem rodokmenu:
+
+- **Osoba je samostatná věc, ne záznam osy.** Stávající záznamy se nemění,
+  nová vrstva na ně jen odkazuje (`person_events`).
+- **Strom kreslí program, neskládá se ručně.** Předlohou byl plakát „Slíbené
+  potomstvo“ (PDF od zadavatele), ale ruční sazba by se s každou novou osobou
+  rozpadla.
+- **Páteř je výslovný příznak** (`persons.spine`). Teď vede Adam → David →
+  Šalomoun → judští králové → Jehojakin → Šealtiel → Zerubbabel → … → Josef →
+  Ježíš, tedy královskou linií podle Matouše. Lukášova linie (David → Natan →
+  … → Heli → Marie) je boční větev. Je to **předpoklad k potvrzení** — stačí
+  přepsat příznak u osob, kód se nemění.
+- **Zdroje vazeb.** Bible a publikace z jw.org; PDF plakát zadavatel povolil
+  jako zdroj nižší důvěry („ověřím si a doplním zdroje“). 33 vazeb má jako
+  zdroj jen plakát. Čísla veršů se zapisovala bez přístupu k textu nwt, proto
+  je všechno `verified = false`.
+- **Neověřené je vidět jen po přihlášení.** Veřejný web nemá ukazovat
+  příbuzenství, které nikdo nezkontroloval.
+
+Stopa prvního naplnění je v `data/rodokmen-zaklad.json` (osoby se slugy,
+vazby, propojení se záznamy). Pravdu drží databáze, soubor se neaktualizuje.
+Id osob jsou odvozená: `md5('rodokmen:' || slug)::uuid`.
+
 ## Data z knihy
 
 `scripts/prevod-wcg.mjs` převádí `data/zdroj-odvazne-chod-s-bohem.json` (přepis
@@ -252,7 +311,8 @@ Neznámé umístění spadne mezi rozsahy pod osou, bez štítku bude záznam š
 ## Co se záměrně nestaví
 
 Relativní datování („X let po Y"), drag & drop editace na ose, veřejná
-registrace, mapový pohled, pohledy podle období a postav, převod kalendářů.
+registrace, mapový pohled, převod kalendářů, **rodinné vazby kreslené přímo
+v ose**.
 
 Data pro mapu a pohledy podle postav se ale **už ukládají** (`place_name`,
 `lat`, `lng`, `keywords`) a datová vrstva je oddělená od vizualizace, takže se

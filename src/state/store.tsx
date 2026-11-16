@@ -22,6 +22,9 @@ import type {
   CategoryDraft,
   Dataset,
   EventDraft,
+  Kinship,
+  Relation,
+  RelationPatch,
   Tag,
   TagDraft,
   TimelineEvent,
@@ -49,7 +52,12 @@ interface AppState {
   saveTag: (id: string | null, draft: TagDraft) => Promise<Tag>;
   removeTag: (id: string) => Promise<void>;
   importDataset: (dataset: Dataset, mode: 'merge' | 'replace') => Promise<void>;
+  /** osoby a rodinné vazby; prázdné, dokud se nenačtou nebo když čtení selže */
+  kinship: Kinship;
+  saveRelation: (id: string, patch: RelationPatch) => Promise<Relation>;
 }
+
+const EMPTY_KINSHIP: Kinship = { persons: [], links: [], relations: [] };
 
 const AppStateContext = createContext<AppState | null>(null);
 
@@ -100,6 +108,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const [tags, setTags] = useState<Tag[]>([]);
   const [events, setEvents] = useState<TimelineEvent[]>([]);
   const [session, setSession] = useState<Session | null>(null);
+  const [kinship, setKinship] = useState<Kinship>(EMPTY_KINSHIP);
 
   const reload = useCallback(async () => {
     if (!isSupabaseConfigured) return;
@@ -118,6 +127,13 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       setError(describeError(err));
     } finally {
       setLoading(false);
+    }
+    // Rodokmen je nadstavba: osa se ukáže hned a bez něj funguje celá. Jeho
+    // chyba se proto nehlásí jako chyba aplikace, sekce jen zůstane prázdná.
+    try {
+      setKinship(await repo.fetchKinship());
+    } catch (err) {
+      console.error('Rodokmen se nepodařilo načíst:', err);
     }
   }, []);
 
@@ -221,6 +237,15 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     [reload],
   );
 
+  const saveRelation = useCallback(async (id: string, patch: RelationPatch) => {
+    const saved = await repo.updateRelation(id, patch);
+    setKinship((prev) => ({
+      ...prev,
+      relations: prev.relations.map((r) => (r.id === id ? saved : r)),
+    }));
+    return saved;
+  }, []);
+
   const tagMap = useMemo(() => new Map(tags.map((t) => [t.id, t] as const)), [tags]);
 
   const categoryMap = useMemo(
@@ -251,6 +276,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       saveTag,
       removeTag,
       importDataset,
+      kinship,
+      saveRelation,
     }),
     [
       loading,
@@ -272,6 +299,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       saveTag,
       removeTag,
       importDataset,
+      kinship,
+      saveRelation,
     ],
   );
 

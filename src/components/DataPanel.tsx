@@ -27,6 +27,8 @@ interface Props {
   onSaveCategory: (id: string | null, draft: CategoryDraft) => Promise<Category>;
   onDeleteCategory: (id: string) => Promise<void>;
   onReorderCategories: (ordered: Category[]) => Promise<void>;
+  /** nápověda k rodokmenu jen tomu, kdo rodokmen vidí */
+  showGenealogyHelp: boolean;
   onClose: () => void;
 }
 
@@ -39,6 +41,7 @@ export function DataPanel({
   onSaveCategory,
   onDeleteCategory,
   onReorderCategories,
+  showGenealogyHelp,
   onClose,
 }: Props) {
   const [pending, setPending] = useState<Dataset | null>(null);
@@ -121,6 +124,11 @@ export function DataPanel({
           <p className="help-note">
             <strong>{cs.help.ipadTitle}.</strong> {cs.help.ipad}
           </p>
+          {showGenealogyHelp ? (
+            <p className="help-note">
+              <strong>{cs.help.genealogyTitle}.</strong> {cs.help.genealogy}
+            </p>
+          ) : null}
         </section>
 
         <section className="data-section">

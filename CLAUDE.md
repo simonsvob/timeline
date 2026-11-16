@@ -87,6 +87,9 @@ src/state/         React kontext: data + přihlášení
 src/components/    UI; components/timeline/ je vykreslovací řetězec
 ```
 
+Pohledy jsou tři — osa, tabulka a rodokmen (viz „Rodokmen — osoby a vazby“
+níž). Přepíná je `App`, který každému drží i jeho stav přes přepnutí.
+
 **Model „Řeka".** Osa je jedna vodorovná čára uprostřed plochy. Kolem ní leží
 **pásma** — vodorovné pruhy plochy s vlastním řádkováním, vybraná umístěním
 záznamu (`placement`). `lane` 0 je řádek nejblíž čáře; hotovou svislou polohu i výšku tvaru
@@ -306,6 +309,70 @@ Dělení osy se vybírá jako **nejjemnější, které se ještě vejde** (`choo
 a zarovnává se na kulaté roky letopočtu, ne na kulaté astronomické hodnoty —
 uživatel čeká „4000 př. n. l.", ne „4001 př. n. l.".
 
+## Rodokmen — osoby a vazby
+
+Třetí pohled vedle Osy a Tabulky. **Čáry mezi příbuznými se do osy nekreslí** —
+pruhy se tam řadí podle volného místa, ne podle příbuzenství, a spojnice by se
+křížily přes celou plochu. Rodokmen je samostatná sekce a s osou ho pojí jen
+proklik oběma směry („Ukázat na ose“ / „Ukázat v rodokmenu“) a sekce **Rodina**
+v detailu záznamu.
+
+**Osoba není záznam osy.** David má na ose život i vládu, pruh „Daniel,
+Chananjáš, Mišael, Azarjáš“ jsou čtyři lidé a většina osob rodokmenu na ose
+není vůbec. Proto tři tabulky nad stávajícími záznamy, na které se nesahá:
+
+| Tabulka | Co drží |
+|---|---|
+| `persons` | jméno, rozlišovač stejnojmenných (`qualifier`), jiné podoby jména (`alt_names`), pohlaví, role (`kral`, `veleknez`…), příznak páteře (`spine`) |
+| `person_events` | který záznam osy k osobě patří a v jaké roli (`zivot` / `vlada` / `zminka`) |
+| `relations` | kdo ke komu: `rodic`, `pestoun`, `predek` (zdroj generace vynechává), `manzelstvi`; k tomu jistota, zdroj, poznámka, ověření a pořadí dítěte |
+
+Sourozenci, prarodiče a vnuci se **neukládají**, počítají se z rodičů
+(`relativesOf`). U `rodic`/`pestoun`/`predek` je `from_person` rodič a
+`to_person` dítě.
+
+**Jistota a ověření jsou dvě různé věci.** `certainty` říká, co tvrdí zdroj
+(`vyslovne` / `odvozeno` / `sporne`), a kreslí se druhem čáry. `verified`
+říká, že vazbu **člověk** zkontroloval proti Bibli nebo publikaci. Neověřené
+vazby vidí jen přihlášený (`buildKinIndex(…, { includeUnverified: canEdit })`
+v `App`); dokud není ověřená žádná, nepřihlášenému se přepínač Rodokmen vůbec
+nenabídne. Zadavatel chce mít vazby opřené o Bibli a publikace z jw.org —
+**nic nedomýšlej**, a co nejde doložit, ulož jako neověřené se zdrojem, ze
+kterého to je.
+
+**Logika je v `src/lib/genealogy.ts`** (čistá, s testy), kreslí
+`components/GenealogyView.tsx`:
+
+- **Strom, i když data strom nejsou.** Dítě má dva rodiče a prameny se někdy
+  liší (Šealtiel je podle Matouše syn Jehojakina, podle Lukáše Neriho). Každá
+  osoba visí pod jedním *hlavním* rodičem (`primaryParentRelation`): osoba na
+  páteři pod rodičem na páteři, jinak pod otcem. Ostatní vazby se nekreslí
+  čarou, jsou v panelu osoby; karta dostane otazník, když má spornou vazbu.
+- **Páteř a sbalené větve.** Na začátku je vidět jen hlavní linie
+  (`persons.spine`); kde se rodina větví, je kroužek s počtem schovaných dětí.
+  O páteři rozhoduje výslovný příznak, ne výpočet. Řada jedináčků mimo páteř
+  teče dál bez klepání (Lukášova linie od Natana má dvacet generací po jednom).
+- **Páteř je svislice, větve se k ní přisazují obrysem** (`placeSpine`):
+  sourozenci před potomkem na páteři doleva, ostatní doprava, každá větev tak
+  těsně, jak dovolí to, co už v dotčených řadách stojí. Řada, kam páteř ještě
+  nedošla, se počítá jako obsazená — jde se shora a hluboká větev by jí jinak
+  zalehla místo.
+- **Karty jsou HTML nad jedním SVG**, ne Canvas: osob jsou stovky, ne tisíce.
+  Posouvá se nativním scrollem, vlastní gesta tu nejsou (jen tažení myší).
+- Rozbalení větve drží kartu pod prstem: její poloha se před změnou změří
+  v DOM a po přepočtu se o rozdíl posune scroll. Ze souřadnic stromu to nejde,
+  úzký strom je v ploše vystředěný.
+- Rozbalené větve, vybranou osobu a posun drží `App` (`GenealogyViewState`),
+  stejně jako polohu osy — přepnutí pohledu rodokmen odpojí.
+
+**Tři pohledy se na telefonu nevejdou do hlavičky**, která se nesmí zalomit.
+Pod 640 px se proto segmenty schovají a přepíná se nativním `select`
+(`.switch-select`) — jen když je rodokmen k dispozici.
+
+Z aplikace jde u vazby měnit jen zdroj, jistota, poznámka a ověření
+(`updateRelation`). Osoby a vazby samotné se zatím zakládají přes SQL; export
+a import je nezná (`Dataset` a `EXPORT_SCHEMA_VERSION` jsou beze změny).
+
 ## Data a Supabase
 
 **Čtení se při přechodné chybě samo zopakuje** (`RETRY_DELAYS_MS`
@@ -357,6 +424,14 @@ smazat.
 
 Nový záznam **vždycky** dostane štítek — bez něj bude šedivý.
 
+**Záloha dat.** `.github/workflows/zaloha.yml` jednou denně pustí
+`scripts/zaloha.mjs`, který přes REST stáhne všechny tabulky a uloží je do
+větve `zaloha-dat` (`data.json`, syrové řádky ve stálém pořadí — z historie
+větve je vidět, co se který den změnilo). Obnovu popisuje `README.md` v té
+větvi. **Nová tabulka patří i do seznamu ve skriptu**, jinak se nezálohuje.
+Před hromadnou úpravou dat se vyplatí zálohu pustit ručně (Actions → Záloha →
+Run workflow).
+
 ## Nasazení
 
 Netlify staví z větve `main`. Proměnné `VITE_SUPABASE_URL` a
@@ -374,5 +449,12 @@ se smazat.
 ## Kontext projektu
 
 Stav projektu, dosavadní rozhodnutí a co je rozdělané je v
-[`docs/kontext-projektu.md`](docs/kontext-projektu.md). Setup Supabase a Netlify
+[`docs/kontext-projektu.md`](docs/kontext-projektu.md). Co je naplánované, co
+čeká na rozhodnutí zadavatele a nálezy z auditu dat jsou v
+[`docs/plan-rozvoje.md`](docs/plan-rozvoje.md). Setup Supabase a Netlify
 je v [`README.md`](README.md).
+
+**Zadavatel neprogramuje.** Mluv s ním jako s laikem: podstatné na začátek,
+stručně, bez žargonu (PR, větev, migrace se musí říct lidsky). Hotové změny se
+po ověření pouštějí **rovnou do `main`** (nasadí se samy) — výslovně to tak
+chce, o PR nestojí. Pak mu řekni, co se změnilo a že je to na webu.

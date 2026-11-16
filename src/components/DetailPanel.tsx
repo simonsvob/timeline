@@ -5,29 +5,74 @@
  * nikdy se nedoplní den ani měsíc, který uživatel nezadal.
  */
 
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { cs, formatNumber, plural } from '../i18n/cs';
 import { formatRange, rangeLengthYears } from '../lib/format';
-import type { Tag, TimelineEvent } from '../data/types';
+import { personLabel, relativesOf, type KinIndex } from '../lib/genealogy';
+import type { PersonEventLink, Tag, TimelineEvent } from '../data/types';
 import { RichText } from './RichText';
 import { NO_TAG_COLOR } from './timeline/layout';
 
 const CARD_WIDTH = 300;
 const MARGIN = 12;
+/** Kolik jmen dětí se vypíše, než se zbytek shrne do „a 7 dalších“. */
+const MAX_FAMILY_NAMES = 6;
 
 interface Props {
   event: TimelineEvent;
   tag: Tag | null;
   canEdit: boolean;
+  /** příbuzenství už ořezané podle toho, co smí divák vidět */
+  kin: KinIndex;
+  links: readonly PersonEventLink[];
+  /** `null`, když rodokmen není k dispozici */
+  onShowInGenealogy: ((personId: string) => void) | null;
   anchor: { x: number; y: number } | null;
   onEdit: () => void;
   onDelete: () => void;
   onClose: () => void;
 }
 
-export function DetailPanel({ event, tag, canEdit, anchor, onEdit, onDelete, onClose }: Props) {
+export function DetailPanel({
+  event,
+  tag,
+  canEdit,
+  kin,
+  links,
+  onShowInGenealogy,
+  anchor,
+  onEdit,
+  onDelete,
+  onClose,
+}: Props) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState<{ left: number; top: number } | null>(null);
+
+  /**
+   * Osoby, ke kterým záznam patří, a jejich nejbližší rodina. Záznam může
+   * patřit víc lidem najednou („Daniel, Chananjáš, Mišael, Azarjáš“).
+   */
+  const family = useMemo(() => {
+    const names = (ids: string[]) => {
+      const list = ids.map((id) => kin.persons.get(id)?.name).filter((name): name is string => Boolean(name));
+      if (list.length <= MAX_FAMILY_NAMES) return list.join(', ');
+      return `${list.slice(0, MAX_FAMILY_NAMES).join(', ')} ${cs.genealogy.andMore(list.length - MAX_FAMILY_NAMES)}`;
+    };
+    return links
+      .filter((link) => link.eventId === event.id)
+      .map((link) => kin.persons.get(link.personId))
+      .filter((person): person is NonNullable<typeof person> => person != null)
+      .map((person) => {
+        const relatives = relativesOf(kin, person.id);
+        return {
+          person,
+          parents: names(relatives.parents.map((relation) => relation.fromPerson)),
+          spouses: names(relatives.spouses.map((spouse) => spouse.personId)),
+          children: names(relatives.children.map((relation) => relation.toPerson)),
+        };
+      })
+      .filter((entry) => entry.parents || entry.spouses || entry.children);
+  }, [kin, links, event.id]);
 
   const length = rangeLengthYears(event.start, event.end);
   const openEnd = event.end?.qualifier != null;
@@ -49,7 +94,7 @@ export function DetailPanel({ event, tag, canEdit, anchor, onEdit, onDelete, onC
       ? Math.max(anchor.y - height - MARGIN, MARGIN)
       : below;
     setPosition({ left, top });
-  }, [anchor, event.id]);
+  }, [anchor, event.id, family.length]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -129,6 +174,42 @@ export function DetailPanel({ event, tag, canEdit, anchor, onEdit, onDelete, onC
         <dt>{cs.detail.tag}</dt>
         <dd>{tag?.name ?? cs.timeline.withoutTag}</dd>
       </dl>
+
+      {family.length > 0 ? (
+        <section className="popover-family">
+          <h3>{cs.detail.family}</h3>
+          {family.map(({ person, parents, spouses, children }) => (
+            <div key={person.id} className="popover-family-person">
+              {family.length > 1 ? <strong>{personLabel(person)}</strong> : null}
+              <dl className="popover-list">
+                {parents ? (
+                  <>
+                    <dt>{cs.genealogy.familyParents}</dt>
+                    <dd>{parents}</dd>
+                  </>
+                ) : null}
+                {spouses ? (
+                  <>
+                    <dt>{cs.genealogy.familySpouses}</dt>
+                    <dd>{spouses}</dd>
+                  </>
+                ) : null}
+                {children ? (
+                  <>
+                    <dt>{cs.genealogy.familyChildren}</dt>
+                    <dd>{children}</dd>
+                  </>
+                ) : null}
+              </dl>
+              {onShowInGenealogy ? (
+                <button type="button" className="genealogy-link" onClick={() => onShowInGenealogy(person.id)}>
+                  {cs.genealogy.showInGenealogy}
+                </button>
+              ) : null}
+            </div>
+          ))}
+        </section>
+      ) : null}
 
       {canEdit ? (
         <div className="popover-actions">

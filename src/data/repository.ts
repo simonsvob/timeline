@@ -12,7 +12,12 @@ import type {
   CategoryDraft,
   Dataset,
   EventDraft,
+  Kinship,
+  Person,
+  PersonEventLink,
   Placement,
+  Relation,
+  RelationPatch,
   Tag,
   TagDraft,
   TimelineEvent,
@@ -404,4 +409,112 @@ export async function replaceDataset(dataset: Dataset): Promise<void> {
   const deleteCategories = await client.from('categories').delete().not('id', 'is', null);
   if (deleteCategories.error) throw deleteCategories.error;
   await upsertDataset(dataset);
+}
+
+// ---------------------------------------------------------------------------
+// Osoby a rodinné vazby
+// ---------------------------------------------------------------------------
+
+const PERSON_COLUMNS = 'id,name,qualifier,alt_names,gender,roles,spine,note';
+const LINK_COLUMNS = 'person_id,event_id,role';
+const RELATION_COLUMNS =
+  'id,kind,from_person,to_person,certainty,source,note,verified,sort_order';
+
+interface PersonRow {
+  id: string;
+  name: string;
+  qualifier: string | null;
+  alt_names: string[] | null;
+  gender: 'm' | 'f' | null;
+  roles: string[] | null;
+  spine: boolean;
+  note: string | null;
+}
+
+interface LinkRow {
+  person_id: string;
+  event_id: string;
+  role: PersonEventLink['role'];
+}
+
+interface RelationRow {
+  id: string;
+  kind: Relation['kind'];
+  from_person: string;
+  to_person: string;
+  certainty: Relation['certainty'];
+  source: string | null;
+  note: string | null;
+  verified: boolean;
+  sort_order: number;
+}
+
+export function personFromRow(row: PersonRow): Person {
+  return {
+    id: row.id,
+    name: row.name,
+    qualifier: row.qualifier,
+    altNames: row.alt_names ?? [],
+    gender: row.gender,
+    roles: row.roles ?? [],
+    spine: row.spine,
+    note: row.note,
+  };
+}
+
+export function relationFromRow(row: RelationRow): Relation {
+  return {
+    id: row.id,
+    kind: row.kind,
+    fromPerson: row.from_person,
+    toPerson: row.to_person,
+    certainty: row.certainty,
+    source: row.source,
+    note: row.note,
+    verified: row.verified,
+    sortOrder: row.sort_order,
+  };
+}
+
+/**
+ * Osoby, vazby a jejich propojení se záznamy osy. Čte se zvlášť od záznamů:
+ * osa bez rodokmenu funguje, takže chyba tady ji nesmí shodit.
+ */
+export async function fetchKinship(): Promise<Kinship> {
+  const client = requireSupabase();
+  const [persons, links, relations] = await Promise.all([
+    client.from('persons').select(PERSON_COLUMNS).order('name', { ascending: true }),
+    client.from('person_events').select(LINK_COLUMNS),
+    client.from('relations').select(RELATION_COLUMNS),
+  ]);
+  if (persons.error) throw asReadableError(persons.error);
+  if (links.error) throw asReadableError(links.error);
+  if (relations.error) throw asReadableError(relations.error);
+  return {
+    persons: (persons.data as unknown as PersonRow[]).map(personFromRow),
+    links: (links.data as unknown as LinkRow[]).map((row) => ({
+      personId: row.person_id,
+      eventId: row.event_id,
+      role: row.role,
+    })),
+    relations: (relations.data as unknown as RelationRow[]).map(relationFromRow),
+  };
+}
+
+/** Úprava vazby: jistota, zdroj, poznámka a ověření. Kdo ke komu se nemění. */
+export async function updateRelation(id: string, patch: RelationPatch): Promise<Relation> {
+  const client = requireSupabase();
+  const { data, error } = await client
+    .from('relations')
+    .update({
+      certainty: patch.certainty,
+      source: patch.source,
+      note: patch.note,
+      verified: patch.verified,
+    })
+    .eq('id', id)
+    .select(RELATION_COLUMNS)
+    .single();
+  if (error) throw error;
+  return relationFromRow(data as unknown as RelationRow);
 }
