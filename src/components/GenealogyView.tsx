@@ -24,6 +24,7 @@ import {
   NODE_GAP_Y,
   NODE_HEIGHT,
   NODE_WIDTH,
+  ROW_HEIGHT,
   allFoldable,
   expansionsToReveal,
   layoutTree,
@@ -222,6 +223,20 @@ export function GenealogyView({
     }
     return { drawnLinks: drawn, farSpouses: far };
   }, [layout, nodeMap, kin]);
+
+  /** Kde nad oddílem rodin bez vazby stojí jeho nadpis. */
+  const detachedSpan = useMemo(() => {
+    const row = layout.detachedRow;
+    if (row === null) return null;
+    const xs = layout.nodes.filter((node) => node.row >= row).map((node) => node.x);
+    if (xs.length === 0) return null;
+    const left = Math.min(...xs);
+    return {
+      left,
+      width: Math.max(...xs) - left + NODE_WIDTH,
+      top: (row - 1) * ROW_HEIGHT + NODE_HEIGHT / 2,
+    };
+  }, [layout]);
 
   const foldable = useMemo(() => allFoldable(kin), [kin]);
   const allCollapsed = foldable.length > 0 && foldable.every((id) => collapsed.has(id));
@@ -620,6 +635,19 @@ export function GenealogyView({
                   );
                 })}
               </svg>
+
+              {detachedSpan ? (
+                <div
+                  className="genealogy-section"
+                  style={{
+                    left: detachedSpan.left + PAD_X,
+                    width: detachedSpan.width,
+                    top: detachedSpan.top + PAD_TOP,
+                  }}
+                >
+                  {cs.genealogy.detachedTitle}
+                </div>
+              ) : null}
 
               {layout.nodes.map((node) => {
                 const person = kin.persons.get(node.id);

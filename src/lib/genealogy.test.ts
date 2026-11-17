@@ -233,6 +233,21 @@ describe('rozvržení stromu', () => {
     expect(xOf(layout, 'er')!).toBeLessThan(xOf(layout, 'chusim')!);
   });
 
+  it('rodina bez vazby na hlavní rodokmen stojí pod stromem, ne vedle Adama', () => {
+    const lide = [...persons, person('chanani'), person('jehu')];
+    const vazby = [...relations, parent('chanani', 'jehu')];
+    const layout = layoutTree(buildKinIndex(lide, vazby, { includeUnverified: true }), new Set());
+    const at = (id: string) => layout.nodes.find((n) => n.id === id)!;
+    const main = Math.max(...layout.nodes.filter((n) => !['chanani', 'jehu'].includes(n.id)).map((n) => n.row));
+    expect(layout.detachedRow).toBe(main + 2);
+    expect(at('chanani').row).toBe(main + 2);
+    expect(at('jehu').row).toBe(main + 3);
+  });
+
+  it('přivdaná rodina oddíl bez vazby nezakládá', () => {
+    expect(layoutTree(index, new Set()).detachedRow).toBeNull();
+  });
+
   it('cyklus v datech rozvržení nezacyklí', () => {
     const lide = [person('a', { spine: true }), person('b'), person('c')];
     const vazby = [parent('a', 'b'), parent('b', 'c'), parent('c', 'b')];

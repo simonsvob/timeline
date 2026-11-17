@@ -392,6 +392,7 @@ export const cs = {
     legendDerived: 'odvozeno nebo pěstoun',
     legendDisputed: 'verše se liší',
     legendMarriage: 'manželství',
+    detachedTitle: 'Bez vazby na hlavní rodokmen',
     legendFar: '⚭ partner v jiné větvi',
     farSpouses: (names: readonly string[]) => `Manželství s: ${names.join(', ')} (jinde ve stromu)`,
     zoomIn: 'Přiblížit',

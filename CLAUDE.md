@@ -363,6 +363,10 @@ kterého to je.
   celá linie od nejnižší osoby nahoru (`sideOrder`), a přisazují se obrysem
   k hlavnímu stromu na stranu, kde stojí jejich příbuzní (`sideFor`). Když
   stály za hlavním stromem, vedly jejich manželské čáry přes celou plochu.
+- **Rodiny úplně bez vazby** na hlavní rodokmen (prorok Jehu a jeho otec
+  Chanani, Azarjáš a Oded z tabulky proroků) se poznají prohledáním všech
+  vazeb od Adama. Stojí v oddílu pod stromem s nadpisem (`detachedRow`);
+  dřív visely nahoře vedle Adama, jako by k němu patřily.
 - **Manželky bez známých rodičů se přisazují vedle manžela** (`attachedTo`),
   stejně tak matka bez zapsaného manželství (Tamar u Judy). Děti k matce
   přisazené vedle otce čáru nemají — říká to sousedství a po klepnutí na osobu

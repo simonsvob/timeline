@@ -186,7 +186,15 @@ export interface TreeLayout {
   links: TreeLink[];
   width: number;
   height: number;
+  /**
+   * Řada, od které leží rodiny bez jakékoli vazby na hlavní rodokmen
+   * (prorok Jehu a jeho otec Chanani); `null`, když žádné nejsou.
+   */
+  detachedRow: number | null;
 }
+
+/** Výška jedné řady stromu v pixelech (karta + mezera). */
+export const ROW_HEIGHT = NODE_HEIGHT + NODE_GAP_Y;
 
 /** Krajní polohy karet v jedné řadě stromu. */
 interface Extent {
@@ -195,7 +203,7 @@ interface Extent {
 }
 
 const STEP = NODE_WIDTH + NODE_GAP_X;
-const ROW = NODE_HEIGHT + NODE_GAP_Y;
+const ROW = ROW_HEIGHT;
 
 /**
  * `collapsed` jsou osoby se sbalenou větví; všechno ostatní je rozbalené.
@@ -502,14 +510,57 @@ export function layoutTree(index: KinIndex, collapsed: ReadonlySet<string>): Tre
     (a, b) => Number(Boolean(index.persons.get(b)?.spine)) - Number(Boolean(index.persons.get(a)?.spine)),
   );
   const hasSpineTree = ordered.length > 0 && Boolean(index.persons.get(ordered[0])?.spine);
+  /**
+   * Rodiny, které s hlavním rodokmenem nespojuje žádná vazba (otec a syn
+   * z tabulky proroků). Bez tohohle visely nahoře vedle Adama, jako by
+   * k němu patřily; teď mají vlastní oddíl pod stromem.
+   */
+  const detached: TreeNode[][] = [];
+  let detachedRow: number | null = null;
   if (hasSpineTree) {
+    const connected = new Set<string>([ordered[0]]);
+    const queue = [ordered[0]];
+    while (queue.length > 0) {
+      const id = queue.pop()!;
+      const near = [
+        ...(index.partners.get(id) ?? []),
+        ...(index.parents.get(id) ?? []).map((relation) => relation.fromPerson),
+        ...(index.children.get(id) ?? []).map((relation) => relation.toPerson),
+      ];
+      for (const other of near) {
+        if (connected.has(other)) continue;
+        connected.add(other);
+        queue.push(other);
+      }
+    }
     for (const root of ordered) {
       if (nodes.has(root)) continue;
       const tree: TreeNode[] = [];
       if (index.persons.get(root)?.spine) placeSpine(root, tree);
-      else {
+      else if (!connected.has(root)) {
+        place(root, 0, tree);
+        detached.push(tree);
+      } else {
         place(root, 0, tree);
         pack(tree, row.get(root)! - 1, sideFor(tree));
+      }
+    }
+    if (detached.length > 0) {
+      const own = new Set(detached.flat());
+      const mainRows = [...nodes.values()].filter((node) => !own.has(node)).map((node) => node.row);
+      detachedRow = Math.max(0, ...mainRows) + 2;
+      // Vedle sebe od páteře doprava, každá rodina od řady oddílu.
+      let offset = 0;
+      for (const tree of detached) {
+        const top = Math.min(...tree.map((node) => node.row));
+        const min = Math.min(...tree.map((node) => node.x));
+        const max = Math.max(...tree.map((node) => node.x));
+        for (const node of tree) {
+          node.row = node.row - top + detachedRow;
+          node.y = node.row * ROW;
+          node.x += offset - min;
+        }
+        offset += max - min + NODE_WIDTH + TREE_GAP;
       }
     }
   } else {
@@ -565,6 +616,7 @@ export function layoutTree(index: KinIndex, collapsed: ReadonlySet<string>): Tre
     links,
     width: list.length === 0 ? 0 : Math.max(...list.map((node) => node.x)) + NODE_WIDTH,
     height: list.length === 0 ? 0 : Math.max(...list.map((node) => node.y)) + NODE_HEIGHT,
+    detachedRow,
   };
 }
 
