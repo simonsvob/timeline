@@ -1854,6 +1854,17 @@ h4 {
   font-weight: 700;
 }
 
+/* Partner z jiné větve: místo čáry přes půl stromu jen značka v rohu. */
+.genealogy-card-far {
+  position: absolute;
+  top: 2px;
+  right: 7px;
+  color: #c27f68;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1;
+}
+
 .genealogy-card-roles {
   position: absolute;
   top: 6px;

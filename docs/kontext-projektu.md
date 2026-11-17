@@ -73,7 +73,7 @@ commitem se náhled **maže**.
 Aplikace je hotová a nasazená. Funguje osa s plynulým zoomem, formulářová
 editace, správa štítků i období (v modálu Data), filtr pásem, tabulkový
 přehled, **rodokmen**, export/import a přihlášení. V databázi je
-**557 záznamů**, 191 osob a 256 rodinných vazeb. Záznamy: tři časové
+**557 záznamů**, 687 osob a 844 rodinných vazeb. Záznamy: tři časové
 osy z knihy *Odvážně choď s Bohem* (str. 14–15, 104–105, 186–187), chronologie
 králů, knih a událostí z hesla „Chronologie" a z dodatku nwt A6, přehled
 biblických knih a dávka událostí z tabulky zadavatele. Testů 202, všechny
@@ -87,11 +87,12 @@ i `authenticated`, ne jen existencí politik.
 
 ### Co je rozdělané
 
-- **Rodokmen je kostra, ne hotová věc** (listopad 2026). Funguje strom
-  s páteří a rozbalováním větví, panel osoby, proklik na osu a zpět, hledání
-  osob a úprava zdroje, jistoty a ověření u vazby. **Všech 256 vazeb je
-  neověřených**, takže rodokmen zatím vidí jen přihlášený; zadavatel je
-  prochází a ověřuje sám. Co chybí a v jakém pořadí, je v
+- **Rodokmen je hotový jako prohlížeč, ne jako editor** (listopad 2026).
+  Obsahuje celý plakát „Slíbené potomstvo“ včetně manželek a vedlejších rodin.
+  Funguje celý strom (větve jdou sbalit), zoom, panel osoby, proklik na osu a
+  zpět, hledání osob a úprava zdroje, jistoty a ověření u vazby. **Skoro
+  všechny vazby jsou neověřené** — zadavatel je prochází a ověřuje sám;
+  nepřihlášený vidí jen ověřenou část. Co chybí a v jakém pořadí, je v
   [`plan-rozvoje.md`](plan-rozvoje.md).
 - **Audit dat čeká na rozhodnutí.** Dvacet nálezů v 557 záznamech, čtyři
   závažné. Nic z toho se neopravovalo — seznam je v `plan-rozvoje.md`.
@@ -267,12 +268,14 @@ Další rozhodnutí kolem rodokmenu:
   … → Heli → Marie) je boční větev. Je to **předpoklad k potvrzení** — stačí
   přepsat příznak u osob, kód se nemění.
 - **Zdroje vazeb.** Bible a publikace z jw.org; PDF plakát zadavatel povolil
-  jako zdroj nižší důvěry („ověřím si a doplním zdroje“). 33 vazeb má jako
-  zdroj jen plakát. Čísla veršů se zapisovala bez přístupu k textu nwt, proto
+  jako zdroj nižší důvěry („ověřím si a doplním zdroje“). Většina vazeb
+  (621 z 844) má jako zdroj jen plakát; tam, kde plakát sám něco značí jako
+  nejisté nebo kde bylo čtení obrázku nejisté, je u vazby poznámka, co ověřit. Čísla veršů se zapisovala bez přístupu k textu nwt, proto
   je všechno `verified = false`.
 - **Neověřené je vidět jen po přihlášení.** Veřejný web nemá ukazovat
   příbuzenství, které nikdo nezkontroloval.
 
+Doplnění zbytku plakátu (496 osob, 588 vazeb) je v `data/rodokmen-doplnek.json`.
 Stopa prvního naplnění je v `data/rodokmen-zaklad.json` (osoby se slugy,
 vazby, propojení se záznamy). Pravdu drží databáze, soubor se neaktualizuje.
 Id osob jsou odvozená: `md5('rodokmen:' || slug)::uuid`.

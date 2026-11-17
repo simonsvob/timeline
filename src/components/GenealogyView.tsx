@@ -54,9 +54,16 @@ const PAD_BOTTOM = 160;
  * Meze zoomu. Nahoře končí kousek nad skutečnou velikostí – větší karty už
  * nic neukážou; dole se celý strom vejde na obrazovku.
  */
-const MIN_SCALE = 0.1;
+const MIN_SCALE = 0.05;
 const MAX_SCALE = 1.25;
 const ZOOM_STEP = 1.3;
+
+/**
+ * Nejdelší čára mimo kostru, která se ještě kreslí. Manželství a druhý rodič
+ * mezi vzdálenými větvemi (Izák a Rebeka z Nachorovy rodiny) by vedly přes
+ * půl stromu; místo čáry dostanou obě karty značku ⚭ a partnera ukáže panel.
+ */
+const MAX_LINK_SPAN = 2 * (NODE_WIDTH + 16);
 
 /** Barvy rolí – jediné místo; popisky jsou v `cs.genealogy.roles`. */
 export const ROLE_COLORS: Record<PersonRole, string> = {
@@ -189,6 +196,32 @@ export function GenealogyView({
     for (const partner of kin.partners.get(selectedId) ?? []) ids.add(partner);
     return ids;
   }, [kin, selectedId]);
+
+  /** Čáry, které se kreslí, a komu chybí čára k partnerovi z jiné větve. */
+  const { drawnLinks, farSpouses } = useMemo(() => {
+    const drawn: TreeLink[] = [];
+    const far = new Map<string, string[]>();
+    const addFar = (id: string, other: string) => {
+      const name = kin.persons.get(other)?.name;
+      if (!name) return;
+      const list = far.get(id);
+      if (list) list.push(name);
+      else far.set(id, [name]);
+    };
+    for (const link of layout.links) {
+      const from = nodeMap.get(link.from);
+      const to = nodeMap.get(link.to);
+      if (!from || !to) continue;
+      const adjacent = from.attachedTo === to.id || to.attachedTo === from.id || from.attachedTo === to.attachedTo && from.attachedTo !== null;
+      const near = Math.abs(from.x - to.x) <= MAX_LINK_SPAN && (link.kind === 'parent' || from.row === to.row);
+      if (adjacent || near) drawn.push(link);
+      else if (link.kind === 'marriage') {
+        addFar(link.from, link.to);
+        addFar(link.to, link.from);
+      }
+    }
+    return { drawnLinks: drawn, farSpouses: far };
+  }, [layout, nodeMap, kin]);
 
   const foldable = useMemo(() => allFoldable(kin), [kin]);
   const allCollapsed = foldable.length > 0 && foldable.every((id) => collapsed.has(id));
@@ -562,7 +595,7 @@ export function GenealogyView({
               style={{ width: worldWidth, height: worldHeight, transform: `scale(${scale})` }}
             >
               <svg className="genealogy-edges" width={worldWidth} height={worldHeight} aria-hidden="true">
-                {layout.links.map((link) => {
+                {drawnLinks.map((link) => {
                   const d = linkPath(link, nodeMap);
                   return d ? (
                     <path key={`${link.kind}-${link.from}-${link.to}`} className={linkClass(link)} d={d} />
@@ -600,6 +633,7 @@ export function GenealogyView({
                     disputed={(kin.parents.get(node.id) ?? []).some((r) => r.certainty === 'sporne')}
                     selected={node.id === selectedId}
                     related={related.has(node.id)}
+                    farSpouses={farSpouses.get(node.id)}
                     dimmed={lens !== null && !person.roles.includes(lens)}
                     onSelect={() => setSelectedId(node.id)}
                     onToggle={() => toggleBranch(node)}
@@ -623,6 +657,7 @@ export function GenealogyView({
           <li>
             <span className="genealogy-legend-line genealogy-legend-marriage" /> {cs.genealogy.legendMarriage}
           </li>
+          <li>{cs.genealogy.legendFar}</li>
         </ul>
       </div>
 
@@ -702,12 +737,25 @@ interface CardProps {
   disputed: boolean;
   selected: boolean;
   related: boolean;
+  /** partneři z jiné větve, ke kterým se čára nekreslí */
+  farSpouses: string[] | undefined;
   dimmed: boolean;
   onSelect: () => void;
   onToggle: () => void;
 }
 
-function PersonCard({ node, person, events, disputed, selected, related, dimmed, onSelect, onToggle }: CardProps) {
+function PersonCard({
+  node,
+  person,
+  events,
+  disputed,
+  selected,
+  related,
+  farSpouses,
+  dimmed,
+  onSelect,
+  onToggle,
+}: CardProps) {
   const life = events?.find((entry) => entry.role === 'zivot') ?? events?.[0];
   const role = person.roles.find(isRole);
   // Druhý řádek: roky ze záznamu osy, jinak role, jinak rozlišovač jména.
@@ -746,6 +794,11 @@ function PersonCard({ node, person, events, disputed, selected, related, dimmed,
             </span>
           ) : null}
         </span>
+        {farSpouses ? (
+          <span className="genealogy-card-far" title={cs.genealogy.farSpouses(farSpouses)} aria-hidden="true">
+            ⚭
+          </span>
+        ) : null}
         {sub ? <span className="genealogy-card-sub">{sub}</span> : null}
       </button>
       {node.foldable ? (

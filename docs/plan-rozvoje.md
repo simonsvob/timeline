@@ -20,7 +20,7 @@ Pravidla, která pro všechno níž platí:
 | | |
 |---|---|
 | Záloha dat | denně do větve `zaloha-dat`, skript `scripts/zaloha.mjs` |
-| Osoby a vazby | tabulky `persons`, `person_events`, `relations`; 191 osob, 256 vazeb, 66 propojení se záznamy osy |
+| Osoby a vazby | tabulky `persons`, `person_events`, `relations`; 687 osob, 844 vazeb, 66 propojení se záznamy osy — celý plakát „Slíbené potomstvo“ |
 | Sekce Rodokmen | celý strom rozbalený (větve jdou sbalit), manželky vedle manželů, druhý rodič a manželství čarou, zoom a volný posun, hledání osob, barevně králové a velekněží, oblé karty žen, panel osoby, úprava zdroje / jistoty / ověření vazby |
 | Propojení s osou | „Ukázat na ose“ z panelu osoby, sekce „Rodina“ a „Ukázat v rodokmenu“ v detailu záznamu |
 
@@ -35,21 +35,28 @@ Jan Křtitel.
 
 ### Ověřit vazby
 
-Všech 256 vazeb je `verified = false`, takže rodokmen vidí jen přihlášený.
+Skoro všech 844 vazeb je `verified = false`; nepřihlášený vidí jen ověřenou část.
 Ověřuje se v panelu osoby: zatržítko u vazby ji označí jako ověřenou, tužka
 otevře úpravu zdroje, jistoty a poznámky. Lišta nad stromem ukazuje postup
-(„Ověřeno 12 z 256 vazeb“). Jakmile je ověřená první vazba, začne se rodokmen
-nabízet i nepřihlášeným — a uvidí z něj jen ověřenou část.
+(„Ověřeno 12 z 844 vazeb“). Od první ověřené vazby se rodokmen nabízí i
+nepřihlášeným.
 
 Na co se při ověřování zaměřit:
 
-- **33 vazeb má jako zdroj jen plakát** „Slíbené potomstvo“ (PDF). Jde hlavně
-  o matky judských králů a Lukášovu linii. Potřebují verš nebo publikaci.
+- **621 vazeb má jako zdroj jen plakát** „Slíbené potomstvo“ (PDF): matky
+  judských králů, Lukášova linie a celé doplnění z 17. 11. (potomci Jákobových
+  synů z 1. Paralipomenon, levité a velekněží, soudci, Saulova a Davidova
+  rodina, rodina Ježíše). Potřebují verš nebo publikaci.
+- **Poznámky u vazeb z plakátu** říkají, kde plakát sám značí nejistotu
+  (čárkovaná čára, otazník, „přesnost je otázkou“ u velekněží) nebo kde bylo
+  čtení obrázku nejisté (podoby jmen, kdo je čí otec v 1Pa 4).
+- **Anna jako Mariina matka a její sestra** jsou z plakátu, Bible je nejmenuje.
 - **4 sporné vazby** (`certainty = sporne`): Arpakšad → Šela (Lk 3:36 vkládá
   Kainana), Šealtiel (Jehojakin podle Mt 1:12 × Neri podle Lk 3:27),
   Zerubbabel (Šealtiel × Pedajáš podle 1Pa 3:19). Výklad rozdílu se nedoplňoval;
   chce to text hesel **it „Kainan“** a **it „Rodokmen Ježíše Krista“**.
-- **3 odvozené vazby** (`odvozeno`), mimo jiné Heli → Marie.
+- **22 odvozených vazeb** (`odvozeno`), mimo jiné Heli → Marie a vše, co
+  plakát kreslí čárkovaně.
 - **Čísla veršů** se psala bez přístupu k textu nwt. Zadavatel dodal odkazy na
   1Mo 4, 5, 10 a 11, ale prostředí je neotevře — zkontrolovat ručně.
 

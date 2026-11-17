@@ -351,8 +351,16 @@ kterého to je.
 - **Řady nejsou generace od Adama.** Dítě stojí pod *všemi* rodiči a manželé
   vedle sebe, takže se kratší linie natáhne: Marie má podle Lukáše víc předků
   než Josef podle Matouše, a aby stáli vedle sebe nad Ježíšem, dostane Josef
-  delší čáru od otce. Řady se dopočítávají opakovaným posouváním dolů; strop
-  průchodů a kontrola předků hlídají data, která by se honila dokola.
+  delší čáru od otce. Řady se dopočítávají opakovaným posouváním dolů.
+  **Pozor na zacyklení:** Tamar je manželkou Judy i jeho synů, takže pravidlo
+  „manželé ve stejné řadě“ tlačilo Judu pod vlastní syny a řady utekly na
+  10 000. Partneři, kteří jsou předky nebo potomky, se proto nepočítají a
+  řada nesmí přesáhnout počet osob (`maxRow`).
+- **Vedlejší stromy** (rodiny bez známých předků, které se do hlavní přivdaly:
+  Jetro, Anna, Elimelek, Zebedeus…) se stahují dolů k řadě, kam se přivdaly,
+  celá linie od nejnižší osoby nahoru (`sideOrder`), a přisazují se obrysem
+  k hlavnímu stromu na stranu, kde stojí jejich příbuzní (`sideFor`). Když
+  stály za hlavním stromem, vedly jejich manželské čáry přes celou plochu.
 - **Manželky bez známých rodičů se přisazují vedle manžela** (`attachedTo`),
   stejně tak matka bez zapsaného manželství (Tamar u Judy). Děti k matce
   přisazené vedle otce čáru nemají — říká to sousedství a po klepnutí na osobu
@@ -367,7 +375,13 @@ kterého to je.
   těsně, jak dovolí to, co už v dotčených řadách stojí. Páteř i s manželkami se
   rozmístí celá napřed, jinak by jí hluboká větev shora zalehla místo. Do
   obrysu se počítá i svislá čára natažené linie, která řadami jen prochází.
-- **Karty jsou HTML nad jedním SVG**, ne Canvas: osob jsou stovky, ne tisíce.
+- **Dlouhé čáry se nekreslí** (`MAX_LINK_SPAN` v `GenealogyView`). Manželství
+  mezi vzdálenými větvemi (Izák a Rebeka z Nachorovy rodiny) i druhý rodič
+  daleko od dítěte by vedly přes půl stromu; karta místo toho dostane značku
+  ⚭ a partnera ukáže panel a zvýraznění rodiny.
+- **Karty jsou HTML nad jedním SVG**, ne Canvas: osob jsou stovky, ne tisíce
+  (687 karet, rozložení ~30 ms). Strom je kvůli potomkům Jákobových synů
+  z 1. Paralipomenon široký ~27 000 px; to je obsah, ne chyba rozložení.
 - **Posun a zoom.** Plocha je rolovací prvek, ale kolečko a trackpad si
   obsluhuje sama (`wheel` s `preventDefault`): nativní posun prohlížeče na Macu
   zamykají na jeden směr a po stromu se nedalo „kroužit“. Zoom je CSS `scale`

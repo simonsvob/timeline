@@ -187,6 +187,29 @@ describe('rozvržení stromu', () => {
     expect(layout.links).toContainEqual(expect.objectContaining({ kind: 'marriage' }));
   });
 
+  it('vdova po synovi, která má děti s otcem, nestrhne otce pod syny (Juda a Tamar)', () => {
+    const lide = [
+      person('jakob', { spine: true }),
+      person('juda', { spine: true }),
+      person('perec', { spine: true }),
+      person('er'),
+      person('tamar', { gender: 'f' }),
+    ];
+    const vazby = [
+      parent('jakob', 'juda'),
+      parent('juda', 'er', { sortOrder: 1 }),
+      parent('juda', 'perec', { sortOrder: 2 }),
+      parent('tamar', 'perec'),
+      { ...parent('juda', 'tamar'), kind: 'manzelstvi' as const },
+      { ...parent('er', 'tamar'), kind: 'manzelstvi' as const },
+    ];
+    const layout = layoutTree(buildKinIndex(lide, vazby, { includeUnverified: true }), new Set());
+    const at = (id: string) => layout.nodes.find((n) => n.id === id)!;
+    expect(at('juda').row).toBe(1);
+    expect(at('perec').row).toBe(2);
+    expect(Math.max(...layout.nodes.map((n) => n.row))).toBeLessThan(lide.length);
+  });
+
   it('cyklus v datech rozvržení nezacyklí', () => {
     const lide = [person('a', { spine: true }), person('b'), person('c')];
     const vazby = [parent('a', 'b'), parent('b', 'c'), parent('c', 'b')];
