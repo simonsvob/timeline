@@ -346,24 +346,45 @@ kterého to je.
 - **Strom, i když data strom nejsou.** Dítě má dva rodiče a prameny se někdy
   liší (Šealtiel je podle Matouše syn Jehojakina, podle Lukáše Neriho). Každá
   osoba visí pod jedním *hlavním* rodičem (`primaryParentRelation`): osoba na
-  páteři pod rodičem na páteři, jinak pod otcem. Ostatní vazby se nekreslí
-  čarou, jsou v panelu osoby; karta dostane otazník, když má spornou vazbu.
-- **Páteř a sbalené větve.** Na začátku je vidět jen hlavní linie
-  (`persons.spine`); kde se rodina větví, je kroužek s počtem schovaných dětí.
-  O páteři rozhoduje výslovný příznak, ne výpočet. Řada jedináčků mimo páteř
-  teče dál bez klepání (Lukášova linie od Natana má dvacet generací po jednom).
+  páteři pod rodičem na páteři, jinak pod otcem. To je kostra (`TreeNode`).
+  Druhý rodič a manželství jsou čáry navíc (`TreeLink`).
+- **Řady nejsou generace od Adama.** Dítě stojí pod *všemi* rodiči a manželé
+  vedle sebe, takže se kratší linie natáhne: Marie má podle Lukáše víc předků
+  než Josef podle Matouše, a aby stáli vedle sebe nad Ježíšem, dostane Josef
+  delší čáru od otce. Řady se dopočítávají opakovaným posouváním dolů; strop
+  průchodů a kontrola předků hlídají data, která by se honila dokola.
+- **Manželky bez známých rodičů se přisazují vedle manžela** (`attachedTo`),
+  stejně tak matka bez zapsaného manželství (Tamar u Judy). Děti k matce
+  přisazené vedle otce čáru nemají — říká to sousedství a po klepnutí na osobu
+  se její nejbližší rodina ve stromu zvýrazní. Dvanáct čar k Jákobovým synům
+  by strom zahltilo.
+- **Všechno je rozbalené**, sbalit jde jednotlivé větve (`collapsed`) nebo
+  všechny naráz. Původně to bylo obráceně a zadavatel to odmítl: rodokmen chce
+  vidět celý, souvislosti se ze sbaleného stromu nepoznají. Sbalená větev
+  ukazuje jen páteř a řady jedináčků.
 - **Páteř je svislice, větve se k ní přisazují obrysem** (`placeSpine`):
   sourozenci před potomkem na páteři doleva, ostatní doprava, každá větev tak
-  těsně, jak dovolí to, co už v dotčených řadách stojí. Řada, kam páteř ještě
-  nedošla, se počítá jako obsazená — jde se shora a hluboká větev by jí jinak
-  zalehla místo.
+  těsně, jak dovolí to, co už v dotčených řadách stojí. Páteř i s manželkami se
+  rozmístí celá napřed, jinak by jí hluboká větev shora zalehla místo. Do
+  obrysu se počítá i svislá čára natažené linie, která řadami jen prochází.
 - **Karty jsou HTML nad jedním SVG**, ne Canvas: osob jsou stovky, ne tisíce.
-  Posouvá se nativním scrollem, vlastní gesta tu nejsou (jen tažení myší).
-- Rozbalení větve drží kartu pod prstem: její poloha se před změnou změří
+- **Posun a zoom.** Plocha je rolovací prvek, ale kolečko a trackpad si
+  obsluhuje sama (`wheel` s `preventDefault`): nativní posun prohlížeče na Macu
+  zamykají na jeden směr a po stromu se nedalo „kroužit“. Zoom je CSS `scale`
+  na vnitřním obalu (`.genealogy-world`), rolovaná plocha má rozměr násobený
+  měřítkem. Meze `MIN_SCALE`–`MAX_SCALE`; přiblížit jde jen kousek nad
+  skutečnou velikost. Pinch chodí dvěma cestami jako u osy (`wheel` + `ctrlKey`,
+  `gesture*` v Safari). `zoomAt` mění DOM rovnou a stav až potom — události
+  chodí rychleji, než React překresluje. **Dotykový pinch mimo Safari chybí**
+  (Android); tam jsou tlačítka.
+- Sbalení větve drží kartu pod prstem: její poloha se před změnou změří
   v DOM a po přepočtu se o rozdíl posune scroll. Ze souřadnic stromu to nejde,
   úzký strom je v ploše vystředěný.
-- Rozbalené větve, vybranou osobu a posun drží `App` (`GenealogyViewState`),
-  stejně jako polohu osy — přepnutí pohledu rodokmen odpojí.
+- **Vzhled karet nese význam:** ženy mají oblou kartu, role (král, velekněz…)
+  barevný obrys a podklad (`ROLE_COLORS`, do karty jde přes `--role`), hlavní
+  linie tmavší jméno. Druh čáry říká jistotu, barva čáry ověření.
+- Sbalené větve, vybranou osobu, měřítko a posun drží `App`
+  (`GenealogyViewState`), stejně jako polohu osy.
 
 **Tři pohledy se na telefonu nevejdou do hlavičky**, která se nesmí zalomit.
 Pod 640 px se proto segmenty schovají a přepíná se nativním `select`

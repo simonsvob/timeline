@@ -78,11 +78,14 @@ export const cs = {
     ],
     genealogyTitle: 'Rodokmen',
     genealogy:
-      'Na začátku je vidět jen hlavní linie od Adama k Ježíšovi. Kroužek s číslem pod jménem ' +
-      'rozbalí další děti, klepnutí na jméno ukáže rodiče, manželství, děti a zdroj každé vazby. ' +
-      'Kdo má záznam na ose, má pod jménem roky a v detailu tlačítko „Ukázat na ose“. ' +
-      'Plná čára znamená vazbu výslovně uvedenou ve zdroji, čárkovaná odvozenou a tečkovaná místo, ' +
-      'kde se prameny liší.',
+      'Strom jde od Adama k Ježíšovi, hlavní linie vede svisle. Posouvá se tažením nebo dvěma ' +
+      'prsty na trackpadu všemi směry, přibližuje sevřením prstů, Ctrl + kolečkem, klávesami + a − ' +
+      'nebo tlačítky nad stromem. Kroužek pod jménem sbalí nebo rozbalí větev. Klepnutí na jméno ' +
+      'ukáže rodiče, manželství a děti se zdrojem každé vazby a nejbližší rodinu ve stromu zvýrazní. ' +
+      'Ženy mají oblou kartu, králové a velekněží barevnou. Kdo má záznam na ose, má pod jménem roky. ' +
+      'Plná čára je vazba, kterou uvedený verš říká přímo; čárkovaná je odvozená (z více veršů nebo ' +
+      'z plakátu – poznámka říká z čeho) nebo pěstoun; tečkovaná znamená, že dva verše uvádějí ' +
+      'různé rodiče.',
     ipadTitle: 'iPad s klávesnicí Magic Keyboard',
     ipad:
       'Sevření prstů na trackpadu klávesnice přiblíží celou stránku, ne osu – Safari to gesto webu ' +
@@ -384,11 +387,14 @@ export const cs = {
     verifiedCount: (done: number, total: number) => `Ověřeno ${done} z ${total} vazeb`,
     unverifiedNotice: 'Neověřené vazby vidíš jen ty po přihlášení.',
     empty: 'Rodokmen zatím nemá žádné ověřené vazby.',
-    disputed: 'Prameny se v rodičích liší – podrobnosti v detailu osoby',
-    legendStated: 'výslovně ve zdroji',
-    legendDerived: 'odvozeno',
-    legendDisputed: 'prameny se liší',
-    legendFoster: 'pěstoun',
+    disputed: 'Verše uvádějí různé rodiče – podrobnosti v detailu osoby',
+    legendStated: 'přímo ve verši',
+    legendDerived: 'odvozeno nebo pěstoun',
+    legendDisputed: 'verše se liší',
+    legendMarriage: 'manželství',
+    zoomIn: 'Přiblížit',
+    zoomOut: 'Oddálit',
+    fitAll: 'Celý strom',
     panelTitle: 'Detail osoby',
     altNames: 'Jinak také',
     onTimeline: 'Na ose',
@@ -414,10 +420,15 @@ export const cs = {
       predek: 'předek, generace vynechány',
       manzelstvi: 'manželství',
     },
+    /**
+     * Jistota vazby. „Zdroj“ je vždycky ten, který je u vazby napsaný:
+     * přímo = verš to říká takhle; odvozeno = plyne ze spojení víc míst nebo
+     * z plakátu, poznámka říká z čeho; liší se = dva verše uvádějí různé lidi.
+     */
     certainty: {
-      vyslovne: 'výslovně ve zdroji',
-      odvozeno: 'odvozeno',
-      sporne: 'prameny se liší',
+      vyslovne: 'přímo ve verši',
+      odvozeno: 'odvozeno – viz poznámka',
+      sporne: 'verše se liší',
     },
     unverified: 'neověřeno',
     verified: 'ověřeno',

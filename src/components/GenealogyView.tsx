@@ -7,14 +7,21 @@
  *
  * Polohy karet počítá `lib/genealogy.ts`; tady se jen kreslí. Karty jsou
  * obyčejné HTML nad jedním SVG s čarami: osob jsou stovky, ne tisíce, a
- * HTML dá zadarmo výběr textu, klávesnici i čtečky. Posouvá se nativním
- * scrollem, takže dotyk i trackpad fungují bez vlastních gest.
+ * HTML dá zadarmo výběr textu, klávesnici i čtečky.
+ *
+ * **Posun a zoom.** Plocha je obyčejný rolovací prvek, ale kolečko a trackpad
+ * si obsluhuje sama: prohlížeče na Macu nativní posun zamykají na jeden směr
+ * a „kroužit“ po stromu by nešlo. Zoom je CSS `scale` na vnitřním obalu;
+ * rozměr rolované plochy se násobí stejným měřítkem, takže posuvníky sedí.
+ * Pinch chodí dvěma cestami jako u osy: `wheel` s `ctrlKey` (Chrome, Firefox)
+ * a `gesture*` (Safari na Macu i iPadu).
  */
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { cs } from '../i18n/cs';
 import { formatRange, formatRangeCompact } from '../lib/format';
 import {
+  NODE_GAP_Y,
   NODE_HEIGHT,
   NODE_WIDTH,
   allFoldable,
@@ -23,6 +30,7 @@ import {
   personLabel,
   relativesOf,
   type KinIndex,
+  type TreeLink,
   type TreeNode,
 } from '../lib/genealogy';
 import {
@@ -42,9 +50,17 @@ const PAD_X = 48;
 const PAD_TOP = 20;
 const PAD_BOTTOM = 160;
 
+/**
+ * Meze zoomu. Nahoře končí kousek nad skutečnou velikostí – větší karty už
+ * nic neukážou; dole se celý strom vejde na obrazovku.
+ */
+const MIN_SCALE = 0.1;
+const MAX_SCALE = 1.25;
+const ZOOM_STEP = 1.3;
+
 /** Barvy rolí – jediné místo; popisky jsou v `cs.genealogy.roles`. */
 export const ROLE_COLORS: Record<PersonRole, string> = {
-  kral: '#a8813a',
+  kral: '#b8891f',
   veleknez: '#7a77ba',
   soudce: '#6f7f3f',
   prorok: '#3a7ca8',
@@ -52,9 +68,10 @@ export const ROLE_COLORS: Record<PersonRole, string> = {
 
 /** Co si rodokmen pamatuje přes přepnutí pohledu (drží `App`). */
 export interface GenealogyViewState {
-  expanded: string[];
+  collapsed: string[];
   selectedId: string | null;
   lens: PersonRole | null;
+  scale: number;
   scrollLeft: number;
   scrollTop: number;
 }
@@ -88,13 +105,15 @@ function isRole(value: string): value is PersonRole {
   return (PERSON_ROLES as readonly string[]).includes(value);
 }
 
-/** Hledání bez ohledu na velikost písmen a diakritiku („jesse“ najde Jišaje ne, ale „jisaj“ ano). */
+/** Hledání bez ohledu na velikost písmen a diakritiku. */
 function fold(text: string): string {
   return text
     .normalize('NFD')
     .replace(/[̀-ͯ]/g, '')
     .toLocaleLowerCase('cs');
 }
+
+const clampScale = (value: number) => Math.min(MAX_SCALE, Math.max(MIN_SCALE, value));
 
 export function GenealogyView({
   kin,
@@ -109,25 +128,34 @@ export function GenealogyView({
   onShowOnTimeline,
   onSaveRelation,
 }: Props) {
-  const [expanded, setExpanded] = useState<Set<string>>(() => new Set(saved?.expanded ?? []));
+  const [collapsed, setCollapsed] = useState<Set<string>>(() => new Set(saved?.collapsed ?? []));
   const [selectedId, setSelectedId] = useState<string | null>(saved?.selectedId ?? null);
   const [lens, setLens] = useState<PersonRole | null>(saved?.lens ?? null);
+  const [scale, setScale] = useState(() => clampScale(saved?.scale ?? 1));
   const [query, setQuery] = useState('');
   const [searchOpen, setSearchOpen] = useState(false);
 
   const scrollRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLDivElement>(null);
+  const worldRef = useRef<HTMLDivElement>(null);
+  /** Měřítko, které je zrovna v DOM – zoom ho mění dřív, než React překreslí. */
+  const scaleRef = useRef(scale);
   /**
-   * Karta, která má po přepočtu zůstat pod prstem (rozbalení větve), a kde
+   * Karta, která má po přepočtu zůstat pod prstem (sbalení větve), a kde
    * na obrazovce ležela. Měří se v DOM, ne ze souřadnic stromu: úzký strom
-   * je v ploše vystředěný a jeho šířka se rozbalením mění.
+   * je v ploše vystředěný a jeho šířka se sbalením mění.
    */
   const anchorRef = useRef<{ id: string; left: number; top: number } | null>(null);
   /** Osoba, na kterou se má po přepočtu dojet (skok z osy, z hledání, z panelu). */
   const centerRef = useRef<string | null>(null);
   const restoredRef = useRef(false);
 
-  const layout = useMemo(() => layoutTree(kin, expanded), [kin, expanded]);
+  const layout = useMemo(() => layoutTree(kin, collapsed), [kin, collapsed]);
   const nodeMap = useMemo(() => new Map(layout.nodes.map((node) => [node.id, node])), [layout]);
+  const worldWidth = layout.width + 2 * PAD_X;
+  const worldHeight = layout.height + PAD_TOP + PAD_BOTTOM;
+  const sizeRef = useRef({ width: worldWidth, height: worldHeight });
+  sizeRef.current = { width: worldWidth, height: worldHeight };
 
   const eventsByPerson = useMemo(() => {
     const byId = new Map(events.map((event) => [event.id, event]));
@@ -151,21 +179,81 @@ export function GenealogyView({
     return PERSON_ROLES.filter((role) => present.has(role));
   }, [kin]);
 
+  /** Nejbližší rodina vybrané osoby – ve stromu se zvýrazní. */
+  const related = useMemo(() => {
+    const ids = new Set<string>();
+    if (!selectedId) return ids;
+    const relatives = relativesOf(kin, selectedId);
+    for (const relation of relatives.parents) ids.add(relation.fromPerson);
+    for (const relation of relatives.children) ids.add(relation.toPerson);
+    for (const partner of kin.partners.get(selectedId) ?? []) ids.add(partner);
+    return ids;
+  }, [kin, selectedId]);
+
   const foldable = useMemo(() => allFoldable(kin), [kin]);
-  const allExpanded = foldable.length > 0 && foldable.every((id) => expanded.has(id));
+  const allCollapsed = foldable.length > 0 && foldable.every((id) => collapsed.has(id));
 
   const remember = useCallback(() => {
     const el = scrollRef.current;
     onRemember({
-      expanded: [...expanded],
+      collapsed: [...collapsed],
       selectedId,
       lens,
+      scale: scaleRef.current,
       scrollLeft: el?.scrollLeft ?? 0,
       scrollTop: el?.scrollTop ?? 0,
     });
-  }, [expanded, selectedId, lens, onRemember]);
+  }, [collapsed, selectedId, lens, onRemember]);
 
-  useEffect(remember, [remember]);
+  useEffect(remember, [remember, scale]);
+
+  /**
+   * Zoom kolem bodu na obrazovce. Mění DOM rovnou a stav až potom: pinch
+   * posílá události rychleji, než React překresluje, a měřítko by se počítalo
+   * ze zastaralé hodnoty.
+   */
+  const zoomAt = useCallback((next: number, clientX: number, clientY: number) => {
+    const el = scrollRef.current;
+    const world = worldRef.current;
+    const canvas = canvasRef.current;
+    const from = scaleRef.current;
+    const to = clampScale(next);
+    if (!el || !world || !canvas || to === from) return;
+    const before = world.getBoundingClientRect();
+    const worldX = (clientX - before.left) / from;
+    const worldY = (clientY - before.top) / from;
+    scaleRef.current = to;
+    world.style.transform = `scale(${to})`;
+    canvas.style.width = `${sizeRef.current.width * to}px`;
+    canvas.style.height = `${sizeRef.current.height * to}px`;
+    const after = world.getBoundingClientRect();
+    el.scrollLeft += after.left + worldX * to - clientX;
+    el.scrollTop += after.top + worldY * to - clientY;
+    setScale(to);
+  }, []);
+
+  /** Zoom tlačítkem nebo klávesou: kolem středu plochy. */
+  const zoomBy = useCallback(
+    (factor: number) => {
+      const el = scrollRef.current;
+      if (!el) return;
+      const box = el.getBoundingClientRect();
+      zoomAt(scaleRef.current * factor, box.left + box.width / 2, box.top + box.height / 2);
+    },
+    [zoomAt],
+  );
+
+  const fitAll = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const box = el.getBoundingClientRect();
+    zoomAt(
+      Math.min(el.clientWidth / worldWidth, el.clientHeight / worldHeight),
+      box.left + box.width / 2,
+      box.top + box.height / 2,
+    );
+    el.scrollTo({ left: (el.scrollWidth - el.clientWidth) / 2, top: 0 });
+  };
 
   const centerOn = useCallback((node: TreeNode) => {
     const el = scrollRef.current;
@@ -173,10 +261,11 @@ export function GenealogyView({
     const now = screenPosition(el, node.id);
     if (!now) return;
     const box = el.getBoundingClientRect();
+    const s = scaleRef.current;
     el.scrollTo({
-      left: el.scrollLeft + now.left - box.left + NODE_WIDTH / 2 - el.clientWidth / 2,
+      left: el.scrollLeft + now.left - box.left + (NODE_WIDTH * s) / 2 - el.clientWidth / 2,
       // Do horní třetiny: na telefonu spodek zakrývá panel osoby.
-      top: el.scrollTop + now.top - box.top + NODE_HEIGHT / 2 - el.clientHeight / 3,
+      top: el.scrollTop + now.top - box.top + (NODE_HEIGHT * s) / 2 - el.clientHeight / 3,
     });
   }, []);
 
@@ -221,13 +310,13 @@ export function GenealogyView({
   const reveal = useCallback(
     (personId: string) => {
       setSelectedId(personId);
-      const toExpand = expansionsToReveal(kin, personId);
-      if (toExpand === null) return;
+      const toOpen = expansionsToReveal(kin, personId);
+      if (toOpen === null) return;
       centerRef.current = personId;
-      setExpanded((prev) => {
-        if (toExpand.every((id) => prev.has(id))) return new Set(prev);
+      // Nová množina i beze změny: přepočet spustí dojetí na osobu.
+      setCollapsed((prev) => {
         const next = new Set(prev);
-        for (const id of toExpand) next.add(id);
+        for (const id of toOpen) next.delete(id);
         return next;
       });
     },
@@ -249,7 +338,7 @@ export function GenealogyView({
 
   const toggleBranch = (node: TreeNode) => {
     holdInPlace(node.id);
-    setExpanded((prev) => {
+    setCollapsed((prev) => {
       const next = new Set(prev);
       if (next.has(node.id)) next.delete(node.id);
       else next.add(node.id);
@@ -260,19 +349,60 @@ export function GenealogyView({
   const toggleAll = () => {
     const keep = (selectedId && nodeMap.get(selectedId)) || layout.nodes[0];
     if (keep) holdInPlace(keep.id);
-    setExpanded(allExpanded ? new Set() : new Set(foldable));
+    setCollapsed(allCollapsed ? new Set() : new Set(foldable));
   };
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setSelectedId(null);
+      const target = e.target as HTMLElement | null;
+      if (target?.closest('input, textarea, select') || e.metaKey || e.ctrlKey || e.altKey) return;
+      // `key`, ne `code`: na české klávesnici je plus jinde.
+      if (e.key === '+' || e.key === '=') zoomBy(ZOOM_STEP);
+      else if (e.key === '-' || e.key === '−') zoomBy(1 / ZOOM_STEP);
     };
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
-  }, []);
+  }, [zoomBy]);
 
-  // Tažení myší. Dotyk a trackpad posouvají nativně; myš s kolečkem by se
-  // jinak do stran nedostala.
+  // Kolečko, trackpad a pinch. Posluchače se věší ručně: React je registruje
+  // jako pasivní a `preventDefault` by v nich neplatil.
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? el.clientHeight : 1;
+      if (e.ctrlKey || e.metaKey) {
+        zoomAt(scaleRef.current * Math.exp(-e.deltaY * unit * 0.01), e.clientX, e.clientY);
+        return;
+      }
+      // Oba směry naráz – nativní posun by gesto zamkl na jeden.
+      const sideways = e.shiftKey && e.deltaX === 0;
+      el.scrollLeft += (sideways ? e.deltaY : e.deltaX) * unit;
+      el.scrollTop += (sideways ? 0 : e.deltaY) * unit;
+    };
+    let gestureStart = 1;
+    const onGestureStart = (e: Event) => {
+      e.preventDefault();
+      gestureStart = scaleRef.current;
+    };
+    const onGestureChange = (e: Event) => {
+      e.preventDefault();
+      const gesture = e as Event & { scale: number; clientX: number; clientY: number };
+      zoomAt(gestureStart * gesture.scale, gesture.clientX, gesture.clientY);
+    };
+    el.addEventListener('wheel', onWheel, { passive: false });
+    el.addEventListener('gesturestart', onGestureStart, { passive: false });
+    el.addEventListener('gesturechange', onGestureChange, { passive: false });
+    return () => {
+      el.removeEventListener('wheel', onWheel);
+      el.removeEventListener('gesturestart', onGestureStart);
+      el.removeEventListener('gesturechange', onGestureChange);
+    };
+  }, [zoomAt]);
+
+  // Tažení myší – vedle kolečka druhá cesta, jak se dostat do stran.
   const dragRef = useRef<{ x: number; y: number; left: number; top: number } | null>(null);
   const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     if (e.pointerType !== 'mouse' || e.button !== 0) return;
@@ -298,7 +428,10 @@ export function GenealogyView({
     for (const person of kin.persons.values()) {
       if ([person.name, ...person.altNames].some((name) => fold(name).includes(needle))) hits.push(person);
     }
-    return hits.sort((a, b) => a.name.localeCompare(b.name, 'cs')).slice(0, 8);
+    // Hlavní linie napřed: „Ježíš“ má najít Ježíše, ne jeho jmenovce z Lukášova rodokmenu.
+    return hits
+      .sort((a, b) => Number(b.spine) - Number(a.spine) || a.name.localeCompare(b.name, 'cs'))
+      .slice(0, 8);
   }, [kin, query]);
 
   const selected = selectedId ? (kin.persons.get(selectedId) ?? null) : null;
@@ -371,9 +504,35 @@ export function GenealogyView({
 
           {foldable.length > 0 ? (
             <button type="button" className="genealogy-lens" onClick={toggleAll}>
-              {allExpanded ? cs.genealogy.collapseAll : cs.genealogy.expandAll}
+              {allCollapsed ? cs.genealogy.expandAll : cs.genealogy.collapseAll}
             </button>
           ) : null}
+
+          <span className="genealogy-zoom">
+            <button
+              type="button"
+              className="genealogy-lens"
+              onClick={() => zoomBy(1 / ZOOM_STEP)}
+              disabled={scale <= MIN_SCALE}
+              aria-label={cs.genealogy.zoomOut}
+              title={cs.genealogy.zoomOut}
+            >
+              −
+            </button>
+            <button
+              type="button"
+              className="genealogy-lens"
+              onClick={() => zoomBy(ZOOM_STEP)}
+              disabled={scale >= MAX_SCALE}
+              aria-label={cs.genealogy.zoomIn}
+              title={cs.genealogy.zoomIn}
+            >
+              +
+            </button>
+            <button type="button" className="genealogy-lens" onClick={fitAll}>
+              {cs.genealogy.fitAll}
+            </button>
+          </span>
 
           {canEdit ? (
             <span className="genealogy-progress" title={cs.genealogy.unverifiedNotice}>
@@ -394,52 +553,60 @@ export function GenealogyView({
         >
           <div
             className="genealogy-canvas"
-            style={{
-              width: layout.width + 2 * PAD_X,
-              height: layout.height + PAD_TOP + PAD_BOTTOM,
-            }}
+            ref={canvasRef}
+            style={{ width: worldWidth * scale, height: worldHeight * scale }}
           >
-            <svg
-              className="genealogy-edges"
-              width={layout.width + 2 * PAD_X}
-              height={layout.height + PAD_TOP + PAD_BOTTOM}
-              aria-hidden="true"
+            <div
+              className="genealogy-world"
+              ref={worldRef}
+              style={{ width: worldWidth, height: worldHeight, transform: `scale(${scale})` }}
             >
+              <svg className="genealogy-edges" width={worldWidth} height={worldHeight} aria-hidden="true">
+                {layout.links.map((link) => {
+                  const d = linkPath(link, nodeMap);
+                  return d ? (
+                    <path key={`${link.kind}-${link.from}-${link.to}`} className={linkClass(link)} d={d} />
+                  ) : null;
+                })}
+                {layout.nodes.map((node) => {
+                  const parent = node.parentId ? nodeMap.get(node.parentId) : null;
+                  if (!parent || !node.relation) return null;
+                  const x1 = parent.x + PAD_X + NODE_WIDTH / 2;
+                  const y1 = parent.y + PAD_TOP + NODE_HEIGHT;
+                  const x2 = node.x + PAD_X + NODE_WIDTH / 2;
+                  const y2 = node.y + PAD_TOP;
+                  // Příčka hned pod rodičem: u natažené linie vede dlouhá
+                  // svislice nad dítětem, ne napříč cizími řadami.
+                  const bar = y1 + NODE_GAP_Y / 2;
+                  return (
+                    <path
+                      key={node.id}
+                      className={edgeClass(node.relation)}
+                      d={x1 === x2 ? `M${x1},${y1}V${y2}` : `M${x1},${y1}V${bar}H${x2}V${y2}`}
+                    />
+                  );
+                })}
+              </svg>
+
               {layout.nodes.map((node) => {
-                const parent = node.parentId ? nodeMap.get(node.parentId) : null;
-                if (!parent || !node.relation) return null;
-                const x1 = parent.x + PAD_X + NODE_WIDTH / 2;
-                const y1 = parent.y + PAD_TOP + NODE_HEIGHT;
-                const x2 = node.x + PAD_X + NODE_WIDTH / 2;
-                const y2 = node.y + PAD_TOP;
-                const mid = (y1 + y2) / 2;
+                const person = kin.persons.get(node.id);
+                if (!person) return null;
                 return (
-                  <path
+                  <PersonCard
                     key={node.id}
-                    className={edgeClass(node.relation)}
-                    d={x1 === x2 ? `M${x1},${y1}V${y2}` : `M${x1},${y1}V${mid}H${x2}V${y2}`}
+                    node={node}
+                    person={person}
+                    events={eventsByPerson.get(node.id)}
+                    disputed={(kin.parents.get(node.id) ?? []).some((r) => r.certainty === 'sporne')}
+                    selected={node.id === selectedId}
+                    related={related.has(node.id)}
+                    dimmed={lens !== null && !person.roles.includes(lens)}
+                    onSelect={() => setSelectedId(node.id)}
+                    onToggle={() => toggleBranch(node)}
                   />
                 );
               })}
-            </svg>
-
-            {layout.nodes.map((node) => {
-              const person = kin.persons.get(node.id);
-              if (!person) return null;
-              return (
-                <PersonCard
-                  key={node.id}
-                  node={node}
-                  person={person}
-                  events={eventsByPerson.get(node.id)}
-                  disputed={(kin.parents.get(node.id) ?? []).some((r) => r.certainty === 'sporne')}
-                  selected={node.id === selectedId}
-                  dimmed={lens !== null && !person.roles.includes(lens)}
-                  onSelect={() => setSelectedId(node.id)}
-                  onToggle={() => toggleBranch(node)}
-                />
-              );
-            })}
+            </div>
           </div>
         </div>
 
@@ -449,11 +616,12 @@ export function GenealogyView({
           </li>
           <li>
             <span className="genealogy-legend-line genealogy-legend-derived" /> {cs.genealogy.legendDerived}
-            {' / '}
-            {cs.genealogy.legendFoster}
           </li>
           <li>
             <span className="genealogy-legend-line genealogy-legend-disputed" /> {cs.genealogy.legendDisputed}
+          </li>
+          <li>
+            <span className="genealogy-legend-line genealogy-legend-marriage" /> {cs.genealogy.legendMarriage}
           </li>
         </ul>
       </div>
@@ -484,14 +652,43 @@ function screenPosition(container: HTMLElement, personId: string): { left: numbe
   return { left: rect.left, top: rect.top };
 }
 
+function certaintyClass(relation: Relation): string {
+  if (relation.certainty === 'sporne') return ' genealogy-edge-disputed';
+  if (relation.certainty === 'odvozeno' || relation.kind !== 'rodic') return ' genealogy-edge-derived';
+  return '';
+}
+
 function edgeClass(relation: Relation): string {
-  const style =
-    relation.certainty === 'sporne'
-      ? ' genealogy-edge-disputed'
-      : relation.certainty === 'odvozeno' || relation.kind !== 'rodic'
-        ? ' genealogy-edge-derived'
-        : '';
-  return `genealogy-edge${style}${relation.verified ? ' genealogy-edge-verified' : ''}`;
+  return `genealogy-edge${certaintyClass(relation)}${relation.verified ? ' genealogy-edge-verified' : ''}`;
+}
+
+function linkClass(link: TreeLink): string {
+  if (link.kind === 'marriage') return 'genealogy-edge genealogy-edge-marriage';
+  return `${link.relation ? edgeClass(link.relation) : 'genealogy-edge'} genealogy-edge-second`;
+}
+
+/**
+ * Čára mimo kostru. Manželství vede vodorovně ve výšce karet – mezi sousedy
+ * je to krátká spojka, u vzdálených zajede za karty mezi nimi. Druhý rodič
+ * má příčku těsně nad dítětem, aby nesplynula s příčkou sourozenců.
+ */
+function linkPath(link: TreeLink, nodes: Map<string, TreeNode>): string | null {
+  const from = nodes.get(link.from);
+  const to = nodes.get(link.to);
+  if (!from || !to) return null;
+  if (link.kind === 'marriage') {
+    const [left, right] = from.x <= to.x ? [from, to] : [to, from];
+    const y1 = left.y + PAD_TOP + NODE_HEIGHT / 2;
+    const y2 = right.y + PAD_TOP + NODE_HEIGHT / 2;
+    return `M${left.x + PAD_X + NODE_WIDTH},${y1}L${right.x + PAD_X},${y2}`;
+  }
+  // O kousek vedle středu: uprostřed vede čára od hlavního rodiče.
+  const side = from.x <= to.x ? -1 : 1;
+  const x1 = from.x + PAD_X + NODE_WIDTH / 2;
+  const y1 = from.y + PAD_TOP + NODE_HEIGHT;
+  const x2 = to.x + PAD_X + NODE_WIDTH / 2 + side * 18;
+  const y2 = to.y + PAD_TOP;
+  return `M${x1},${y1}V${y2 - NODE_GAP_Y * 0.26}H${x2}V${y2}`;
 }
 
 // ---------------------------------------------------------------------------
@@ -504,18 +701,27 @@ interface CardProps {
   events: PersonEvent[] | undefined;
   disputed: boolean;
   selected: boolean;
+  related: boolean;
   dimmed: boolean;
   onSelect: () => void;
   onToggle: () => void;
 }
 
-function PersonCard({ node, person, events, disputed, selected, dimmed, onSelect, onToggle }: CardProps) {
+function PersonCard({ node, person, events, disputed, selected, related, dimmed, onSelect, onToggle }: CardProps) {
   const life = events?.find((entry) => entry.role === 'zivot') ?? events?.[0];
-  const sub = life ? formatRangeCompact(life.event.start, life.event.end) : person.qualifier;
-  const roles = person.roles.filter(isRole);
+  const role = person.roles.find(isRole);
+  // Druhý řádek: roky ze záznamu osy, jinak role, jinak rozlišovač jména.
+  const sub = life
+    ? formatRangeCompact(life.event.start, life.event.end)
+    : role
+      ? cs.genealogy.roleOne[role]
+      : person.qualifier;
   const className =
     'genealogy-card' +
+    (person.gender === 'f' ? ' genealogy-card-f' : '') +
     (person.spine ? ' genealogy-card-spine' : '') +
+    (role ? ' genealogy-card-role' : '') +
+    (related ? ' genealogy-card-related' : '') +
     (selected ? ' genealogy-card-selected' : '') +
     (dimmed ? ' genealogy-card-dimmed' : '');
 
@@ -525,7 +731,13 @@ function PersonCard({ node, person, events, disputed, selected, dimmed, onSelect
       data-person={node.id}
       style={{ left: node.x + PAD_X, top: node.y + PAD_TOP, width: NODE_WIDTH, height: NODE_HEIGHT }}
     >
-      <button type="button" className={className} onClick={onSelect} aria-pressed={selected}>
+      <button
+        type="button"
+        className={className}
+        style={role ? ({ '--role': ROLE_COLORS[role] } as React.CSSProperties) : undefined}
+        onClick={onSelect}
+        aria-pressed={selected}
+      >
         <span className="genealogy-card-name">
           {person.name}
           {disputed ? (
@@ -535,18 +747,6 @@ function PersonCard({ node, person, events, disputed, selected, dimmed, onSelect
           ) : null}
         </span>
         {sub ? <span className="genealogy-card-sub">{sub}</span> : null}
-        {roles.length > 0 ? (
-          <span className="genealogy-card-roles">
-            {roles.map((role) => (
-              <span
-                key={role}
-                className="genealogy-role-dot"
-                style={{ background: ROLE_COLORS[role] }}
-                title={cs.genealogy.roleOne[role]}
-              />
-            ))}
-          </span>
-        ) : null}
       </button>
       {node.foldable ? (
         <button

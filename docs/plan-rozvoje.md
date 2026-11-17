@@ -21,7 +21,7 @@ Pravidla, která pro všechno níž platí:
 |---|---|
 | Záloha dat | denně do větve `zaloha-dat`, skript `scripts/zaloha.mjs` |
 | Osoby a vazby | tabulky `persons`, `person_events`, `relations`; 191 osob, 256 vazeb, 66 propojení se záznamy osy |
-| Sekce Rodokmen | strom s páteří, rozbalování větví, hledání osob, zvýraznění králů a velekněží, panel osoby, úprava zdroje / jistoty / ověření vazby |
+| Sekce Rodokmen | celý strom rozbalený (větve jdou sbalit), manželky vedle manželů, druhý rodič a manželství čarou, zoom a volný posun, hledání osob, barevně králové a velekněží, oblé karty žen, panel osoby, úprava zdroje / jistoty / ověření vazby |
 | Propojení s osou | „Ukázat na ose“ z panelu osoby, sekce „Rodina“ a „Ukázat v rodokmenu“ v detailu záznamu |
 
 Co v databázi z rodokmenu je: Adam → Abraham (1Mo 5 a 11), Abraham → David
@@ -111,12 +111,14 @@ Seřazeno podle užitku.
    „jen plakát“, „sporné“ — po jedné v panelu je to 256 klepnutí.
 3. **Rodokmen v exportu a importu.** `Dataset` osoby nezná; do té doby je
    jedinou kopií větev `zaloha-dat`. Zvýšit `EXPORT_SCHEMA_VERSION`.
-4. **Sporné vazby vedle sebe.** Druhý rodič je dnes vidět jen v panelu.
-   Zamýšlený přepínač „podle Matouše / podle Lukáše“ by měnil hlavního rodiče.
+4. **Přepínač „podle Matouše / podle Lukáše“.** Druhý rodič se kreslí tenkou
+   čarou; přepínač by měnil, pod kým osoba ve stromu visí.
 5. **Další osoby z plakátu**: velekněží po Eleazarovi, soudci, kmeny. Role
    `soudce` a `prorok` jsou v kódu připravené, v datech zatím nejsou.
-6. **Manželky ve stromu.** Kdo nemá známé rodiče ani děti, je jen v panelu.
-7. **Zmenšení stromu** (přehled celku). Rozbalený strom má 3600 × 6300 px.
+6. **Dotykový pinch mimo Safari** (Android). Na Macu a iPadu zoom gestem
+   funguje, jinde jen tlačítky a klávesami.
+7. **Strom je hodně vysoký** (přes 7000 px), „Celý strom“ ho zmenší do
+   nečitelna. Pomohla by minimapa nebo užší řady při oddálení.
 8. Druhý strom (Zecharjáš → Jan Křtitel) stojí vedle Adama v první řadě;
    s časem nesouvisí. Příbuzenství Alžběty a Marie v datech není.
 9. Hledání v hlavičce najde jen záznamy osy, osoby má vlastní pole v rodokmenu.

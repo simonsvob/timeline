@@ -10,11 +10,16 @@
  * vazby se nekreslí čarou, ale ukážou se v detailu osoby. Čáry přes celý
  * strom by z něj udělaly síť.
  *
- * **Páteř a sbalené větve.** Na začátku je vidět jen hlavní linie
- * (`Person.spine`). Kde se rodina větví, nese osoba počet schovaných dětí a
- * větev se rozbalí až na požádání — plakát se vším najednou je na obrazovce
- * nečitelný. Páteř drží svislou přímku: rodič stojí přesně nad svým
- * potomkem na páteři, ať se kolem rozbalí cokoli.
+ * **Řady nejsou generace od Adama.** Dítě stojí pod *všemi* svými rodiči a
+ * manželé vedle sebe, takže se kratší linie natáhne: Marie má podle Lukáše
+ * víc předků než Josef podle Matouše, a aby stáli vedle sebe nad Ježíšem,
+ * dostane Josef delší čáru od otce.
+ *
+ * **Manželky bez známých rodičů** vlastní místo ve stromu nemají; přisadí se
+ * vedle manžela. Děti k matce ukáže výběr osoby, ne dvanáct dalších čar.
+ *
+ * **Páteř** (`Person.spine`) drží svislou přímku, větve se k ní přisazují
+ * z obou stran. Všechno je rozbalené; sbalit jde jednotlivé větve.
  */
 
 import type { Person, Relation } from '../data/types';
@@ -29,6 +34,8 @@ export interface KinIndex {
   /** vazby, ve kterých je osoba rodičem; seřazené podle pořadí dětí */
   children: Map<string, Relation[]>;
   spouses: Map<string, Relation[]>;
+  /** manželé a ti, s kým má osoba společné dítě (i bez zapsaného manželství) */
+  partners: Map<string, string[]>;
 }
 
 function pushTo(map: Map<string, Relation[]>, key: string, relation: Relation) {
@@ -51,6 +58,7 @@ export function buildKinIndex(
     parents: new Map(),
     children: new Map(),
     spouses: new Map(),
+    partners: new Map(),
   };
   for (const relation of relations) {
     if (!options.includeUnverified && !relation.verified) continue;
@@ -68,6 +76,18 @@ export function buildKinIndex(
     list.sort(
       (a, b) => a.sortOrder - b.sortOrder || name(a.toPerson).localeCompare(name(b.toPerson), 'cs'),
     );
+  }
+  const addPartner = (a: string, b: string) => {
+    if (a === b) return;
+    const list = index.partners.get(a);
+    if (!list) index.partners.set(a, [b]);
+    else if (!list.includes(b)) list.push(b);
+  };
+  for (const [id, list] of index.spouses) {
+    for (const relation of list) addPartner(id, relation.fromPerson === id ? relation.toPerson : relation.fromPerson);
+  }
+  for (const list of index.parents.values()) {
+    for (const a of list) for (const b of list) addPartner(a.fromPerson, b.fromPerson);
   }
   return index;
 }
@@ -129,7 +149,7 @@ export function treeRoots(index: KinIndex): string[] {
 export const NODE_WIDTH = 150;
 export const NODE_HEIGHT = 54;
 export const NODE_GAP_X = 16;
-export const NODE_GAP_Y = 30;
+export const NODE_GAP_Y = 38;
 /** Mezera mezi samostatnými stromy vedle sebe. */
 export const TREE_GAP = 56;
 
@@ -138,19 +158,32 @@ export interface TreeNode {
   /** levý horní roh karty */
   x: number;
   y: number;
-  depth: number;
+  /** řada; rodič bývá o jednu výš, u natažené linie o víc */
+  row: number;
   parentId: string | null;
   /** vazba na hlavního rodiče – nese jistotu a ověření pro styl čáry */
   relation: Relation | null;
   /** kolik dětí je schovaných za sbalenou větví */
   hidden: number;
-  /** má větev, kterou jde rozbalit nebo sbalit */
+  /** má větev, kterou jde sbalit nebo rozbalit */
   foldable: boolean;
   expanded: boolean;
+  /** partner bez vlastního místa ve stromu: u koho je přisazený */
+  attachedTo: string | null;
+}
+
+/** Čára mimo kostru stromu: manželství, nebo druhý rodič. */
+export interface TreeLink {
+  kind: 'marriage' | 'parent';
+  from: string;
+  to: string;
+  /** `null` u partnerů bez zapsaného manželství (společné dítě) */
+  relation: Relation | null;
 }
 
 export interface TreeLayout {
   nodes: TreeNode[];
+  links: TreeLink[];
   width: number;
   height: number;
 }
@@ -161,160 +194,285 @@ interface Extent {
   max: number;
 }
 
-/**
- * Páteř stojí na jedné svislici a větve se k ní přisazují z obou stran:
- * sourozenci před potomkem na páteři doleva, ostatní doprava. Každá větev se
- * přirazí tak těsně, jak dovolí to, co už na její straně v dotčených řadách
- * stojí (obrys). Bez obrysu by rozbalení dvanácti Jákobových synů odsunulo
- * Kaina o půl obrazovky od Adama.
- */
-export function layoutTree(index: KinIndex, expanded: ReadonlySet<string>): TreeLayout {
-  const nodes = new Map<string, TreeNode>();
+const STEP = NODE_WIDTH + NODE_GAP_X;
+const ROW = NODE_HEIGHT + NODE_GAP_Y;
 
-  const visibleChildren = (id: string) => {
+/**
+ * `collapsed` jsou osoby se sbalenou větví; všechno ostatní je rozbalené.
+ */
+export function layoutTree(index: KinIndex, collapsed: ReadonlySet<string>): TreeLayout {
+  // --- 1. kostra: kdo je vidět a pod kým visí -------------------------------
+  const treeParent = new Map<string, { id: string; relation: Relation } | null>();
+  const kids = new Map<string, Relation[]>();
+  const hiddenCount = new Map<string, number>();
+  const foldableIds = new Set<string>();
+  const order: string[] = [];
+  const roots = treeRoots(index);
+  const walk = (id: string, parent: { id: string; relation: Relation } | null) => {
+    // Zápis před dětmi: cyklus v datech by jinak rekurzi nezastavil.
+    treeParent.set(id, parent);
+    order.push(id);
     const all = treeChildren(index, id);
     const fixed = all.filter((child) => alwaysVisible(index, id, child.toPerson, all.length));
-    const open = expanded.has(id);
-    return { all, visible: open ? all : fixed, foldable: all.length > fixed.length, open };
+    const visible = (collapsed.has(id) ? fixed : all).filter((child) => !treeParent.has(child.toPerson));
+    kids.set(id, visible);
+    hiddenCount.set(id, all.length - visible.length);
+    if (all.length > fixed.length) foldableIds.add(id);
+    for (const child of visible) walk(child.toPerson, { id, relation: child });
   };
+  for (const root of roots) if (!treeParent.has(root)) walk(root, null);
 
-  const makeNode = (id: string, depth: number, x: number, parentId: string | null, relation: Relation | null) => {
-    const { all, visible, foldable, open } = visibleChildren(id);
+  // --- 2. řady ---------------------------------------------------------------
+  const isAncestor = (ancestor: string, id: string) => {
+    for (let at = treeParent.get(id); at; at = treeParent.get(at.id)) if (at.id === ancestor) return true;
+    return false;
+  };
+  const row = new Map<string, number>(order.map((id) => [id, 0]));
+  // Každý průchod posouvá jen dolů; strop je pojistka proti datům, která by
+  // se honila dokola (manžel vlastním potomkem přes druhou vazbu).
+  for (let pass = 0; pass < 200; pass++) {
+    let changed = false;
+    for (const id of order) {
+      let next = row.get(id)!;
+      const parent = treeParent.get(id);
+      if (parent) next = Math.max(next, row.get(parent.id)! + 1);
+      for (const relation of index.parents.get(id) ?? []) {
+        const other = row.get(relation.fromPerson);
+        if (other !== undefined && !isAncestor(id, relation.fromPerson)) next = Math.max(next, other + 1);
+      }
+      for (const partner of index.partners.get(id) ?? []) {
+        const other = row.get(partner);
+        if (other !== undefined && !isAncestor(id, partner) && !isAncestor(partner, id)) next = Math.max(next, other);
+      }
+      if (next !== row.get(id)) {
+        row.set(id, next);
+        changed = true;
+      }
+    }
+    if (!changed) break;
+  }
+  // Vedlejší strom nezačíná nahoře vedle Adama, ale těsně nad svými dětmi.
+  for (const root of roots) {
+    if (index.persons.get(root)?.spine) continue;
+    const below = (kids.get(root) ?? []).map((child) => row.get(child.toPerson)!);
+    if (below.length > 0) row.set(root, Math.max(row.get(root)!, Math.min(...below) - 1));
+  }
+
+  // --- 3. partneři bez vlastního místa --------------------------------------
+  const attached = new Map<string, string[]>();
+  for (const person of index.persons.values()) {
+    if (row.has(person.id) || primaryParentRelation(index, person.id)) continue;
+    const hosts = (index.partners.get(person.id) ?? []).filter((id) => row.has(id));
+    if (hosts.length === 0) continue;
+    const shared = (host: string) =>
+      (index.children.get(person.id) ?? []).filter((child) =>
+        (index.parents.get(child.toPerson) ?? []).some((parent) => parent.fromPerson === host),
+      ).length;
+    const host = hosts.reduce((best, id) => (shared(id) > shared(best) ? id : best));
+    const list = attached.get(host);
+    if (list) list.push(person.id);
+    else attached.set(host, [person.id]);
+  }
+  // Manželky v pořadí svých prvních dětí (Lea před Ráchel), bezdětné na konec.
+  const firstChild = (id: string) => Math.min(Infinity, ...(index.children.get(id) ?? []).map((child) => child.sortOrder));
+  const nameOf = (id: string) => index.persons.get(id)?.name ?? '';
+  for (const list of attached.values()) {
+    list.sort((x, y) => {
+      const a = firstChild(x);
+      const b = firstChild(y);
+      return (a === b ? 0 : a < b ? -1 : 1) || nameOf(x).localeCompare(nameOf(y), 'cs');
+    });
+  }
+
+  // --- 4. vodorovné polohy ---------------------------------------------------
+  const nodes = new Map<string, TreeNode>();
+  const makeNode = (id: string, x: number): TreeNode => {
+    const parent = treeParent.get(id) ?? null;
     const node: TreeNode = {
       id,
       x,
-      y: depth * (NODE_HEIGHT + NODE_GAP_Y),
-      depth,
-      parentId,
-      relation,
-      hidden: all.length - visible.length,
-      foldable,
-      expanded: open,
+      y: row.get(id)! * ROW,
+      row: row.get(id)!,
+      parentId: parent?.id ?? null,
+      relation: parent?.relation ?? null,
+      hidden: hiddenCount.get(id) ?? 0,
+      foldable: foldableIds.has(id),
+      expanded: !collapsed.has(id),
+      attachedTo: null,
     };
-    // Zápis před dětmi: cyklus v datech (osoba vlastním předkem) by jinak
-    // rekurzi nikdy nezastavil.
     nodes.set(id, node);
-    return { node, visible };
+    return node;
+  };
+  const attach = (host: TreeNode, into: TreeNode[]) => {
+    (attached.get(host.id) ?? []).forEach((id, i) => {
+      const node: TreeNode = {
+        id,
+        x: host.x + (i + 1) * STEP,
+        y: host.y,
+        row: host.row,
+        parentId: null,
+        relation: null,
+        hidden: 0,
+        foldable: false,
+        expanded: true,
+        attachedTo: host.id,
+      };
+      nodes.set(id, node);
+      into.push(node);
+    });
   };
 
-  /** Obyčejný podstrom: rozmístí se od `left` doprava, rodič nad středem dětí. */
-  const place = (
-    id: string,
-    depth: number,
-    left: number,
-    parentId: string | null,
-    relation: Relation | null,
-    into: TreeNode[],
-  ): number => {
-    const { node, visible } = makeNode(id, depth, left, parentId, relation);
+  /** Obyčejný podstrom: od `left` doprava, rodič nad středem dětí. Vrací šířku. */
+  const place = (id: string, left: number, into: TreeNode[]): number => {
+    const node = makeNode(id, left);
     into.push(node);
     let cursor = left;
     const placed: TreeNode[] = [];
-    for (const child of visible) {
-      if (nodes.has(child.toPerson)) continue;
-      cursor += place(child.toPerson, depth + 1, cursor, id, child, into) + NODE_GAP_X;
+    for (const child of kids.get(id) ?? []) {
+      cursor += place(child.toPerson, cursor, into) + NODE_GAP_X;
       placed.push(nodes.get(child.toPerson)!);
     }
-    if (placed.length === 0) return NODE_WIDTH;
-    node.x = (placed[0].x + placed[placed.length - 1].x) / 2;
-    return Math.max(cursor - NODE_GAP_X - left, NODE_WIDTH);
+    if (placed.length > 0) node.x = (placed[0].x + placed[placed.length - 1].x) / 2;
+    attach(node, into);
+    const own = node.x - left + NODE_WIDTH + (attached.get(id)?.length ?? 0) * STEP;
+    return Math.max(placed.length > 0 ? cursor - NODE_GAP_X - left : 0, own);
   };
 
-  const extentsOf = (list: readonly TreeNode[]) => {
+  /**
+   * Co větev v které řadě zabírá. Počítá se i svislá čára natažené linie:
+   * prochází řadami, kde žádnou kartu nemá, a nesmí jí tam nic zalehnout.
+   */
+  const extentsOf = (list: readonly TreeNode[], parentRow: number) => {
     const extents = new Map<number, Extent>();
-    for (const node of list) {
-      const extent = extents.get(node.depth);
+    const add = (r: number, x: number) => {
+      const extent = extents.get(r);
       if (extent) {
-        extent.min = Math.min(extent.min, node.x);
-        extent.max = Math.max(extent.max, node.x);
-      } else extents.set(node.depth, { min: node.x, max: node.x });
+        extent.min = Math.min(extent.min, x);
+        extent.max = Math.max(extent.max, x);
+      } else extents.set(r, { min: x, max: x });
+    };
+    for (const node of list) {
+      add(node.row, node.x);
+      if (node.attachedTo) continue;
+      const above = node.parentId ? (nodes.get(node.parentId)?.row ?? parentRow) : parentRow;
+      for (let r = above + 1; r < node.row; r++) add(r, node.x);
     }
     return extents;
   };
 
-  /** Strom s páteří: páteř na x = 0, větve přisazené k obrysu. */
+  /** Strom s páteří: páteř na x = 0, větve přisazené k obrysu z obou stran. */
   const placeSpine = (rootId: string, into: TreeNode[]) => {
-    /** krajní obsazená poloha v každé řadě, zvlášť vlevo a vpravo od páteře */
     const leftEdge = new Map<number, number>();
     const rightEdge = new Map<number, number>();
-    const step = NODE_WIDTH + NODE_GAP_X;
 
-    const attach = (child: Relation, depth: number, parentId: string, side: 'left' | 'right') => {
-      if (nodes.has(child.toPerson)) return;
+    // Nejdřív celá páteř i s manželkami – drží si místo dřív, než se k ní
+    // začnou přisazovat větve, které sahají o desítky řad níž.
+    const chain: TreeNode[] = [];
+    for (let id: string | undefined = rootId; id; ) {
+      const node = makeNode(id, 0);
+      chain.push(node);
+      into.push(node);
+      attach(node, into);
+      rightEdge.set(node.row, (attached.get(id)?.length ?? 0) * STEP);
+      id = (kids.get(id) ?? []).find((child) => index.persons.get(child.toPerson)?.spine)?.toPerson;
+    }
+
+    const side = (child: Relation, parent: TreeNode, where: 'left' | 'right') => {
       const branch: TreeNode[] = [];
-      place(child.toPerson, depth, 0, parentId, child, branch);
-      const extents = extentsOf(branch);
-      let shift = side === 'right' ? -Infinity : Infinity;
-      for (const [row, extent] of extents) {
-        // Řada, kam páteř ještě nedošla, se počítá jako obsazená páteří:
-        // jde se shora, takže hluboká větev by jí jinak zalehla místo.
-        if (side === 'right') shift = Math.max(shift, (rightEdge.get(row) ?? 0) + step - extent.min);
-        else shift = Math.min(shift, (leftEdge.get(row) ?? 0) - step - extent.max);
+      place(child.toPerson, 0, branch);
+      const extents = extentsOf(branch, parent.row);
+      let shift = where === 'right' ? -Infinity : Infinity;
+      for (const [r, extent] of extents) {
+        // Řada bez záznamu patří páteři: buď tam stojí, nebo jí tam vede čára.
+        if (where === 'right') shift = Math.max(shift, (rightEdge.get(r) ?? 0) + STEP - extent.min);
+        else shift = Math.min(shift, (leftEdge.get(r) ?? 0) - STEP - extent.max);
       }
       for (const node of branch) node.x += shift;
-      for (const [row, extent] of extents) {
-        if (side === 'right') rightEdge.set(row, extent.max + shift);
-        else leftEdge.set(row, extent.min + shift);
+      for (const [r, extent] of extents) {
+        if (where === 'right') rightEdge.set(r, extent.max + shift);
+        else leftEdge.set(r, extent.min + shift);
       }
       into.push(...branch);
     };
 
-    let current: { id: string; parentId: string | null; relation: Relation | null } | null = {
-      id: rootId,
-      parentId: null,
-      relation: null,
-    };
-    let depth = 0;
-    while (current) {
-      const { node, visible } = makeNode(current.id, depth, 0, current.parentId, current.relation);
-      into.push(node);
-      leftEdge.set(depth, Math.min(leftEdge.get(depth) ?? 0, 0));
-      rightEdge.set(depth, Math.max(rightEdge.get(depth) ?? 0, 0));
-
-      const next = visible.findIndex(
-        (child) => index.persons.get(child.toPerson)?.spine && !nodes.has(child.toPerson),
-      );
-      // Potomek na páteři si drží místo dřív, než se k řadě přisadí větve.
-      if (next >= 0) {
-        leftEdge.set(depth + 1, Math.min(leftEdge.get(depth + 1) ?? 0, 0));
-        rightEdge.set(depth + 1, Math.max(rightEdge.get(depth + 1) ?? 0, 0));
-      }
-      const before = next >= 0 ? visible.slice(0, next) : [];
-      const after = next >= 0 ? visible.slice(next + 1) : visible;
+    chain.forEach((node, i) => {
+      const children = kids.get(node.id) ?? [];
+      const next = chain[i + 1] ? children.findIndex((child) => child.toPerson === chain[i + 1].id) : -1;
+      const before = next >= 0 ? children.slice(0, next) : [];
+      const after = next >= 0 ? children.slice(next + 1) : children;
       // Vlevo od nejbližšího k páteři, aby pořadí zleva doprava zůstalo.
-      for (const child of [...before].reverse()) attach(child, depth + 1, node.id, 'left');
-      for (const child of after) attach(child, depth + 1, node.id, 'right');
-
-      current = next >= 0 ? { id: visible[next].toPerson, parentId: node.id, relation: visible[next] } : null;
-      depth += 1;
-    }
+      for (const child of [...before].reverse()) side(child, node, 'left');
+      for (const child of after) side(child, node, 'right');
+    });
   };
 
   let offset = 0;
-  for (const root of treeRoots(index)) {
+  for (const root of roots) {
     if (nodes.has(root)) continue;
     const tree: TreeNode[] = [];
     if (index.persons.get(root)?.spine) placeSpine(root, tree);
-    else place(root, 0, 0, null, null, tree);
+    else place(root, 0, tree);
     const min = Math.min(...tree.map((node) => node.x));
     const max = Math.max(...tree.map((node) => node.x));
     for (const node of tree) node.x += offset - min;
     offset += max - min + NODE_WIDTH + TREE_GAP;
   }
 
+  // --- 5. čáry mimo kostru ---------------------------------------------------
+  const links: TreeLink[] = [];
+  const married = new Set<string>();
+  for (const list of index.spouses.values()) {
+    for (const relation of list) {
+      if (married.has(relation.id)) continue;
+      married.add(relation.id);
+      if (nodes.has(relation.fromPerson) && nodes.has(relation.toPerson)) {
+        links.push({ kind: 'marriage', from: relation.fromPerson, to: relation.toPerson, relation });
+      }
+    }
+  }
+  for (const node of nodes.values()) {
+    if (node.attachedTo) {
+      // Přisazená matka bez zapsaného manželství (Tamar u Judy).
+      const wed = (index.spouses.get(node.id) ?? []).some(
+        (r) => r.fromPerson === node.attachedTo || r.toPerson === node.attachedTo,
+      );
+      if (!wed) links.push({ kind: 'marriage', from: node.attachedTo, to: node.id, relation: null });
+      continue;
+    }
+    for (const relation of index.parents.get(node.id) ?? []) {
+      if (relation.id === node.relation?.id) continue;
+      const parent = nodes.get(relation.fromPerson);
+      // Matku přisazenou vedle otce říká sousedství; čára by jen přidala šum.
+      if (!parent || (parent.attachedTo && parent.attachedTo === node.parentId)) continue;
+      links.push({ kind: 'parent', from: relation.fromPerson, to: node.id, relation });
+    }
+  }
+
   const list = [...nodes.values()];
   return {
     nodes: list,
+    links,
     width: list.length === 0 ? 0 : Math.max(...list.map((node) => node.x)) + NODE_WIDTH,
     height: list.length === 0 ? 0 : Math.max(...list.map((node) => node.y)) + NODE_HEIGHT,
   };
 }
 
 /**
- * Koho rozbalit, aby byla osoba ve stromu vidět. `null`, když ve stromu není
- * vůbec — typicky manželka bez známých rodičů; ta má jen detail.
+ * Čí větve nesmí být sbalené, aby byla osoba ve stromu vidět. Partner bez
+ * vlastního místa se ukáže u toho, ke komu patří. `null`, když osobu strom
+ * ukázat neumí vůbec.
  */
 export function expansionsToReveal(index: KinIndex, personId: string): string[] | null {
+  const own = ancestorsToOpen(index, personId);
+  if (own) return own;
+  for (const partner of index.partners.get(personId) ?? []) {
+    const viaPartner = ancestorsToOpen(index, partner);
+    if (viaPartner) return viaPartner;
+  }
+  return null;
+}
+
+function ancestorsToOpen(index: KinIndex, personId: string): string[] | null {
   const toExpand: string[] = [];
   const seen = new Set<string>();
   let current = personId;
@@ -332,7 +490,7 @@ export function expansionsToReveal(index: KinIndex, personId: string): string[] 
   return inTree ? toExpand : null;
 }
 
-/** Všichni, kdo mají co rozbalit — pro tlačítko „Rozbalit vše“. */
+/** Všichni, kdo mají co sbalit — pro tlačítko „Sbalit vše“. */
 export function allFoldable(index: KinIndex): string[] {
   const result: string[] = [];
   for (const id of index.persons.keys()) {
