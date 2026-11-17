@@ -333,10 +333,12 @@ Sourozenci, prarodiče a vnuci se **neukládají**, počítají se z rodičů
 
 **Jistota a ověření jsou dvě různé věci.** `certainty` říká, co tvrdí zdroj
 (`vyslovne` / `odvozeno` / `sporne`), a kreslí se druhem čáry. `verified`
-říká, že vazbu **člověk** zkontroloval proti Bibli nebo publikaci. Neověřené
-vazby vidí jen přihlášený (`buildKinIndex(…, { includeUnverified: canEdit })`
-v `App`); dokud není ověřená žádná, nepřihlášenému se přepínač Rodokmen vůbec
-nenabídne. Zadavatel chce mít vazby opřené o Bibli a publikace z jw.org —
+říká, že vazbu **člověk** zkontroloval proti Bibli nebo publikaci. **Rodokmen
+je veřejný celý, i s neověřenými vazbami** (`includeUnverified: true` v `App`)
+— zadavatel to tak výslovně chce. Ověření je jeho pracovní značka: zatržítka
+a úpravy vazby vidí jen přihlášený, ověřená vazba má tmavší čáru. Volba
+`includeUnverified: false` v `buildKinIndex` zůstala pro případ, že by se to
+otočilo. Zadavatel chce mít vazby opřené o Bibli a publikace z jw.org —
 **nic nedomýšlej**, a co nejde doložit, ulož jako neověřené se zdrojem, ze
 kterého to je.
 

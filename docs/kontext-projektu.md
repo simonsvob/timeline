@@ -91,8 +91,8 @@ i `authenticated`, ne jen existencí politik.
   Obsahuje celý plakát „Slíbené potomstvo“ včetně manželek a vedlejších rodin.
   Funguje celý strom (větve jdou sbalit), zoom, panel osoby, proklik na osu a
   zpět, hledání osob a úprava zdroje, jistoty a ověření u vazby. **Skoro
-  všechny vazby jsou neověřené** — zadavatel je prochází a ověřuje sám;
-  nepřihlášený vidí jen ověřenou část. Co chybí a v jakém pořadí, je v
+  všechny vazby jsou neověřené** — zadavatel je prochází a ověřuje sám.
+  Rodokmen je přesto veřejný celý; ověření je jeho pracovní značka. Co chybí a v jakém pořadí, je v
   [`plan-rozvoje.md`](plan-rozvoje.md).
 - **Audit dat čeká na rozhodnutí.** Dvacet nálezů v 557 záznamech, čtyři
   závažné. Nic z toho se neopravovalo — seznam je v `plan-rozvoje.md`.
@@ -272,8 +272,9 @@ Další rozhodnutí kolem rodokmenu:
   (621 z 844) má jako zdroj jen plakát; tam, kde plakát sám něco značí jako
   nejisté nebo kde bylo čtení obrázku nejisté, je u vazby poznámka, co ověřit. Čísla veršů se zapisovala bez přístupu k textu nwt, proto
   je všechno `verified = false`.
-- **Neověřené je vidět jen po přihlášení.** Veřejný web nemá ukazovat
-  příbuzenství, které nikdo nezkontroloval.
+- **Rodokmen je veřejný celý, i neověřený** (rozhodl zadavatel 17. 11. 2026).
+  Původně viděl neověřené vazby jen přihlášený. Ověřování zůstalo jako jeho
+  pracovní značka: po přihlášení vidí zatržítka a ví, co už si prostudoval.
 
 Doplnění zbytku plakátu (496 osob, 588 vazeb) je v `data/rodokmen-doplnek.json`.
 Stopa prvního naplnění je v `data/rodokmen-zaklad.json` (osoby se slugy,

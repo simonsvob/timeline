@@ -35,11 +35,11 @@ Jan Křtitel.
 
 ### Ověřit vazby
 
-Skoro všech 844 vazeb je `verified = false`; nepřihlášený vidí jen ověřenou část.
+Skoro všech 844 vazeb je `verified = false`. Rodokmen je přesto veřejný celý;
+ověření je pracovní značka zadavatele, co už si sám prostudoval.
 Ověřuje se v panelu osoby: zatržítko u vazby ji označí jako ověřenou, tužka
 otevře úpravu zdroje, jistoty a poznámky. Lišta nad stromem ukazuje postup
-(„Ověřeno 12 z 844 vazeb“). Od první ověřené vazby se rodokmen nabízí i
-nepřihlášeným.
+(„Ověřeno 12 z 844 vazeb“). Ověřená vazba má ve stromu tmavší čáru.
 
 Na co se při ověřování zaměřit:
 

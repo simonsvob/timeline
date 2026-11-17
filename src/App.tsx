@@ -69,15 +69,15 @@ export function App() {
   );
 
   /**
-   * Příbuzenství, jak ho smí vidět ten, kdo se dívá: vazby, které ještě nikdo
-   * neověřil proti zdroji, uvidí jen přihlášený.
+   * Příbuzenství je veřejné celé, i neověřené vazby – zadavatel to tak chce.
+   * Ověření slouží jemu: po přihlášení vidí, co už si sám prostudoval.
    */
   const kin = useMemo(
     () =>
       buildKinIndex(state.kinship.persons, state.kinship.relations, {
-        includeUnverified: state.canEdit,
+        includeUnverified: true,
       }),
-    [state.kinship, state.canEdit],
+    [state.kinship],
   );
   /** Rodokmen se nabízí, až je co ukázat. */
   const genealogyAvailable = useMemo(() => treeRoots(kin).length > 0, [kin]);

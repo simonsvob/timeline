@@ -385,7 +385,7 @@ export const cs = {
       prorok: 'prorok',
     },
     verifiedCount: (done: number, total: number) => `Ověřeno ${done} z ${total} vazeb`,
-    unverifiedNotice: 'Neověřené vazby vidíš jen ty po přihlášení.',
+    unverifiedNotice: 'Ověřené vazby mají tmavou čáru; ověřuje se zatržítkem v detailu osoby.',
     empty: 'Rodokmen zatím nemá žádné ověřené vazby.',
     disputed: 'Verše uvádějí různé rodiče – podrobnosti v detailu osoby',
     legendStated: 'přímo ve verši',
