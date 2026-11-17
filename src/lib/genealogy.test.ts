@@ -210,6 +210,29 @@ describe('rozvržení stromu', () => {
     expect(Math.max(...layout.nodes.map((n) => n.row))).toBeLessThan(lide.length);
   });
 
+  it('synové osoby na páteři stojí blíž než její bratři, příčky se nepřekrývají (Juda a Dan)', () => {
+    // Jákob → [Juda (páteř), Dan]; Juda → [Perec (páteř), Er]; Dan → [Chušim]
+    const lide = [
+      person('jakob', { spine: true }),
+      person('juda', { spine: true }),
+      person('perec', { spine: true }),
+      person('dan'),
+      person('er'),
+      person('chusim'),
+    ];
+    const vazby = [
+      parent('jakob', 'juda', { sortOrder: 1 }),
+      parent('jakob', 'dan', { sortOrder: 2 }),
+      parent('juda', 'perec', { sortOrder: 1 }),
+      parent('juda', 'er', { sortOrder: 2 }),
+      parent('dan', 'chusim'),
+    ];
+    const layout = layoutTree(buildKinIndex(lide, vazby, { includeUnverified: true }), new Set());
+    // Er (Judův syn) leží mezi páteří a Danem, Danův syn až za Erem.
+    expect(xOf(layout, 'er')!).toBeLessThan(xOf(layout, 'dan')!);
+    expect(xOf(layout, 'er')!).toBeLessThan(xOf(layout, 'chusim')!);
+  });
+
   it('cyklus v datech rozvržení nezacyklí', () => {
     const lide = [person('a', { spine: true }), person('b'), person('c')];
     const vazby = [parent('a', 'b'), parent('b', 'c'), parent('c', 'b')];

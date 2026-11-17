@@ -458,7 +458,13 @@ export function layoutTree(index: KinIndex, collapsed: ReadonlySet<string>): Tre
       into.push(...branch);
     };
 
-    chain.forEach((node, i) => {
+    // Odspodu nahoru: Judovi synové se přisadí k páteři dřív než Judovi
+    // bratři, takže bratři (Dan, Naftali…) stojí až za nimi. Shora dolů to
+    // bylo naopak – Judovi synové se museli vejít za strýce a Judova příčka
+    // vedla ve stejné výšce přes příčky Danových a Naftaliho synů. Z čar
+    // se pak stala mřížka a nešlo poznat, kdo je čí syn.
+    for (let i = chain.length - 1; i >= 0; i--) {
+      const node = chain[i];
       const children = kids.get(node.id) ?? [];
       const next = chain[i + 1] ? children.findIndex((child) => child.toPerson === chain[i + 1].id) : -1;
       const before = next >= 0 ? children.slice(0, next) : [];
@@ -466,7 +472,7 @@ export function layoutTree(index: KinIndex, collapsed: ReadonlySet<string>): Tre
       // Vlevo od nejbližšího k páteři, aby pořadí zleva doprava zůstalo.
       for (const child of [...before].reverse()) side(child, node, 'left');
       for (const child of after) side(child, node, 'right');
-    });
+    }
   };
 
   /**

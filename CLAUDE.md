@@ -377,6 +377,11 @@ kterého to je.
   těsně, jak dovolí to, co už v dotčených řadách stojí. Páteř i s manželkami se
   rozmístí celá napřed, jinak by jí hluboká větev shora zalehla místo. Do
   obrysu se počítá i svislá čára natažené linie, která řadami jen prochází.
+- **Boční větve páteře se přisazují odspodu nahoru.** Judovi synové musí stát
+  blíž k páteři než Judovi bratři. Když se stavělo shora, vešli se až za
+  strýce a Judova příčka k synům vedla ve stejné výšce přes příčky Danových a
+  Naftaliho synů — z čar byla mřížka a nešlo poznat, kdo je čí syn (20
+  překryvů příček, 116 křížení; teď 0). Hlídá to test „Juda a Dan“.
 - **Dlouhé čáry se nekreslí** (`MAX_LINK_SPAN` v `GenealogyView`). Manželství
   mezi vzdálenými větvemi (Izák a Rebeka z Nachorovy rodiny) i druhý rodič
   daleko od dítěte by vedly přes půl stromu; karta místo toho dostane značku
