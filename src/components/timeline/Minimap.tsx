@@ -9,6 +9,7 @@ import { clampViewport, tOf, viewEnd, type Domain, type Viewport } from '../../l
 import type { Tag, TimelineEvent } from '../../data/types';
 import { eventExtent, tagColor } from './layout';
 import { renderMinimap, THEME, type PeriodSpan } from './renderer';
+import { milestonePlaces } from './milestones';
 
 const MINIMAP_HEIGHT = 36;
 
@@ -44,6 +45,8 @@ export function Minimap({ events, tagMap, periods, view, domain, onViewChange }:
     [events, tagMap],
   );
 
+  const milestones = useMemo(() => milestonePlaces(events).map((place) => place.t), [events]);
+
   const viewFrom = tOf(view, 0);
   const viewTo = viewEnd(view);
 
@@ -66,9 +69,10 @@ export function Minimap({ events, tagMap, periods, view, domain, onViewChange }:
       viewTo,
       periods,
       marks,
+      milestones,
       theme: THEME,
     });
-  }, [width, domain, viewFrom, viewTo, marks, periods]);
+  }, [width, domain, viewFrom, viewTo, marks, periods, milestones]);
 
   const span = Math.max(domain.max - domain.min, 1);
   const tAt = (x: number) => domain.min + (x / Math.max(width, 1)) * span;

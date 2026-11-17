@@ -16,6 +16,15 @@
  */
 
 import type { Tick, Viewport } from '../../lib/viewport';
+import {
+  fitMilestoneLabels,
+  MILESTONE_CY,
+  MILESTONE_ICONS,
+  MILESTONE_LABEL_GAP,
+  MILESTONE_RADIUS,
+  MILESTONE_STRIP,
+  type MilestonePlace,
+} from './milestones';
 import { xOf } from '../../lib/viewport';
 import {
   AXIS_LINE_HEIGHT,
@@ -88,6 +97,12 @@ export interface RenderInput {
   yearFont: string;
   tickFont: string;
   bandFont: string;
+  /** klíčové události; prázdné = žádná lišta nahoře */
+  milestones: MilestonePlace[];
+  /** popisek odznaku: krátký název a rok */
+  milestoneText: (place: MilestonePlace) => { name: string; year: string };
+  milestoneFont: string;
+  milestoneYearFont: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -173,11 +188,13 @@ export function renderTimeline(input: RenderInput): void {
   ctx.fillRect(0, 0, view.width, height);
 
   drawGrid(input);
+  drawMilestoneLines(input, MILESTONE_CY + MILESTONE_RADIUS, input.frame.bottom);
   drawAxis(input);
   drawRanges(input, false);
   drawPoints(input);
   drawBandLabels(input, false);
   drawPinnedBands(input);
+  drawMilestones(input);
 }
 
 /**
@@ -196,6 +213,9 @@ function drawPinnedBands(input: RenderInput): void {
 
     ctx.fillStyle = theme.background;
     ctx.fillRect(0, y, view.width, h);
+    // Čára klíčové události vede i přes připnutý pás, jinak by se v něm ztratila.
+    // Dole končí nad minimapou, stejně jako zbytek osy.
+    drawMilestoneLines(input, y, Math.min(y + h, frame.bottom));
 
     const hrana = place === 'top' ? frame.top + tloustka : frame.bottom - tloustka;
     ctx.strokeStyle = theme.gridDot;
@@ -574,6 +594,123 @@ function drawNode(input: RenderInput, item: EventGeometry, emphasized: boolean):
 }
 
 // ---------------------------------------------------------------------------
+// Klíčové události
+// ---------------------------------------------------------------------------
+
+const MILESTONE_INK = '#262218';
+const MILESTONE_ICON_SIZE = 18;
+const iconPaths = new Map<string, Path2D>();
+
+function iconPath(d: string): Path2D {
+  let path = iconPaths.get(d);
+  if (!path) {
+    path = new Path2D(d);
+    iconPaths.set(d, path);
+  }
+  return path;
+}
+
+/**
+ * Svislé čáry klíčových událostí v pásu `y1`–`y2`. Kreslí se pod obsahem,
+ * aby nezakrývaly záznamy, a znovu přes podklad připnutých pásů.
+ */
+function drawMilestoneLines(input: RenderInput, y1: number, y2: number): void {
+  const { ctx, view, milestones, hoveredId, selectedId } = input;
+  const from = Math.max(y1, MILESTONE_CY + MILESTONE_RADIUS);
+  if (milestones.length === 0 || y2 <= from) return;
+  for (const place of milestones) {
+    const x = Math.round(xOf(view, place.t)) + 0.5;
+    if (x < -2 || x > view.width + 2) continue;
+    const active = place.event.id === hoveredId || place.event.id === selectedId;
+    ctx.strokeStyle = rgba(MILESTONE_INK, active ? 0.5 : 0.24);
+    ctx.lineWidth = active ? 1.6 : 1.25;
+    ctx.beginPath();
+    ctx.moveTo(x, from);
+    ctx.lineTo(x, y2);
+    ctx.stroke();
+  }
+}
+
+/** Lišta nahoře: kulaté odznaky s ikonou a popisek, když se vejde. */
+function drawMilestones(input: RenderInput): void {
+  const { ctx, view, milestones, theme, hoveredId, selectedId } = input;
+  if (milestones.length === 0) return;
+
+  // Vlastní podklad: bez připnutého pásu velmocí by pod lištou prosvítal obsah.
+  ctx.fillStyle = theme.background;
+  ctx.fillRect(0, -8, view.width, MILESTONE_STRIP + 8);
+  drawMilestoneLines(input, 0, MILESTONE_STRIP);
+
+  const xs = milestones.map((place) => xOf(view, place.t));
+  const texts = milestones.map((place) => input.milestoneText(place));
+  ctx.font = input.milestoneFont;
+  const nameWidths = texts.map((text) => ctx.measureText(text.name).width);
+  ctx.font = input.milestoneYearFont;
+  const widths = texts.map((text, i) => Math.max(nameWidths[i], ctx.measureText(text.year).width));
+  const fits = fitMilestoneLabels(xs, widths);
+
+  milestones.forEach((place, i) => {
+    const x = xs[i];
+    if (x < -MILESTONE_RADIUS - widths[i] - 20 || x > view.width + MILESTONE_RADIUS) return;
+    const active = place.event.id === hoveredId || place.event.id === selectedId;
+
+    withShadow(ctx, theme.shadow, active ? 10 : 6, 2, () => {
+      ctx.beginPath();
+      ctx.arc(x, MILESTONE_CY, MILESTONE_RADIUS, 0, Math.PI * 2);
+      ctx.fillStyle = MILESTONE_INK;
+      ctx.fill();
+    });
+    ctx.beginPath();
+    ctx.arc(x, MILESTONE_CY, MILESTONE_RADIUS + (active ? 1.5 : 0), 0, Math.PI * 2);
+    ctx.strokeStyle = active ? MILESTONE_INK : theme.card;
+    ctx.lineWidth = active ? 2 : 1.5;
+    ctx.stroke();
+
+    const scale = MILESTONE_ICON_SIZE / 24;
+    ctx.save();
+    ctx.translate(x - MILESTONE_ICON_SIZE / 2, MILESTONE_CY - MILESTONE_ICON_SIZE / 2);
+    ctx.scale(scale, scale);
+    ctx.strokeStyle = theme.background;
+    ctx.lineWidth = 1.9;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.stroke(iconPath(MILESTONE_ICONS[place.key]));
+    ctx.restore();
+
+    if (!fits[i]) return;
+    const textX = x + MILESTONE_RADIUS + MILESTONE_LABEL_GAP;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.font = input.milestoneFont;
+    ctx.fillStyle = theme.text;
+    ctx.fillText(texts[i].name, textX, MILESTONE_CY - 7);
+    ctx.font = input.milestoneYearFont;
+    ctx.fillStyle = theme.muted;
+    ctx.fillText(texts[i].year, textX, MILESTONE_CY + 8);
+  });
+}
+
+/** Odkud kam na liště sahá odznak i s popiskem – pro zásah myší. */
+export function milestoneAt(
+  milestones: readonly MilestonePlace[],
+  view: Viewport,
+  x: number,
+  y: number,
+): MilestonePlace | null {
+  if (y > MILESTONE_STRIP) return null;
+  let best: MilestonePlace | null = null;
+  let bestDistance = Infinity;
+  for (const place of milestones) {
+    const distance = Math.hypot(xOf(view, place.t) - x, MILESTONE_CY - y);
+    if (distance <= MILESTONE_RADIUS + 4 && distance < bestDistance) {
+      best = place;
+      bestDistance = distance;
+    }
+  }
+  return best;
+}
+
+// ---------------------------------------------------------------------------
 // Minimapa
 // ---------------------------------------------------------------------------
 
@@ -587,11 +724,13 @@ export interface MinimapInput {
   viewTo: number;
   periods: PeriodSpan[];
   marks: { from: number; to: number; color: string }[];
+  /** klíčové události – tečky na dráze */
+  milestones: number[];
   theme: Theme;
 }
 
 export function renderMinimap(input: MinimapInput): void {
-  const { ctx, width, height, domainMin, domainMax, viewFrom, viewTo, marks, periods, theme } = input;
+  const { ctx, width, height, domainMin, domainMax, viewFrom, viewTo, marks, periods, milestones, theme } = input;
   const span = Math.max(domainMax - domainMin, 1);
   const toX = (t: number) => ((t - domainMin) / span) * width;
 
@@ -617,6 +756,17 @@ export function renderMinimap(input: MinimapInput): void {
     ctx.fillRect(x1, trackY, x2 - x1, 8);
   }
   ctx.restore();
+
+  // klíčové události: tmavé tečky na dráze, stejné jako odznaky nad osou
+  for (const t of milestones) {
+    ctx.beginPath();
+    ctx.arc(toX(t), height / 2, 4, 0, Math.PI * 2);
+    ctx.fillStyle = MILESTONE_INK;
+    ctx.fill();
+    ctx.strokeStyle = theme.card;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  }
 
   // okno výřezu
   const wx1 = Math.max(toX(viewFrom), 1);

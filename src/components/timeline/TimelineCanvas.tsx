@@ -14,22 +14,41 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { cs } from '../../i18n/cs';
-import { formatRangeCompact } from '../../lib/format';
+import { formatRangeCompact, formatYear } from '../../lib/format';
 import {
   generateTicks,
   keyNudge,
   limitZoomFactor,
   panBy,
+  xOf,
   zoomAt,
   type Domain,
   type Viewport,
 } from '../../lib/viewport';
 import type { Tag, TimelineEvent } from '../../data/types';
 import { BANDS, hitTest, itemY, layoutEvents, type Frame, type LayoutResult } from './layout';
-import { renderTimeline, THEME, type PeriodSpan } from './renderer';
+import { milestoneAt, renderTimeline, THEME, type PeriodSpan } from './renderer';
+import {
+  MILESTONE_CY,
+  MILESTONE_RADIUS,
+  MILESTONE_STRIP,
+  milestonePlaces,
+  type MilestonePlace,
+} from './milestones';
 
 const NAME_FONT = '600 13px -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif';
 const YEAR_FONT = '11.5px -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif';
+const MILESTONE_FONT = '650 12px -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif';
+const MILESTONE_YEAR_FONT = '11px -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif';
+
+function milestoneText(place: MilestonePlace) {
+  const { start } = place.event;
+  return {
+    name: cs.timeline.milestones[place.key],
+    // Jen rok: v liště není místo na měsíc a přesnost se tím neubírá.
+    year: `${start.approx ? '~' : ''}${formatYear(start.year)}`,
+  };
+}
 const TICK_FONT = '11px -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif';
 const BAND_FONT = '600 10.5px -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif';
 /** Práh v pixelech, do kterého se tažení ještě považuje za klik. */
@@ -157,6 +176,8 @@ export function TimelineCanvas({
     return () => observer.disconnect();
   }, []);
 
+  const milestones = useMemo(() => milestonePlaces(events), [events]);
+
   const layout: LayoutResult = useMemo(
     () => layoutEvents(events, view, tagMap, measureText, formatYearsOf, hiddenBands),
     [events, view, tagMap, hiddenBands],
@@ -170,7 +191,8 @@ export function TimelineCanvas({
   const { axisY, top, bottom, shiftRange } = useMemo(() => {
     // Hrany, ke kterým se pásma připínají: horní okraj plátna a spodek nad
     // minimapou. Plovoucí obsah se vejde do toho, co po připnutých pásech zbude.
-    const top = 0;
+    // Lišta klíčových událostí zabírá horní okraj; pásma se připínají pod ni.
+    const top = milestones.length > 0 ? MILESTONE_STRIP : 0;
     const bottom = size.height - MINIMAP_CLEARANCE;
     const volnyOd = top + layout.pinnedTop + VERTICAL_PADDING;
     const volnyDo = bottom - layout.pinnedBottom - VERTICAL_PADDING;
@@ -187,7 +209,7 @@ export function TimelineCanvas({
     const min = Math.min(volnyDo - below, ideal);
     const max = Math.max(volnyOd + above, ideal);
     return { axisY: ideal, top, bottom, shiftRange: { min: min - ideal, max: max - ideal } };
-  }, [layout.heightAbove, layout.heightBelow, layout.pinnedTop, layout.pinnedBottom, size.height]);
+  }, [layout.heightAbove, layout.heightBelow, layout.pinnedTop, layout.pinnedBottom, size.height, milestones.length]);
 
   const clampShift = useCallback(
     (value: number) => Math.min(Math.max(value, shiftRange.min), shiftRange.max),
@@ -243,12 +265,16 @@ export function TimelineCanvas({
       yearFont: YEAR_FONT,
       tickFont: TICK_FONT,
       bandFont: BAND_FONT,
+      milestones,
+      milestoneText,
+      milestoneFont: MILESTONE_FONT,
+      milestoneYearFont: MILESTONE_YEAR_FONT,
     });
   };
 
   useEffect(() => {
     dirtyRef.current = true;
-  }, [size, view, layout, ticks, frame, periods, selectedId, hoveredId]);
+  }, [size, view, layout, ticks, frame, periods, selectedId, hoveredId, milestones]);
 
   useEffect(() => {
     let frame = requestAnimationFrame(function loop() {
@@ -532,8 +558,32 @@ export function TimelineCanvas({
     return { x: event.clientX - rect.left, y: event.clientY - rect.top };
   };
 
-  const zasah = (point: { x: number; y: number }) =>
-    hitTest(layoutRef.current, point.x, point.y, frameRef.current);
+  const milestonesRef = useRef(milestones);
+  milestonesRef.current = milestones;
+
+  /**
+   * Co je pod ukazatelem: odznak klíčové události v liště, nebo záznam.
+   * Vrací i bod, u kterého se otevře detail.
+   */
+  const zasah = (point: { x: number; y: number }) => {
+    const milestone = milestoneAt(milestonesRef.current, viewRef.current, point.x, point.y);
+    if (milestone) {
+      return {
+        event: milestone.event,
+        anchorX: xOf(viewRef.current, milestone.t),
+        anchorY: MILESTONE_CY + MILESTONE_RADIUS,
+      };
+    }
+    const hit = hitTest(layoutRef.current, point.x, point.y, frameRef.current);
+    if (!hit) return null;
+    const y = itemY(hit, frameRef.current);
+    const half = hit.height / 2;
+    return {
+      event: hit.event,
+      anchorX: hit.centerX,
+      anchorY: y + (y < frameRef.current.axisY ? -half : half),
+    };
+  };
 
   const onPointerDown = (event: React.PointerEvent<HTMLCanvasElement>) => {
     const point = localPoint(event);
@@ -625,11 +675,9 @@ export function TimelineCanvas({
         const hit = zasah(point);
         if (hit) {
           const rect = event.currentTarget.getBoundingClientRect();
-          const y = itemY(hit, frameRef.current);
-          const half = hit.height / 2;
           onSelect(hit.event, {
-            x: rect.left + Math.min(Math.max(hit.centerX, 0), rect.width),
-            y: rect.top + y + (y < frameRef.current.axisY ? -half : half),
+            x: rect.left + Math.min(Math.max(hit.anchorX, 0), rect.width),
+            y: rect.top + hit.anchorY,
           });
         } else {
           onSelect(null, null);

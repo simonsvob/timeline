@@ -75,6 +75,14 @@ export const cs = {
         what: 'Detail záznamu',
         how: ['klepnutí na záznam', 'Esc detail zavře'],
       },
+      {
+        what: 'Klíčové události',
+        how: [
+          'kulaté odznaky v liště nahoře a svislá čára přes celou osu',
+          'klepnutí na odznak otevře detail',
+          'tmavé tečky na minimapě dole',
+        ],
+      },
     ],
     genealogyTitle: 'Rodokmen',
     genealogy:
@@ -172,6 +180,16 @@ export const cs = {
     withoutTag: 'Bez štítku',
     emptyTitle: 'Zatím tu nic není',
     minimapHint: 'Přehled celého rozsahu – tažením posunete výřez',
+    /** Krátké popisky klíčových událostí v liště nad osou; klíče jsou `MILESTONES`. */
+    milestones: {
+      stvoreni: 'Stvoření Adama',
+      potopa: 'Potopa',
+      exodus: 'Odchod z Egypta',
+      kral: 'První král',
+      zniceni: 'Zničení Jeruzaléma',
+      'smrt-jezise': 'Ježíšova smrt',
+      kralovstvi: 'Boží království',
+    },
     /** Názvy pásem osy; klíče odpovídají `BANDS` v components/timeline/layout.ts. */
     bands: {
       velmoci: 'Světové velmoci',

@@ -300,6 +300,18 @@ i drobné `deltaY`. Bez zámku osa při posunu poskakovala svisle a řádky se z
 přeskakovat — přitom řádkování je při posunu prokazatelně stabilní (pakuje se
 v pixelech, které se posunou všechny stejně; mění ho až zoom).
 
+**Klíčové události (milníky)** — Stvoření Adama, Potopa, Odchod z Egypta,
+První král, Zničení Jeruzaléma, Ježíšova smrt, Boží království. Svislá čára
+přes celou osu, kulatý tmavý odznak s ikonou v liště nad pásmy (lišta posouvá
+`frame.top` o `MILESTONE_STRIP`) a tečka na minimapě. Seznam je **natvrdo
+v kódu** (`components/timeline/milestones.ts`, záznamy podle id) — zadavatel
+to tak chtěl, událostí je jen pár. Smazaný záznam se prostě nekreslí.
+Popisek odznaku se ukáže, jen když nezajede do dalšího (`fitMilestoneLabels`).
+Čára se kreslí pod obsahem a znovu přes podklad připnutých pásů, aby se v nich
+neztratila. Ikony jsou vlastní, ne obrázky z publikací: **podmínky jw.org
+nedovolují zveřejňovat jejich obrázky na jiných webech**. U Ježíšovy smrti je
+pohár a chléb (Památná slavnost), ne kříž.
+
 **Kreslí se v jedné trvalé rAF smyčce** se značkou „je co překreslit"
 (`dirtyRef`). Zakládat a rušit snímek v efektu při každé změně stavu bylo na
 dotykových zařízeních znát.
