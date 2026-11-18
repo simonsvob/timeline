@@ -11115,7 +11115,7 @@
     "lat": null,
     "lng": null,
     "created_at": "2026-08-07T13:47:41.51568+00:00",
-    "updated_at": "2026-09-22T09:38:00.831245+00:00",
+    "updated_at": "2026-11-17T13:59:31.11044+00:00",
     "start_qualifier": null,
     "end_qualifier": null,
     "tag_id": "22222222-0000-4000-8000-000000000002",
@@ -22562,9 +22562,9 @@
     "certainty": "vyslovne",
     "source": "1Mo 4:2",
     "note": null,
-    "verified": false,
+    "verified": true,
     "created_at": "2026-11-16T23:22:11.28604+00:00",
-    "updated_at": "2026-11-16T23:24:16.323365+00:00",
+    "updated_at": "2026-11-17T11:59:59.085066+00:00",
     "sort_order": 2
    },
    {
@@ -28711,9 +28711,9 @@
     "certainty": "vyslovne",
     "source": "1Mo 3:20; 4:1",
     "note": null,
-    "verified": false,
+    "verified": true,
     "created_at": "2026-11-16T23:22:11.28604+00:00",
-    "updated_at": "2026-11-16T23:22:11.28604+00:00",
+    "updated_at": "2026-11-17T11:59:33.580489+00:00",
     "sort_order": 0
    },
    {
@@ -30349,9 +30349,9 @@
     "certainty": "vyslovne",
     "source": "1Mo 4:2",
     "note": null,
-    "verified": false,
+    "verified": true,
     "created_at": "2026-11-16T23:22:11.28604+00:00",
-    "updated_at": "2026-11-16T23:24:16.323365+00:00",
+    "updated_at": "2026-11-17T11:59:35.523421+00:00",
     "sort_order": 2
    },
    {
@@ -31532,9 +31532,9 @@
     "certainty": "vyslovne",
     "source": "1Mo 4:1",
     "note": null,
-    "verified": false,
+    "verified": true,
     "created_at": "2026-11-16T23:22:11.28604+00:00",
-    "updated_at": "2026-11-16T23:24:16.323365+00:00",
+    "updated_at": "2026-11-17T11:59:58.260195+00:00",
     "sort_order": 1
    },
    {
@@ -32429,9 +32429,9 @@
     "certainty": "vyslovne",
     "source": "1Mo 4:1",
     "note": null,
-    "verified": false,
+    "verified": true,
     "created_at": "2026-11-16T23:22:11.28604+00:00",
-    "updated_at": "2026-11-16T23:24:16.323365+00:00",
+    "updated_at": "2026-11-17T11:59:34.893249+00:00",
     "sort_order": 1
    },
    {
