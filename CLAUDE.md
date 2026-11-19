@@ -527,6 +527,12 @@ Stav projektu, dosavadní rozhodnutí a co je rozdělané je v
 [`docs/plan-rozvoje.md`](docs/plan-rozvoje.md). Setup Supabase a Netlify
 je v [`README.md`](README.md).
 
+Záznamy z publikací doplňuje zadavatel v samostatném projektu v Claude
+(chat s konektorem Supabase). Jeho pokyny jsou v
+[`docs/pokyny-projekt-udalosti.md`](docs/pokyny-projekt-udalosti.md) —
+**když se změní pravidla pro data** (pásma, štítky, formát zdroje, časový
+model), uprav je i tam a řekni zadavateli, ať pokyny v projektu vymění.
+
 **Zadavatel neprogramuje.** Mluv s ním jako s laikem: podstatné na začátek,
 stručně, bez žargonu (PR, větev, migrace se musí říct lidsky). Hotové změny se
 po ověření pouštějí **rovnou do `main`** (nasadí se samy) — výslovně to tak
