@@ -372,17 +372,19 @@ kterého to je.
   řada nesmí přesáhnout počet osob (`maxRow`).
 - **Vedlejší stromy** (rodiny bez známých předků, které se do hlavní přivdaly:
   Jetro, Anna, Elimelek, Zebedeus…) se stahují dolů k řadě, kam se přivdaly,
-  celá linie od nejnižší osoby nahoru (`sideOrder`). Pak se zkusí postavit
-  **hned vedle příbuzného** (`placeSideTree`): zkouší volná místa od
-  nejbližšího dál a bere první, kde se karta ani čára o nic neotře
-  (`occupancyOf` + `fitsAt` hlídají karty, příčky i svislice). Teprve když
-  nic takového není, přisadí se obrysem k okraji (`sideFor`). Dřív stály
-  vždycky na okraji — Machlon sto karet od Rut, Achitofel od Davida.
-- **Dcery z vedlejších rodin provdané do hlavního stromu** (`marriedIn`:
-  Cippora, Bat-šeba) stojí vedle manžela jako ostatní manželky, ne ve své
-  rodině. Vedle Mojžíše by se Jetrova rodina vešla jen přes Amramovu příčku,
-  takže Cippora stála dvacet karet od něj. Čára k jejímu otci se kreslí,
-  jen když je blízko; jinak má karta značku ↑ (rodič jinde) a otec ↓.
+  celá linie od nejnižší osoby nahoru (`sideOrder`). Pak `placeSideTree`
+  zkouší v tomhle pořadí: (1) postavit ji **hned vedle příbuzného**;
+  (2) u manželství **spustit manžela s potomky o řadu či dvě níž**, aby se
+  rodina manželky vešla vedle něj — u toho zkusí obě pořadí sourozenců,
+  aby přivdaná dcera stála na straně u manžela (`rebuild`); (3) volné místo
+  dál, do 16 karet; (4) přisadit obrysem k okraji (`sideFor`). „Vejde se“
+  posuzují `occupancyOf` + `fitsAt` (karty, příčky i svislice; příčka a
+  svislice téhož rodiče si nepřekáží). Takhle sjel Mojžíš o dvě řady pod
+  Árona a vedle něj stojí Cippora s Jetrem nad sebou — jinak by Jetrova
+  příčka vedla v Amramově řadě přes Amramovu. Dřív stály vedlejší rodiny
+  vždycky na okraji, Machlon sto karet od Rut. Zkoušelo se i postavit
+  Cipporu k Mojžíšovi bez její rodiny a vzdálené rodiče značit šipkami;
+  zadavatel to odmítl, nová značka mu přišla horší než posun.
 - **Rodiny úplně bez vazby** na hlavní rodokmen (prorok Jehu a jeho otec
   Chanani, Azarjáš a Oded z tabulky proroků) se poznají prohledáním všech
   vazeb od Adama. Stojí v oddílu pod stromem s nadpisem (`detachedRow`);

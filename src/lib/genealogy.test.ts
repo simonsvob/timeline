@@ -248,17 +248,27 @@ describe('rozvržení stromu', () => {
     expect(layoutTree(index, new Set()).detachedRow).toBeNull();
   });
 
-  it('dcera z vedlejší rodiny provdaná do hlavního stromu stojí vedle manžela (Cippora a Mojžíš)', () => {
+  it('když se rodina manželky k manželovi nevejde, sjede manžel o řadu níž (Mojžíš a Jetro)', () => {
+    // Amram → Áron, Mojžíš, Miriam; Jetro → Chobab, Cippora; Cippora ⚭ Mojžíš.
+    // Jetrova příčka by v Amramově řadě vedla přes Amramovu.
     const lide = [
-      person('amram', { spine: true }),
-      person('mojzis', { spine: true }),
-      person('gersom', { spine: true }),
+      person('kehat', { spine: true }),
+      person('amram'),
+      person('aron'),
+      person('mojzis'),
+      person('miriam', { gender: 'f' }),
+      person('gersom'),
       person('jetro'),
       person('chobab'),
       person('cippora', { gender: 'f' }),
+      person('pokracovani', { spine: true }),
     ];
     const vazby = [
-      parent('amram', 'mojzis'),
+      parent('kehat', 'amram', { sortOrder: 1 }),
+      parent('kehat', 'pokracovani', { sortOrder: 2 }),
+      parent('amram', 'aron', { sortOrder: 1 }),
+      parent('amram', 'mojzis', { sortOrder: 2 }),
+      parent('amram', 'miriam', { sortOrder: 3 }),
       parent('mojzis', 'gersom'),
       parent('cippora', 'gersom'),
       parent('jetro', 'chobab', { sortOrder: 1 }),
@@ -267,11 +277,12 @@ describe('rozvržení stromu', () => {
     ];
     const layout = layoutTree(buildKinIndex(lide, vazby, { includeUnverified: true }), new Set());
     const at = (id: string) => layout.nodes.find((n) => n.id === id)!;
-    expect(at('cippora').attachedTo).toBe('mojzis');
     expect(at('cippora').row).toBe(at('mojzis').row);
-    // Jetro nezůstane nahoře u Amrama, ale nad generací své dcery.
-    expect(at('jetro').row).toBe(at('mojzis').row - 1);
-    expect(layout.links).toContainEqual(expect.objectContaining({ kind: 'parent', from: 'jetro', to: 'cippora' }));
+    expect(Math.abs(at('cippora').x - at('mojzis').x)).toBe(NODE_WIDTH + NODE_GAP_X);
+    expect(at('jetro').row).toBe(at('cippora').row - 1);
+    // Mojžíš sjel pod sourozence, jeho syn s ním.
+    expect(at('mojzis').row).toBeGreaterThan(at('aron').row);
+    expect(at('gersom').row).toBe(at('mojzis').row + 1);
   });
 
   it('cyklus v datech rozvržení nezacyklí', () => {

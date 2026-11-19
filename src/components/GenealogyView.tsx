@@ -199,19 +199,16 @@ export function GenealogyView({
   }, [kin, selectedId]);
 
   /** Čáry, které se kreslí, a komu chybí čára k partnerovi z jiné větve. */
-  const { drawnLinks, farSpouses, farParents, farChildren } = useMemo(() => {
+  const { drawnLinks, farSpouses } = useMemo(() => {
     const drawn: TreeLink[] = [];
     const far = new Map<string, string[]>();
-    const parents = new Map<string, string[]>();
-    const children = new Map<string, string[]>();
-    const addTo = (map: Map<string, string[]>, id: string, other: string) => {
+    const addFar = (id: string, other: string) => {
       const name = kin.persons.get(other)?.name;
       if (!name) return;
-      const list = map.get(id);
+      const list = far.get(id);
       if (list) list.push(name);
-      else map.set(id, [name]);
+      else far.set(id, [name]);
     };
-    const addFar = (id: string, other: string) => addTo(far, id, other);
     for (const link of layout.links) {
       const from = nodeMap.get(link.from);
       const to = nodeMap.get(link.to);
@@ -222,13 +219,9 @@ export function GenealogyView({
       else if (link.kind === 'marriage') {
         addFar(link.from, link.to);
         addFar(link.to, link.from);
-      } else {
-        // Cippora vedle Mojžíše, její otec Jetro o kus dál.
-        addTo(parents, link.to, link.from);
-        addTo(children, link.from, link.to);
       }
     }
-    return { drawnLinks: drawn, farSpouses: far, farParents: parents, farChildren: children };
+    return { drawnLinks: drawn, farSpouses: far };
   }, [layout, nodeMap, kin]);
 
   /** Kde nad oddílem rodin bez vazby stojí jeho nadpis. */
@@ -731,8 +724,6 @@ export function GenealogyView({
                     selected={node.id === selectedId}
                     related={related.has(node.id)}
                     farSpouses={farSpouses.get(node.id)}
-                    farParents={farParents.get(node.id)}
-                    farChildren={farChildren.get(node.id)}
                     dimmed={lens !== null && !person.roles.includes(lens)}
                     onSelect={() => setSelectedId(node.id)}
                     onToggle={() => toggleBranch(node)}
@@ -838,9 +829,6 @@ interface CardProps {
   related: boolean;
   /** partneři z jiné větve, ke kterým se čára nekreslí */
   farSpouses: string[] | undefined;
-  /** rodiče a děti, kteří stojí daleko a čára k nim se nekreslí */
-  farParents: string[] | undefined;
-  farChildren: string[] | undefined;
   dimmed: boolean;
   onSelect: () => void;
   onToggle: () => void;
@@ -854,17 +842,10 @@ function PersonCard({
   selected,
   related,
   farSpouses,
-  farParents,
-  farChildren,
   dimmed,
   onSelect,
   onToggle,
 }: CardProps) {
-  const farMarks = [
-    farParents ? { glyph: '↑', title: cs.genealogy.farParents(farParents) } : null,
-    farSpouses ? { glyph: '⚭', title: cs.genealogy.farSpouses(farSpouses) } : null,
-    farChildren ? { glyph: '↓', title: cs.genealogy.farChildren(farChildren) } : null,
-  ].filter((mark): mark is { glyph: string; title: string } => mark !== null);
   const life = events?.find((entry) => entry.role === 'zivot') ?? events?.[0];
   const role = person.roles.find(isRole);
   // Druhý řádek: roky ze záznamu osy, jinak role, jinak rozlišovač jména.
@@ -903,9 +884,9 @@ function PersonCard({
             </span>
           ) : null}
         </span>
-        {farMarks.length > 0 ? (
-          <span className="genealogy-card-far" title={farMarks.map((mark) => mark.title).join(' · ')} aria-hidden="true">
-            {farMarks.map((mark) => mark.glyph).join('')}
+        {farSpouses ? (
+          <span className="genealogy-card-far" title={cs.genealogy.farSpouses(farSpouses)} aria-hidden="true">
+            ⚭
           </span>
         ) : null}
         {sub ? <span className="genealogy-card-sub">{sub}</span> : null}
