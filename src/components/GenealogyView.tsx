@@ -199,16 +199,19 @@ export function GenealogyView({
   }, [kin, selectedId]);
 
   /** Čáry, které se kreslí, a komu chybí čára k partnerovi z jiné větve. */
-  const { drawnLinks, farSpouses } = useMemo(() => {
+  const { drawnLinks, farSpouses, farParents, farChildren } = useMemo(() => {
     const drawn: TreeLink[] = [];
     const far = new Map<string, string[]>();
-    const addFar = (id: string, other: string) => {
+    const parents = new Map<string, string[]>();
+    const children = new Map<string, string[]>();
+    const addTo = (map: Map<string, string[]>, id: string, other: string) => {
       const name = kin.persons.get(other)?.name;
       if (!name) return;
-      const list = far.get(id);
+      const list = map.get(id);
       if (list) list.push(name);
-      else far.set(id, [name]);
+      else map.set(id, [name]);
     };
+    const addFar = (id: string, other: string) => addTo(far, id, other);
     for (const link of layout.links) {
       const from = nodeMap.get(link.from);
       const to = nodeMap.get(link.to);
@@ -219,9 +222,13 @@ export function GenealogyView({
       else if (link.kind === 'marriage') {
         addFar(link.from, link.to);
         addFar(link.to, link.from);
+      } else {
+        // Cippora vedle Mojžíše, její otec Jetro o kus dál.
+        addTo(parents, link.to, link.from);
+        addTo(children, link.from, link.to);
       }
     }
-    return { drawnLinks: drawn, farSpouses: far };
+    return { drawnLinks: drawn, farSpouses: far, farParents: parents, farChildren: children };
   }, [layout, nodeMap, kin]);
 
   /** Kde nad oddílem rodin bez vazby stojí jeho nadpis. */
@@ -277,8 +284,13 @@ export function GenealogyView({
     const after = world.getBoundingClientRect();
     el.scrollLeft += after.left + worldX * to - clientX;
     el.scrollTop += after.top + worldY * to - clientY;
-    setScale(to);
+    // Stav (a s ním překreslení 700 karet) až po doznění gesta. Při každém
+    // pohybu prstů to na iPadu nestíhalo a zoom se trhal.
+    window.clearTimeout(commitTimer.current);
+    commitTimer.current = window.setTimeout(() => setScale(scaleRef.current), 160);
   }, []);
+  const commitTimer = useRef<number | undefined>(undefined);
+  useEffect(() => () => window.clearTimeout(commitTimer.current), []);
 
   /** Zoom tlačítkem nebo klávesou: kolem středu plochy. */
   const zoomBy = useCallback(
@@ -430,6 +442,49 @@ export function GenealogyView({
       el.scrollLeft += (sideways ? e.deltaY : e.deltaX) * unit;
       el.scrollTop += (sideways ? 0 : e.deltaY) * unit;
     };
+
+    // Sevření prstů na dotykovém displeji (iPad, telefon). Obsluhuje se ze
+    // vzdálenosti a středu prstů; nativní posun se po dobu sevření zastaví,
+    // jinak by se Safari s přepočtem přetahovalo a obraz poskakoval.
+    // Jeden prst posouvá nativně, i se setrvačností.
+    let pinch: { distance: number; scale: number; x: number; y: number } | null = null;
+    let touching = 0;
+    const measure = (touches: TouchList) => {
+      const [a, b] = [touches[0], touches[1]];
+      return {
+        distance: Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY),
+        x: (a.clientX + b.clientX) / 2,
+        y: (a.clientY + b.clientY) / 2,
+      };
+    };
+    const onTouchStart = (e: TouchEvent) => {
+      touching = e.touches.length;
+      if (e.touches.length === 2) {
+        const now = measure(e.touches);
+        pinch = { ...now, scale: scaleRef.current };
+      }
+    };
+    const onTouchMove = (e: TouchEvent) => {
+      if (!pinch || e.touches.length < 2) return;
+      e.preventDefault();
+      const now = measure(e.touches);
+      if (now.distance > 0 && pinch.distance > 0) {
+        zoomAt(pinch.scale * (now.distance / pinch.distance), now.x, now.y);
+      }
+      // Posun středu prstů posouvá i plochu, jako na mapě.
+      el.scrollLeft -= now.x - pinch.x;
+      el.scrollTop -= now.y - pinch.y;
+      pinch.x = now.x;
+      pinch.y = now.y;
+    };
+    const onTouchEnd = (e: TouchEvent) => {
+      touching = e.touches.length;
+      if (e.touches.length < 2) pinch = null;
+    };
+
+    // Safari na Macu (trackpad) posílá sevření jako `gesture*`. Na iPadu je
+    // posílá navíc k dotykům – tam se jen potlačí přiblížení stránky, zoom
+    // řeší dotyky výše. Sčítalo by se to dvakrát.
     let gestureStart = 1;
     const onGestureStart = (e: Event) => {
       e.preventDefault();
@@ -437,14 +492,28 @@ export function GenealogyView({
     };
     const onGestureChange = (e: Event) => {
       e.preventDefault();
-      const gesture = e as Event & { scale: number; clientX: number; clientY: number };
-      zoomAt(gestureStart * gesture.scale, gesture.clientX, gesture.clientY);
+      if (touching > 0) return;
+      const gesture = e as Event & { scale: number; clientX?: number; clientY?: number };
+      const box = el.getBoundingClientRect();
+      zoomAt(
+        gestureStart * gesture.scale,
+        gesture.clientX ?? box.left + box.width / 2,
+        gesture.clientY ?? box.top + box.height / 2,
+      );
     };
     el.addEventListener('wheel', onWheel, { passive: false });
+    el.addEventListener('touchstart', onTouchStart, { passive: true });
+    el.addEventListener('touchmove', onTouchMove, { passive: false });
+    el.addEventListener('touchend', onTouchEnd);
+    el.addEventListener('touchcancel', onTouchEnd);
     el.addEventListener('gesturestart', onGestureStart, { passive: false });
     el.addEventListener('gesturechange', onGestureChange, { passive: false });
     return () => {
       el.removeEventListener('wheel', onWheel);
+      el.removeEventListener('touchstart', onTouchStart);
+      el.removeEventListener('touchmove', onTouchMove);
+      el.removeEventListener('touchend', onTouchEnd);
+      el.removeEventListener('touchcancel', onTouchEnd);
       el.removeEventListener('gesturestart', onGestureStart);
       el.removeEventListener('gesturechange', onGestureChange);
     };
@@ -662,6 +731,8 @@ export function GenealogyView({
                     selected={node.id === selectedId}
                     related={related.has(node.id)}
                     farSpouses={farSpouses.get(node.id)}
+                    farParents={farParents.get(node.id)}
+                    farChildren={farChildren.get(node.id)}
                     dimmed={lens !== null && !person.roles.includes(lens)}
                     onSelect={() => setSelectedId(node.id)}
                     onToggle={() => toggleBranch(node)}
@@ -767,6 +838,9 @@ interface CardProps {
   related: boolean;
   /** partneři z jiné větve, ke kterým se čára nekreslí */
   farSpouses: string[] | undefined;
+  /** rodiče a děti, kteří stojí daleko a čára k nim se nekreslí */
+  farParents: string[] | undefined;
+  farChildren: string[] | undefined;
   dimmed: boolean;
   onSelect: () => void;
   onToggle: () => void;
@@ -780,10 +854,17 @@ function PersonCard({
   selected,
   related,
   farSpouses,
+  farParents,
+  farChildren,
   dimmed,
   onSelect,
   onToggle,
 }: CardProps) {
+  const farMarks = [
+    farParents ? { glyph: '↑', title: cs.genealogy.farParents(farParents) } : null,
+    farSpouses ? { glyph: '⚭', title: cs.genealogy.farSpouses(farSpouses) } : null,
+    farChildren ? { glyph: '↓', title: cs.genealogy.farChildren(farChildren) } : null,
+  ].filter((mark): mark is { glyph: string; title: string } => mark !== null);
   const life = events?.find((entry) => entry.role === 'zivot') ?? events?.[0];
   const role = person.roles.find(isRole);
   // Druhý řádek: roky ze záznamu osy, jinak role, jinak rozlišovač jména.
@@ -822,9 +903,9 @@ function PersonCard({
             </span>
           ) : null}
         </span>
-        {farSpouses ? (
-          <span className="genealogy-card-far" title={cs.genealogy.farSpouses(farSpouses)} aria-hidden="true">
-            ⚭
+        {farMarks.length > 0 ? (
+          <span className="genealogy-card-far" title={farMarks.map((mark) => mark.title).join(' · ')} aria-hidden="true">
+            {farMarks.map((mark) => mark.glyph).join('')}
           </span>
         ) : null}
         {sub ? <span className="genealogy-card-sub">{sub}</span> : null}

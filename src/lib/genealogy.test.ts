@@ -248,6 +248,32 @@ describe('rozvržení stromu', () => {
     expect(layoutTree(index, new Set()).detachedRow).toBeNull();
   });
 
+  it('dcera z vedlejší rodiny provdaná do hlavního stromu stojí vedle manžela (Cippora a Mojžíš)', () => {
+    const lide = [
+      person('amram', { spine: true }),
+      person('mojzis', { spine: true }),
+      person('gersom', { spine: true }),
+      person('jetro'),
+      person('chobab'),
+      person('cippora', { gender: 'f' }),
+    ];
+    const vazby = [
+      parent('amram', 'mojzis'),
+      parent('mojzis', 'gersom'),
+      parent('cippora', 'gersom'),
+      parent('jetro', 'chobab', { sortOrder: 1 }),
+      parent('jetro', 'cippora', { sortOrder: 2 }),
+      { ...parent('mojzis', 'cippora'), kind: 'manzelstvi' as const },
+    ];
+    const layout = layoutTree(buildKinIndex(lide, vazby, { includeUnverified: true }), new Set());
+    const at = (id: string) => layout.nodes.find((n) => n.id === id)!;
+    expect(at('cippora').attachedTo).toBe('mojzis');
+    expect(at('cippora').row).toBe(at('mojzis').row);
+    // Jetro nezůstane nahoře u Amrama, ale nad generací své dcery.
+    expect(at('jetro').row).toBe(at('mojzis').row - 1);
+    expect(layout.links).toContainEqual(expect.objectContaining({ kind: 'parent', from: 'jetro', to: 'cippora' }));
+  });
+
   it('cyklus v datech rozvržení nezacyklí', () => {
     const lide = [person('a', { spine: true }), person('b'), person('c')];
     const vazby = [parent('a', 'b'), parent('b', 'c'), parent('c', 'b')];

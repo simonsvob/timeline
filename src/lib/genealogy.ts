@@ -216,19 +216,41 @@ export function layoutTree(index: KinIndex, collapsed: ReadonlySet<string>): Tre
   const foldableIds = new Set<string>();
   const order: string[] = [];
   const roots = treeRoots(index);
+  /**
+   * Dcery z vedlejších rodin provdané do hlavního stromu (Cippora, Jetrova
+   * dcera a Mojžíšova žena; Bat-šeba). Stojí vedle manžela jako ostatní
+   * manželky, ne ve své rodině: vedle Mojžíše by se Jetrova rodina vešla jen
+   * přes cizí čáry a Cippora by od něj stála dvacet karet daleko.
+   */
+  const marriedIn = new Set<string>();
+  let mainTree: ReadonlySet<string> | null = null;
   const walk = (id: string, parent: { id: string; relation: Relation } | null) => {
     // Zápis před dětmi: cyklus v datech by jinak rekurzi nezastavil.
     treeParent.set(id, parent);
     order.push(id);
     const all = treeChildren(index, id);
     const fixed = all.filter((child) => alwaysVisible(index, id, child.toPerson, all.length));
-    const visible = (collapsed.has(id) ? fixed : all).filter((child) => !treeParent.has(child.toPerson));
+    const visible = (collapsed.has(id) ? fixed : all).filter((child) => {
+      if (treeParent.has(child.toPerson)) return false;
+      const main = mainTree;
+      const wedIntoMain =
+        main !== null &&
+        index.persons.get(child.toPerson)?.gender === 'f' &&
+        (index.partners.get(child.toPerson) ?? []).some((partner) => main.has(partner));
+      if (wedIntoMain) marriedIn.add(child.toPerson);
+      return !wedIntoMain;
+    });
     kids.set(id, visible);
     hiddenCount.set(id, all.length - visible.length);
     if (all.length > fixed.length) foldableIds.add(id);
     for (const child of visible) walk(child.toPerson, { id, relation: child });
   };
-  for (const root of roots) if (!treeParent.has(root)) walk(root, null);
+  for (const root of roots) {
+    if (treeParent.has(root)) continue;
+    walk(root, null);
+    // Po hlavním stromu (páteř je první kořen) se ví, kdo v něm stojí.
+    if (mainTree === null && index.persons.get(root)?.spine) mainTree = new Set(treeParent.keys());
+  }
 
   // --- 2. řady ---------------------------------------------------------------
   const isAncestor = (ancestor: string, id: string) => {
@@ -243,7 +265,7 @@ export function layoutTree(index: KinIndex, collapsed: ReadonlySet<string>): Tre
    */
   const rowOf = (id: string, asking: string): number | undefined => {
     const own = row.get(id);
-    if (own !== undefined || primaryParentRelation(index, id)) return own;
+    if (own !== undefined || (primaryParentRelation(index, id) && !marriedIn.has(id))) return own;
     let best: number | undefined;
     for (const partner of index.partners.get(id) ?? []) {
       // Tamar je manželkou Judy i jeho synů Era a Onana; přes ni by se Juda
@@ -298,8 +320,9 @@ export function layoutTree(index: KinIndex, collapsed: ReadonlySet<string>): Tre
     // osob nahoru; ostatní děti pak sjedou s rodiči.
     let lifted = false;
     for (const id of sideOrder) {
+      // Provdaná dcera vlastní řadu nemá – počítá se řada jejího manžela.
       const below = (index.children.get(id) ?? [])
-        .map((relation) => row.get(relation.toPerson))
+        .map((relation) => row.get(relation.toPerson) ?? rowOf(relation.toPerson, id))
         .filter((value): value is number => value !== undefined);
       if (below.length === 0) continue;
       const target = Math.min(Math.max(...below) - 1, maxRow);
@@ -314,7 +337,7 @@ export function layoutTree(index: KinIndex, collapsed: ReadonlySet<string>): Tre
   // --- 3. partneři bez vlastního místa --------------------------------------
   const attached = new Map<string, string[]>();
   for (const person of index.persons.values()) {
-    if (row.has(person.id) || primaryParentRelation(index, person.id)) continue;
+    if (row.has(person.id) || (primaryParentRelation(index, person.id) && !marriedIn.has(person.id))) continue;
     const hosts = (index.partners.get(person.id) ?? []).filter((id) => row.has(id));
     if (hosts.length === 0) continue;
     const shared = (host: string) =>
@@ -330,7 +353,8 @@ export function layoutTree(index: KinIndex, collapsed: ReadonlySet<string>): Tre
   const hostOf = new Map<string, string>();
   for (const [host, list] of attached) for (const id of list) hostOf.set(id, host);
   for (const person of index.persons.values()) {
-    if (row.has(person.id) || hostOf.has(person.id) || primaryParentRelation(index, person.id)) continue;
+    if (row.has(person.id) || hostOf.has(person.id)) continue;
+    if (primaryParentRelation(index, person.id) && !marriedIn.has(person.id)) continue;
     const via = (index.partners.get(person.id) ?? []).find((id) => hostOf.has(id));
     if (!via) continue;
     const host = hostOf.get(via)!;
@@ -488,19 +512,121 @@ export function layoutTree(index: KinIndex, collapsed: ReadonlySet<string>): Tre
    * je spřízněný (Jetro k Mojžíšovi vlevo, Anna k Helimu vpravo).
    */
   const sideFor = (branch: readonly TreeNode[]): 'left' | 'right' => {
+    const anchor = anchorOf(branch);
+    return anchor && anchor.other.x < 0 ? 'left' : 'right';
+  };
+
+  /**
+   * Kdo z vedlejšího stromu je spřízněný s někým, kdo už stojí, a s kým.
+   * Manželství má přednost: Cippora patří vedle Mojžíše.
+   */
+  const anchorOf = (branch: readonly TreeNode[]): { own: TreeNode; other: TreeNode } | null => {
     const own = new Set(branch.map((node) => node.id));
-    for (const node of branch) {
-      const kin = [
-        ...(index.partners.get(node.id) ?? []),
-        ...(index.parents.get(node.id) ?? []).map((relation) => relation.fromPerson),
-        ...(index.children.get(node.id) ?? []).map((relation) => relation.toPerson),
-      ];
-      for (const id of kin) {
-        const other = nodes.get(id);
-        if (other && !own.has(id)) return other.x < 0 ? 'left' : 'right';
+    for (const pass of ['partners', 'family'] as const) {
+      for (const node of branch) {
+        const kin =
+          pass === 'partners'
+            ? (index.partners.get(node.id) ?? [])
+            : [
+                ...(index.parents.get(node.id) ?? []).map((relation) => relation.fromPerson),
+                ...(index.children.get(node.id) ?? []).map((relation) => relation.toPerson),
+              ];
+        for (const id of kin) {
+          const other = nodes.get(id);
+          if (other && !own.has(id)) return { own: node, other };
+        }
       }
     }
-    return 'right';
+    return null;
+  };
+
+  /**
+   * Co kde ve stromu stojí: karty po řadách (i svislé čáry natažených linií,
+   * které řadou jen procházejí) a příčky a svislice v mezerách mezi řadami.
+   * Mezera `g` leží pod řadou `g`.
+   */
+  interface Occupancy {
+    cards: Map<number, number[]>;
+    bars: Map<number, Array<[number, number]>>;
+    lines: Map<number, number[]>;
+  }
+  const occupancyOf = (list: readonly TreeNode[]): Occupancy => {
+    const occupancy: Occupancy = { cards: new Map(), bars: new Map(), lines: new Map() };
+    const push = <T,>(map: Map<number, T[]>, key: number, value: T) => {
+      const items = map.get(key);
+      if (items) items.push(value);
+      else map.set(key, [value]);
+    };
+    const bars = new Map<string, { row: number; min: number; max: number }>();
+    for (const node of list) {
+      push(occupancy.cards, node.row, node.x);
+      const parent = node.parentId ? nodes.get(node.parentId) : undefined;
+      if (!parent || node.attachedTo) continue;
+      const center = node.x + NODE_WIDTH / 2;
+      for (let r = parent.row + 1; r < node.row; r++) push(occupancy.cards, r, node.x);
+      for (let g = parent.row; g < node.row; g++) push(occupancy.lines, g, center);
+      const parentCenter = parent.x + NODE_WIDTH / 2;
+      const bar = bars.get(parent.id) ?? { row: parent.row, min: parentCenter, max: parentCenter };
+      bar.min = Math.min(bar.min, center);
+      bar.max = Math.max(bar.max, center);
+      bars.set(parent.id, bar);
+    }
+    for (const bar of bars.values()) push(occupancy.bars, bar.row, [bar.min, bar.max] as [number, number]);
+    return occupancy;
+  };
+
+  /** Vejde se vedlejší strom posunutý o `shift`, aniž by se o něco otřel? */
+  const fitsAt = (ours: Occupancy, theirs: Occupancy, shift: number): boolean => {
+    const inside = (x: number, a: number, b: number) => x > a + 0.5 && x < b - 0.5;
+    for (const [r, xs] of ours.cards) {
+      const others = theirs.cards.get(r);
+      if (!others) continue;
+      const min = Math.min(...xs) + shift;
+      const max = Math.max(...xs) + shift;
+      if (others.some((x) => inside(x, min - STEP, max + STEP))) return false;
+    }
+    for (const [g, ourBars] of ours.bars) {
+      for (const [a0, b0] of ourBars) {
+        const a = a0 + shift;
+        const b = b0 + shift;
+        if ((theirs.bars.get(g) ?? []).some(([c, d]) => a < d + 0.5 && c < b + 0.5)) return false;
+        if ((theirs.lines.get(g) ?? []).some((x) => inside(x, a, b))) return false;
+      }
+    }
+    for (const [g, xs] of ours.lines) {
+      const others = theirs.bars.get(g) ?? [];
+      if (xs.some((x0) => others.some(([c, d]) => inside(x0 + shift, c, d)))) return false;
+    }
+    return true;
+  };
+
+  /**
+   * Vedlejší strom co nejblíž příbuznému: Cippora vedle Mojžíše, Machlon
+   * vedle Rut. Zkouší se volná místa od nejbližšího dál; když není žádné
+   * bez křížení čar, přisadí se strom k okraji jako dřív.
+   */
+  const placeSideTree = (tree: TreeNode[]) => {
+    const anchor = anchorOf(tree);
+    const root = tree[0];
+    if (anchor) {
+      const own = new Set(tree);
+      const ours = occupancyOf(tree);
+      const theirs = occupancyOf([...nodes.values()].filter((node) => !own.has(node)));
+      const outward = anchor.other.x < 0 ? -1 : 1;
+      for (let k = 1; k <= 16; k++) {
+        for (const direction of [outward, -outward]) {
+          const shift = anchor.other.x + direction * k * STEP - anchor.own.x;
+          if (!fitsAt(ours, theirs, shift)) continue;
+          for (const node of tree) node.x += shift;
+          for (const [r, extent] of extentsOf(tree, root.row - 1)) {
+            leftEdge.set(r, Math.min(leftEdge.get(r) ?? 0, extent.min));
+            rightEdge.set(r, Math.max(rightEdge.get(r) ?? 0, extent.max));
+          }
+          return;
+        }
+      }
+    }
+    pack(tree, root.row - 1, sideFor(tree));
   };
 
   // Strom s páteří se staví první; vedlejší stromy (rodiny bez známých předků,
@@ -533,6 +659,7 @@ export function layoutTree(index: KinIndex, collapsed: ReadonlySet<string>): Tre
         queue.push(other);
       }
     }
+    const pending: string[] = [];
     for (const root of ordered) {
       if (nodes.has(root)) continue;
       const tree: TreeNode[] = [];
@@ -540,9 +667,30 @@ export function layoutTree(index: KinIndex, collapsed: ReadonlySet<string>): Tre
       else if (!connected.has(root)) {
         place(root, 0, tree);
         detached.push(tree);
-      } else {
-        place(root, 0, tree);
-        pack(tree, row.get(root)! - 1, sideFor(tree));
+      } else pending.push(root);
+    }
+    // Vedlejší strom, jehož příbuzný ještě nestojí (Zebedeus se přivdal do
+    // Anniny rodiny), počká, až bude mít k čemu se přisadit.
+    while (pending.length > 0) {
+      let placedAny = false;
+      for (let i = 0; i < pending.length; i++) {
+        const tree: TreeNode[] = [];
+        place(pending[i], 0, tree);
+        if (!anchorOf(tree)) {
+          for (const node of tree) nodes.delete(node.id);
+          continue;
+        }
+        placeSideTree(tree);
+        pending.splice(i, 1);
+        i--;
+        placedAny = true;
+      }
+      if (!placedAny) {
+        for (const root of pending.splice(0)) {
+          const tree: TreeNode[] = [];
+          place(root, 0, tree);
+          pack(tree, row.get(root)! - 1, sideFor(tree));
+        }
       }
     }
     if (detached.length > 0) {
@@ -599,7 +747,7 @@ export function layoutTree(index: KinIndex, collapsed: ReadonlySet<string>): Tre
         (r) => r.fromPerson === node.attachedTo || r.toPerson === node.attachedTo,
       );
       if (!wed) links.push({ kind: 'marriage', from: node.attachedTo, to: node.id, relation: null });
-      continue;
+      // Provdaná dcera (Cippora) má rodiče jinde – čára k nim jde dál dolů.
     }
     for (const relation of index.parents.get(node.id) ?? []) {
       if (relation.id === node.relation?.id) continue;

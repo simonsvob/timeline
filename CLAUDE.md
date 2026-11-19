@@ -372,9 +372,17 @@ kterého to je.
   řada nesmí přesáhnout počet osob (`maxRow`).
 - **Vedlejší stromy** (rodiny bez známých předků, které se do hlavní přivdaly:
   Jetro, Anna, Elimelek, Zebedeus…) se stahují dolů k řadě, kam se přivdaly,
-  celá linie od nejnižší osoby nahoru (`sideOrder`), a přisazují se obrysem
-  k hlavnímu stromu na stranu, kde stojí jejich příbuzní (`sideFor`). Když
-  stály za hlavním stromem, vedly jejich manželské čáry přes celou plochu.
+  celá linie od nejnižší osoby nahoru (`sideOrder`). Pak se zkusí postavit
+  **hned vedle příbuzného** (`placeSideTree`): zkouší volná místa od
+  nejbližšího dál a bere první, kde se karta ani čára o nic neotře
+  (`occupancyOf` + `fitsAt` hlídají karty, příčky i svislice). Teprve když
+  nic takového není, přisadí se obrysem k okraji (`sideFor`). Dřív stály
+  vždycky na okraji — Machlon sto karet od Rut, Achitofel od Davida.
+- **Dcery z vedlejších rodin provdané do hlavního stromu** (`marriedIn`:
+  Cippora, Bat-šeba) stojí vedle manžela jako ostatní manželky, ne ve své
+  rodině. Vedle Mojžíše by se Jetrova rodina vešla jen přes Amramovu příčku,
+  takže Cippora stála dvacet karet od něj. Čára k jejímu otci se kreslí,
+  jen když je blízko; jinak má karta značku ↑ (rodič jinde) a otec ↓.
 - **Rodiny úplně bez vazby** na hlavní rodokmen (prorok Jehu a jeho otec
   Chanani, Azarjáš a Oded z tabulky proroků) se poznají prohledáním všech
   vazeb od Adama. Stojí v oddílu pod stromem s nadpisem (`detachedRow`);
@@ -410,10 +418,15 @@ kterého to je.
   zamykají na jeden směr a po stromu se nedalo „kroužit“. Zoom je CSS `scale`
   na vnitřním obalu (`.genealogy-world`), rolovaná plocha má rozměr násobený
   měřítkem. Meze `MIN_SCALE`–`MAX_SCALE`; přiblížit jde jen kousek nad
-  skutečnou velikost. Pinch chodí dvěma cestami jako u osy (`wheel` + `ctrlKey`,
-  `gesture*` v Safari). `zoomAt` mění DOM rovnou a stav až potom — události
-  chodí rychleji, než React překresluje. **Dotykový pinch mimo Safari chybí**
-  (Android); tam jsou tlačítka.
+  skutečnou velikost. Pinch chodí třemi cestami: `wheel` + `ctrlKey` (Chrome,
+  Firefox), `gesture*` (Safari na Macu) a **dotyky** (iPad, telefony) — ty se
+  počítají ze vzdálenosti a středu dvou prstů a po dobu sevření se
+  `preventDefault` zastaví nativní posun, jinak se s přepočtem přetahoval
+  a zoom přeskakoval. Na iPadu přicházejí i `gesture*`; ty se při dotyku jen
+  potlačí, jinak by se zoom sčítal dvakrát. Plocha má `touch-action: pan-x
+  pan-y`, jeden prst posouvá nativně i se setrvačností. `zoomAt` mění DOM
+  rovnou a **stav (`setScale`) až 160 ms po posledním pohybu** — překreslení
+  700 karet při každém pohybu prstů iPad nestíhal.
 - Sbalení větve drží kartu pod prstem: její poloha se před změnou změří
   v DOM a po přepočtu se o rozdíl posune scroll. Ze souřadnic stromu to nejde,
   úzký strom je v ploše vystředěný.

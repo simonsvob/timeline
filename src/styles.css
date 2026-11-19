@@ -1689,6 +1689,8 @@ h4 {
 .genealogy-scroll {
   flex: 1;
   overflow: auto;
+  /* Posun prstem nechává prohlížeči, sevření prstů obsluhuje plocha sama. */
+  touch-action: pan-x pan-y;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
   cursor: grab;
