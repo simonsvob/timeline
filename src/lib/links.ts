@@ -73,3 +73,24 @@ export function stripLinks(text: string): string {
     .map((segment) => segment.text)
     .join('');
 }
+
+/**
+ * Vloží do textu kostru odkazu `[]()` tam, kde stojí kurzor, a vrátí, kam
+ * kurzor posunout. Bez výběru skončí kurzor v hranatých závorkách (napíše se
+ * popisek); s vybraným textem se z výběru stane popisek a kurzor skončí
+ * v kulatých závorkách, kam se vloží adresa.
+ */
+export function insertLinkTemplate(
+  text: string,
+  selectionStart: number,
+  selectionEnd: number,
+): { text: string; cursor: number } {
+  const start = Math.max(0, Math.min(selectionStart, text.length));
+  const end = Math.max(start, Math.min(selectionEnd, text.length));
+  const selected = text.slice(start, end);
+  const inserted = `[${selected}]()`;
+  return {
+    text: text.slice(0, start) + inserted + text.slice(end),
+    cursor: selected ? start + selected.length + 3 : start + 1,
+  };
+}

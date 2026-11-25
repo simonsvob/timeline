@@ -247,6 +247,7 @@ export const cs = {
     sourcePlaceholder: 'např. 1Mo 7,11',
     note: 'Poznámka',
     linkHint: 'Odkaz se píše jako [text](https://adresa) — v detailu i v tabulce z něj bude klikací „text“. Samotná adresa se zaktivní i bez závorek.',
+    insertLink: '+ Přidat aktivní odkaz',
     place: 'Místo',
     placePlaceholder: 'např. Jeruzalém',
     lat: 'Zeměpisná šířka',

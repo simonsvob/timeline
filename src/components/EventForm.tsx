@@ -4,9 +4,10 @@
  * astronomická hodnota; převod obstará validace.
  */
 
-import { useMemo, useState, type FormEvent } from 'react';
+import { useLayoutEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import { cs } from '../i18n/cs';
 import { formatRange } from '../lib/format';
+import { insertLinkTemplate } from '../lib/links';
 import { fromAstronomicalYear, type Era, type Qualifier, type TimePoint } from '../lib/time';
 import {
   emptyEventForm,
@@ -67,6 +68,29 @@ export function EventForm({ event, tags, onSubmit, onClose }: Props) {
   }, [input]);
 
   const patch = (changes: Partial<EventFormInput>) => setInput((prev) => ({ ...prev, ...changes }));
+
+  const sourceRef = useRef<HTMLTextAreaElement>(null);
+  const noteRef = useRef<HTMLTextAreaElement>(null);
+  /** Kam po vložení odkazu postavit kurzor – až React pole překreslí. */
+  const pendingCursor = useRef<{ field: 'source' | 'note'; at: number } | null>(null);
+
+  /** Vloží `[]()` tam, kde v poli stojí kurzor (s výběrem ho obalí). */
+  const insertLink = (field: 'source' | 'note') => {
+    const element = (field === 'source' ? sourceRef : noteRef).current;
+    if (!element) return;
+    const { text, cursor } = insertLinkTemplate(element.value, element.selectionStart, element.selectionEnd);
+    pendingCursor.current = { field, at: cursor };
+    patch({ [field]: text });
+  };
+
+  useLayoutEffect(() => {
+    const pending = pendingCursor.current;
+    if (!pending) return;
+    pendingCursor.current = null;
+    const element = (pending.field === 'source' ? sourceRef : noteRef).current;
+    element?.focus();
+    element?.setSelectionRange(pending.at, pending.at);
+  });
   const patchTime = (which: 'start' | 'end', changes: Partial<TimeInput>) =>
     setInput((prev) => ({ ...prev, [which]: { ...prev[which], ...changes } }));
 
@@ -288,23 +312,28 @@ export function EventForm({ event, tags, onSubmit, onClose }: Props) {
         {input.type === 'range' ? timeGroup('end', cs.form.end) : null}
 
         <Field label={cs.form.source} htmlFor="event-source" hint={cs.form.linkHint} optional>
-          <input
+          <textarea
             id="event-source"
-            className="input"
+            ref={sourceRef}
+            className="input textarea"
+            rows={3}
             value={input.source}
             placeholder={cs.form.sourcePlaceholder}
             onChange={(e) => patch({ source: e.target.value })}
           />
+          <LinkButton onInsert={() => insertLink('source')} />
         </Field>
 
         <Field label={cs.form.note} htmlFor="event-note" hint={cs.form.linkHint} optional>
           <textarea
             id="event-note"
+            ref={noteRef}
             className="input textarea"
-            rows={3}
+            rows={4}
             value={input.note}
             onChange={(e) => patch({ note: e.target.value })}
           />
+          <LinkButton onInsert={() => insertLink('note')} />
         </Field>
 
         <div className="form-row">
@@ -338,5 +367,22 @@ export function EventForm({ event, tags, onSubmit, onClose }: Props) {
         </div>
       </form>
     </Modal>
+  );
+}
+
+/**
+ * Malé tlačítko pod polem. `onMouseDown` brání tomu, aby pole ztratilo
+ * kurzor dřív, než se zjistí, kde stál.
+ */
+function LinkButton({ onInsert }: { onInsert: () => void }) {
+  return (
+    <button
+      type="button"
+      className="link-insert"
+      onMouseDown={(e) => e.preventDefault()}
+      onClick={onInsert}
+    >
+      {cs.form.insertLink}
+    </button>
   );
 }

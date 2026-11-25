@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { parseLinks, stripLinks } from './links';
+import { insertLinkTemplate, parseLinks, stripLinks } from './links';
 
 describe('odkazy v textu', () => {
   it('prázdný text nedá žádný úsek', () => {
@@ -68,5 +68,24 @@ describe('odkazy v textu', () => {
 
   it('stripLinks nechá z odkazu jen popisek', () => {
     expect(stripLinks('viz [wcg](https://priklad.cz) str. 14')).toBe('viz wcg str. 14');
+  });
+});
+
+describe('vložení kostry odkazu', () => {
+  it('bez výběru vloží []() a kurzor dá do hranatých závorek', () => {
+    expect(insertLinkTemplate('wcg, kr', 5, 5)).toEqual({ text: 'wcg, []()kr', cursor: 6 });
+  });
+
+  it('vybraný text se stane popiskem a kurzor jde na místo adresy', () => {
+    expect(insertLinkTemplate('it „Potopa“', 0, 11)).toEqual({ text: '[it „Potopa“]()', cursor: 14 });
+  });
+
+  it('do prázdného pole i na konec textu', () => {
+    expect(insertLinkTemplate('', 0, 0)).toEqual({ text: '[]()', cursor: 1 });
+    expect(insertLinkTemplate('wcg', 3, 3)).toEqual({ text: 'wcg[]()', cursor: 4 });
+  });
+
+  it('kurzor mimo text se ořízne na jeho délku', () => {
+    expect(insertLinkTemplate('ab', 9, 9)).toEqual({ text: 'ab[]()', cursor: 3 });
   });
 });
